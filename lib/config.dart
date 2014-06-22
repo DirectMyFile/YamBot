@@ -1,5 +1,7 @@
 library yambot.config;
 
+import "dart:mirrors";
+
 import "package:yaml/yaml.dart";
 import "package:yambot/utils.dart";
 

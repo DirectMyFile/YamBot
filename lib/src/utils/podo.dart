@@ -10,6 +10,29 @@ class Serializable {
   }
 }
 
+/* Marker Mixin for PODO Objects */
+class PODO {
+  dynamic operator [](String name) {
+    var instance = reflect(this);
+    var names = instance.type.declarations.keys.map((a) => MirrorSystem.getName(a));
+    if (!names.contains(name)) {
+      return null;
+    } else {
+      return instance.getField(MirrorSystem.getSymbol(name));
+    }
+  }
+
+  dynamic operator []=(String name, dynamic value) {
+    var instance = reflect(this);
+    var names = instance.type.declarations.keys.map((a) => MirrorSystem.getName(a));
+    if (!names.contains(name)) {
+      throw new Exception("no such property '${name}'");
+    } else {
+      return instance.setField(MirrorSystem.getSymbol(name), value);
+    }
+  }
+}
+
 class PodoTransformer {
   static Map<String, Object> toMap(Object object) {
     var instance = reflect(object);
@@ -23,7 +46,7 @@ class PodoTransformer {
     }
   }
 
-  static dynamic fromMap(Map<String, dynamic> map, that) {
+  static void fromMap(Map<String, dynamic> map, that) {
     var im = reflect(that);
     var members = im.type.declarations.values;
 
@@ -34,8 +57,6 @@ class PodoTransformer {
         im.setField(m.simpleName, _parse_value(m.type, map[name]));
       }
     }
-
-    return this;
   }
 
 
@@ -91,6 +112,10 @@ class PodoTransformer {
           value.forEach((k, v) => result[k] = _parse_value(valueType, v));
         }
       }
+    } else if (result is PODO && value is Map<String, dynamic>) {
+      PODO podo = result;
+      Map<String, dynamic> map = value;
+      map.forEach((k, v) => result[k] = v);
     }
 
     return result;

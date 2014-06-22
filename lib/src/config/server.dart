@@ -1,7 +1,7 @@
 part of yambot.config;
 
-class Server {
-  String address;
+class Server extends PODO {
+  String host;
   int port;
 }
 

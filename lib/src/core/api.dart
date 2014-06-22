@@ -1,5 +1,7 @@
 part of yambot.core;
 
 YamBot launchYamBot(String base_path) {
-  return new YamBot(new Directory(base_path).absolute);
+  var bot = new YamBot(new Directory(base_path).absolute);
+  bot.start();
+  return bot;
 }
