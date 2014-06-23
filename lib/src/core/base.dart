@@ -71,7 +71,7 @@ class YamBot {
   }
 
   /**
-   * Sets Default Values
+   * Sets Default Values (Used as Config Checking Extension)
    */
   void _check_config_default() {
     if (config.username == null)

@@ -36,9 +36,12 @@ class PODO {
 class PodoTransformer {
   static Map<String, Object> toMap(Object object) {
     var instance = reflect(object);
+
     var map = <String, Object>{
     };
+
     var members = instance.type.declarations.values.members.where((m) => m is VariableMirror && !m.isPrivate && !m.isStatic);
+
     for (VariableMirror member in members) {
       var name = MirrorSystem.getName(member.simpleName);
       var value = _get_value(instance.getField(member.simpleName).reflectee);
@@ -83,17 +86,23 @@ class PodoTransformer {
   }
 
   static dynamic _parse_value(ClassMirror type, dynamic value) {
-    if (type.reflectedType == String) return value is String ? value : null;
-    if (type.reflectedType == int) return value is num ? value.toInt() : 0;
-    if (type.reflectedType == double) return value is num ? value.toDouble() : 0;
-    if (type.reflectedType == num) return value is num ? value : 0;
-    if (type.reflectedType == bool) return value is bool ? value : false;
-    if (type.reflectedType == DateTime) return _parse_date(value);
+    if (type.reflectedType == String)
+      return value is String ? value : null;
+    if (type.reflectedType == int)
+      return value is num ? value.toInt() : 0;
+    if (type.reflectedType == double)
+      return value is num ? value.toDouble() : 0;
+    if (type.reflectedType == num)
+      return value is num ? value : 0;
+    if (type.reflectedType == bool)
+      return value is bool ? value : false;
+    if (type.reflectedType == DateTime)
+      return _parse_date(value);
 
-    return _parseComplex(type, value);
+    return _parse_complex(type, value);
   }
 
-  static dynamic _parseComplex(ClassMirror type, dynamic value) {
+  static dynamic _parse_complex(ClassMirror type, dynamic value) {
     var result = type.newInstance(const Symbol(""), []).reflectee;
 
     if (result is List && value is List) {
