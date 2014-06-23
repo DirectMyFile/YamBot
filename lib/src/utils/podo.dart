@@ -86,18 +86,12 @@ class PodoTransformer {
   }
 
   static dynamic _parse_value(ClassMirror type, dynamic value) {
-    if (type.reflectedType == String)
-      return value is String ? value : null;
-    if (type.reflectedType == int)
-      return value is num ? value.toInt() : 0;
-    if (type.reflectedType == double)
-      return value is num ? value.toDouble() : 0;
-    if (type.reflectedType == num)
-      return value is num ? value : 0;
-    if (type.reflectedType == bool)
-      return value is bool ? value : false;
-    if (type.reflectedType == DateTime)
-      return _parse_date(value);
+    if (type.reflectedType == String)return value is String ? value : null;
+    if (type.reflectedType == int)return value is num ? value.toInt() : 0;
+    if (type.reflectedType == double)return value is num ? value.toDouble() : 0;
+    if (type.reflectedType == num)return value is num ? value : 0;
+    if (type.reflectedType == bool)return value is bool ? value : false;
+    if (type.reflectedType == DateTime)return _parse_date(value);
 
     return _parse_complex(type, value);
   }

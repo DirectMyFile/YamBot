@@ -4,7 +4,9 @@ class YamBot {
   final List<Module> modules;
 
   Configuration _config;
+
   Configuration get config => _config;
+
   Directory base_dir;
   IRC.Client client;
 
@@ -15,21 +17,13 @@ class YamBot {
 
     if (!config_file.existsSync()) {
       config_file.createSync(recursive: true);
-      config_file.writeAsStringSync(
-        'nickname: YamBot' '\n'
-        'server:' '\n'
-        '  host: irc.esper.net' '\n'
-        '  port: 6667'
-        '\n'
-      );
+      config_file.writeAsStringSync('nickname: YamBot' '\n''server:' '\n''  host: irc.esper.net' '\n''  port: 6667''\n');
     }
 
     _load_config(config_file.readAsStringSync());
     _check_config();
 
-    modules.addAll([
-      new CoreModule()
-    ]);
+    modules.addAll([new CoreModule()]);
 
     modules.forEach((Module module) {
       module.init(this);
@@ -74,10 +68,8 @@ class YamBot {
    * Sets Default Values (Used as Config Checking Extension)
    */
   void _check_config_default() {
-    if (config.username == null)
-      config.username = config.nickname;
-    if (config.channels == null)
-      config.channels = [];
+    if (config.username == null)config.username = config.nickname;
+    if (config.channels == null)config.channels = [];
   }
 
   void _config_check_entry_required(String key, bool condition) {
