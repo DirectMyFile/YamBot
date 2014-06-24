@@ -68,8 +68,11 @@ class YamBot {
    * Sets Default Values (Used as Config Checking Extension)
    */
   void _check_config_default() {
-    if (config.username == null)config.username = config.nickname;
-    if (config.channels == null)config.channels = [];
+    if (config.username == null) config.username = config.nickname;
+    if (config.channels == null) config.channels = [];
+    if (config.commands == null) config.commands = new Commands();
+    if (config.commands.prefix == null) config.commands.prefix = "@";
+    if (config.commands.text == null) config.commands.text = {};
   }
 
   void _config_check_entry_required(String key, bool condition) {

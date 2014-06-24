@@ -6,6 +6,7 @@ class Configuration extends PODO {
   String realname;
   Server server;
   List<String> channels;
+  Commands commands;
 
   void loadFromYaml(String data) {
     PodoTransformer.fromMap(loadYaml(data), this);
