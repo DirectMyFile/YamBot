@@ -25,9 +25,7 @@ class YamBot {
 
     modules.addAll([new CoreModule()]);
 
-    modules.forEach((Module module) {
-      module.init(this);
-    });
+    modules.forEach((i) => i.init(this));
 
     var botConfig = new IRC.BotConfig();
 
@@ -39,9 +37,7 @@ class YamBot {
     client = new IRC.Client(botConfig);
 
     /* Module Loading Hook */
-    modules.forEach((Module module) {
-      module.apply(client);
-    });
+    modules.forEach((it) => it.apply(client));
 
     client.connect();
   }
@@ -54,7 +50,6 @@ class YamBot {
 
   void _check_config() {
     _check_config_required();
-    _check_config_default();
   }
 
   void _check_config_required() {
@@ -62,17 +57,6 @@ class YamBot {
     _config_check_entry_required("server", config.server != null);
     _config_check_entry_required("server.host", config.server.host != null);
     _config_check_entry_required("server.port", config.server.port != null);
-  }
-
-  /**
-   * Sets Default Values (Used as Config Checking Extension)
-   */
-  void _check_config_default() {
-    if (config.username == null) config.username = config.nickname;
-    if (config.channels == null) config.channels = [];
-    if (config.commands == null) config.commands = new Commands();
-    if (config.commands.prefix == null) config.commands.prefix = "@";
-    if (config.commands.text == null) config.commands.text = {};
   }
 
   void _config_check_entry_required(String key, bool condition) {

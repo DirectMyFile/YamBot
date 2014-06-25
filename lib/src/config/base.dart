@@ -2,13 +2,15 @@ part of yambot.config;
 
 class Configuration extends PODO {
   String nickname;
-  String username;
-  String realname;
-  Server server;
-  List<String> channels;
-  Commands commands;
+  String username = "YamBot";
+  String realname = "Yaml IRC Bot";
+  Server server = new Server();
+  List<String> channels = [];
+  Commands commands = new Commands();
+  Output output = new Output();
 
   void loadFromYaml(String data) {
-    PodoTransformer.fromMap(loadYaml(data), this);
+    var map = loadYaml(data) as Map;
+    PodoTransformer.fromMap(map, this);
   }
 }

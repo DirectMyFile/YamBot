@@ -31,6 +31,9 @@ class PODO {
       return instance.setField(MirrorSystem.getSymbol(name), value);
     }
   }
+
+  @override
+  String toString() => "${PodoTransformer.toMap(this)}";
 }
 
 class PodoTransformer {
@@ -40,20 +43,22 @@ class PodoTransformer {
     var map = <String, Object>{
     };
 
-    var members = instance.type.declarations.values.members.where((m) => m is VariableMirror && !m.isPrivate && !m.isStatic);
+    var members = instance.type.declarations.values.where((m) => m is VariableMirror && !m.isPrivate && !m.isStatic);
 
     for (VariableMirror member in members) {
       var name = MirrorSystem.getName(member.simpleName);
       var value = _get_value(instance.getField(member.simpleName).reflectee);
       map[name] = value;
     }
+
+    return map;
   }
 
   static void fromMap(Map<String, dynamic> map, that) {
     var im = reflect(that);
-    var members = im.type.declarations.values;
+    var members = im.type.declarations.values.where((m) => m is VariableMirror && !m.isPrivate && !m.isStatic);
 
-    for (var m in members.where((m) => m is VariableMirror && !m.isPrivate && !m.isStatic)) {
+    for (var m in members) {
       var name = MirrorSystem.getName(m.simpleName);
 
       if (m.type is ClassMirror && map.containsKey(name)) {
@@ -106,7 +111,7 @@ class PodoTransformer {
         for (var i in value)
           result.add(_parse_value(valueType, i));
       }
-    } else if (result is Map && value is Map) {
+    } else if (result is Map && value is Map && value is! YamlMap) {
       var keyType = type.typeArguments[0];
       var valueType = type.typeArguments[1];
 
@@ -115,10 +120,12 @@ class PodoTransformer {
           value.forEach((k, v) => result[k] = _parse_value(valueType, v));
         }
       }
-    } else if (result is PODO && value is Map<String, dynamic>) {
+    } else if (result is PODO && value is Map && value is! YamlMap) {
       PODO podo = result;
-      Map<String, dynamic> map = value;
+      Map map = value;
       map.forEach((k, v) => result[k] = v);
+    } else if (result is PODO && value is YamlMap) {
+      fromMap(value, result);
     }
 
     return result;
