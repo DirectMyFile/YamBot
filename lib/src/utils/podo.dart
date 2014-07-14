@@ -22,13 +22,13 @@ class PODO {
     }
   }
 
-  dynamic operator []=(String name, dynamic value) {
+  void operator []=(String name, dynamic value) {
     var instance = reflect(this);
     var names = instance.type.declarations.keys.map((a) => MirrorSystem.getName(a));
     if (!names.contains(name)) {
       throw new Exception("no such property '${name}'");
     } else {
-      return instance.setField(MirrorSystem.getSymbol(name), value);
+      instance.setField(MirrorSystem.getSymbol(name), value);
     }
   }
 
@@ -111,7 +111,7 @@ class PodoTransformer {
         for (var i in value)
           result.add(_parse_value(valueType, i));
       }
-    } else if (result is Map && value is Map && value is! YamlMap) {
+    } else if (result is Map && value is Map) {
       var keyType = type.typeArguments[0];
       var valueType = type.typeArguments[1];
 
@@ -120,11 +120,7 @@ class PodoTransformer {
           value.forEach((k, v) => result[k] = _parse_value(valueType, v));
         }
       }
-    } else if (result is PODO && value is Map && value is! YamlMap) {
-      PODO podo = result;
-      Map map = value;
-      map.forEach((k, v) => result[k] = v);
-    } else if (result is PODO && value is YamlMap) {
+    } else if (result is PODO && value is Map) {
       fromMap(value, result);
     }
 
