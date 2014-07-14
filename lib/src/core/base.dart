@@ -17,7 +17,7 @@ class YamBot {
 
     if (!config_file.existsSync()) {
       config_file.createSync(recursive: true);
-      config_file.writeAsStringSync('nickname: YamBot' '\n''server:' '\n''  host: irc.esper.net' '\n''  port: 6667''\n');
+      config_file.writeAsStringSync('nickname: YamBot' '\n' 'server:' '\n' '  host: irc.esper.net' '\n' '  port: 6667' '\n');
     }
 
     _load_config(config_file.readAsStringSync());

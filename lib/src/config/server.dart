@@ -4,4 +4,3 @@ class Server extends PODO {
   String host;
   int port;
 }
-

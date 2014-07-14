@@ -40,8 +40,7 @@ class PodoTransformer {
   static Map<String, Object> toMap(Object object) {
     var instance = reflect(object);
 
-    var map = <String, Object>{
-    };
+    var map = <String, Object>{};
 
     var members = instance.type.declarations.values.where((m) => m is VariableMirror && !m.isPrivate && !m.isStatic);
 
@@ -85,18 +84,18 @@ class PodoTransformer {
   }
 
   static DateTime _parse_date(dynamic value) {
-    if (value is String)return DateTime.parse(value);
-    if (value is num)return new DateTime.fromMillisecondsSinceEpoch(value, isUtc: true);
+    if (value is String) return DateTime.parse(value);
+    if (value is num) return new DateTime.fromMillisecondsSinceEpoch(value, isUtc: true);
     return null;
   }
 
   static dynamic _parse_value(ClassMirror type, dynamic value) {
-    if (type.reflectedType == String)return value is String ? value : null;
-    if (type.reflectedType == int)return value is num ? value.toInt() : 0;
-    if (type.reflectedType == double)return value is num ? value.toDouble() : 0;
-    if (type.reflectedType == num)return value is num ? value : 0;
-    if (type.reflectedType == bool)return value is bool ? value : false;
-    if (type.reflectedType == DateTime)return _parse_date(value);
+    if (type.reflectedType == String) return value is String ? value : null;
+    if (type.reflectedType == int) return value is num ? value.toInt() : 0;
+    if (type.reflectedType == double) return value is num ? value.toDouble() : 0;
+    if (type.reflectedType == num) return value is num ? value : 0;
+    if (type.reflectedType == bool) return value is bool ? value : false;
+    if (type.reflectedType == DateTime) return _parse_date(value);
 
     return _parse_complex(type, value);
   }
@@ -108,8 +107,7 @@ class PodoTransformer {
       var valueType = type.typeArguments[0];
 
       if (valueType is ClassMirror) {
-        for (var i in value)
-          result.add(_parse_value(valueType, i));
+        for (var i in value) result.add(_parse_value(valueType, i));
       }
     } else if (result is Map && value is Map) {
       var keyType = type.typeArguments[0];
