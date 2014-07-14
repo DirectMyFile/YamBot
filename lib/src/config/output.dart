@@ -5,6 +5,9 @@ class Output extends PODO {
 }
 
 class ConsoleOutput extends PODO {
+  bool connect = true;
+  bool disconnect = true;
+  bool ready = false;
   bool messages = true;
   bool join = true;
   bool part = true;
