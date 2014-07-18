@@ -4,7 +4,11 @@ class YamBot {
 
   final config = YamlConfiguration.load();
 
-  final Map<String, IRC.Client> clients = {};
+  final Map<String, IRC.Client> _clients = {};
+
+  IRC.Client operator [](String s) {
+    return _clients[s];
+  }
 
   void start() {
     for (var server in config['server']) {
@@ -16,7 +20,7 @@ class YamBot {
       botConfig.port = server['port'];
 
       var client = new IRC.Client(botConfig);
-      clients[server['name']] = client;
+      _clients[server['name']] = client;
 
       client.register((IRC.ReadyEvent event) {
         print("Connection to ${server['name']} complete");
