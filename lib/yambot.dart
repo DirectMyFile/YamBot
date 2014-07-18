@@ -1,5 +1,7 @@
 library yambot;
 
+import 'dart:collection';
+import 'dart:async';
 import 'dart:io';
 
 import "package:irc/irc.dart" as IRC;
@@ -7,6 +9,7 @@ import 'package:yaml/yaml.dart';
 
 part 'src/config.dart';
 part 'src/core.dart';
+part 'src/auth.dart';
 
 /**
  * Launches the bot. The [path] will override the current [Directory]

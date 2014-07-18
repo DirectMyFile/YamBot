@@ -21,6 +21,7 @@ class YamBot {
 
       IRC.Client client = new IRC.Client(botConfig);
       String name = server['name'];
+      Auth auth = new Auth(name, client);
       _clients[name] = client;
 
       void _rawHandler(IRC.LineReceiveEvent event) {
@@ -61,7 +62,28 @@ class YamBot {
       });
 
       client.register((IRC.CommandEvent event) {
-        print("[$name] Received command '${event.command}' with args: ${event.args}");
+        if (event.command == "auth") {
+          if (event.args.length == 0) {
+            auth.registeredAs(event.from).then((String s) {
+              if (s == null) {
+                event.reply("> You are not logged into NickServ");
+              } else {
+                event.reply("> You are authenticated as $s");
+              }
+            });
+          } else if (event.args.length == 1) {
+            if (!event.isPrivate && event.args[0] == "force") {
+              auth.registeredAs(event.from).then((String s) {
+                if (s == null) {
+                  event.reply("> Forcing an authentication lookup");
+                  auth.authenticate(event.from);
+                } else {
+                  event.reply("> You are already logged into NickServ");
+                }
+              });
+            }
+          }
+        }
       });
 
       print("[$name] Connecting");
