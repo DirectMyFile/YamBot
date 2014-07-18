@@ -1,19 +1,16 @@
 part of yambot.core;
 
 class YamBot {
-  final List<Module> modules;
+  final List<Module> modules = [];
 
   Configuration _config;
 
   Configuration get config => _config;
 
-  Directory base_dir;
   IRC.Client client;
 
-  YamBot(this.base_dir) : modules = [];
-
   void start() {
-    var config_file = new File("${base_dir.path}/config.yaml");
+    var config_file = new File("config.yaml");
 
     if (!config_file.existsSync()) {
       config_file.createSync(recursive: true);
