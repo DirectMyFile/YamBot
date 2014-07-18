@@ -44,6 +44,24 @@ class YamBot {
         } else {
           print("[$name] <${event.channel.name}><${event.from}> ${event.message}");
         }
+
+        String prefix;
+        if (!event.isPrivate)
+          prefix = config['prefix'][name][event.channel.name];
+        if (prefix == null)
+          prefix = config['prefix'][name]['default'];
+        if (prefix == null)
+          throw new Exception("[$name] No prefix set");
+        if (event.message.startsWith(prefix)) {
+          List<String> args = event.message.split(' ');
+          String command = args[0].substring(1);
+          args.removeAt(0);
+          client.post(new IRC.CommandEvent(event, command, args));
+        }
+      });
+
+      client.register((IRC.CommandEvent event) {
+        print("[$name] Received command '${event.command}' with args: ${event.args}");
       });
 
       print("[$name] Connecting");
