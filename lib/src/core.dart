@@ -19,25 +19,34 @@ class YamBot {
       botConfig.host = server['host'];
       botConfig.port = server['port'];
 
-      var client = new IRC.Client(botConfig);
-      _clients[server['name']] = client;
+      IRC.Client client = new IRC.Client(botConfig);
+      String name = server['name'];
+      _clients[name] = client;
 
       void _rawHandler(IRC.LineReceiveEvent event) {
-        print("[${server['name']}] ${event.line}");
+        print("[$name] ${event.line}");
       }
 
       client.register(_rawHandler);
 
       client.register((IRC.ReadyEvent event) {
-        print("[${server['name']}] Connection complete");
+        print("[$name] Connection complete");
         client.unregister(_rawHandler);
-        for (var chan in config['channel'][server['name']]) {
-          print("[${server['name']}] Joining $chan");
+        for (var chan in config['channel'][name]) {
+          print("[$name] Joining $chan");
           event.join(chan);
         }
       });
 
-      print("[${server['name']}] Connecting");
+      client.register((IRC.MessageEvent event) {
+        if (event.isPrivate) {
+          print("[$name] <${event.from}> ${event.message}");
+        } else {
+          print("[$name] <${event.channel.name}><${event.from}> ${event.message}");
+        }
+      });
+
+      print("[$name] Connecting");
       client.connect();
     }
   }
