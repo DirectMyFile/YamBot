@@ -20,7 +20,7 @@ class YamBot {
       config_file.writeAsStringSync('nickname: YamBot' '\n' 'server:' '\n' '  host: irc.esper.net' '\n' '  port: 6667' '\n');
     }
 
-    _load_config(config_file.readAsStringSync());
+    _load_config(config_file);
     _check_config();
 
     modules.addAll([new CoreModule()]);
@@ -44,7 +44,7 @@ class YamBot {
 
   void _load_config(File config_file) {
     var config = new Configuration();
-    config.loadFromYaml(config_file);
+    config.loadFromYaml(config_file.readAsStringSync());
     _config = config;
   }
 
