@@ -20,8 +20,6 @@ class Auth {
   // Nicks that are not logged in will be placed here
   final List<String> _rejected = [];
 
-  // Current account that is being authenticated
-  String _account;
   Completer _completer;
 
   Auth(this.network, this.client) {
@@ -81,11 +79,7 @@ class Auth {
    * Handles the queue one account at a time.
    */
   void _authenticate() {
-    if (_account != null) {
-      throw new Exception("Authentication already in process");
-    }
-    _account = _queue.first;
-    client.send("WHOIS $_account");
+    client.send("WHOIS ${_queue.first}");
   }
 
   void _process(IRC.WhoisEvent event) {
@@ -100,7 +94,6 @@ class Auth {
 
   void _done(String data) {
     if (_completer != null) _completer.complete(data);
-    _account = null;
     _completer = null;
     _queue.removeFirst();
     if (_queue.length > 0) _authenticate();
