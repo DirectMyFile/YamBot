@@ -22,15 +22,22 @@ class YamBot {
       var client = new IRC.Client(botConfig);
       _clients[server['name']] = client;
 
+      void _rawHandler(IRC.LineReceiveEvent event) {
+        print("[${server['name']}] ${event.line}");
+      }
+
+      client.register(_rawHandler);
+
       client.register((IRC.ReadyEvent event) {
-        print("Connection to ${server['name']} complete");
+        print("[${server['name']}] Connection complete");
+        client.unregister(_rawHandler);
         for (var chan in config['channel'][server['name']]) {
-          print("Joining $chan");
+          print("[${server['name']}] Joining $chan");
           event.join(chan);
         }
       });
 
-      print("Connecting to ${server['name']}");
+      print("[${server['name']}] Connecting");
       client.connect();
     }
   }
