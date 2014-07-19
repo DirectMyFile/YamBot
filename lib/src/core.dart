@@ -2,9 +2,21 @@ part of yambot;
 
 class YamBot {
 
-  final config = YamlConfiguration.load();
+  final config;
 
   final Map<String, IRC.Client> _clients = {};
+
+  /**
+   * Initializes [YamBot] based on the default configuration
+   */
+  YamBot() : config = YamlConfiguration.load();
+
+  /**
+   * Initializes [YamBot] based on a custom configuration. The [config] must
+   * conform to the same specifications as the default configuration.
+   * See [YamlConfiguration] for the default configuration.
+   */
+  YamBot.conf(this.config);
 
   /**
    * Gets a client by its name.
