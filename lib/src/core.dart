@@ -64,17 +64,17 @@ class YamBot {
       client.register((IRC.CommandEvent event) {
         if (event.command == "auth") {
           if (event.args.length == 0) {
-            auth.registeredAs(event.from).then((String s) {
-              if (s == null) {
-                event.reply("> You are not logged into NickServ");
+            auth.registeredAs(event.from).then((List<String> s) {
+              if (s[0] == null) {
+                event.reply("> ${s[1]}");
               } else {
-                event.reply("> You are authenticated as $s");
+                event.reply("> You are authenticated as ${s[0]}");
               }
             });
           } else if (event.args.length == 1) {
             if (!event.isPrivate && event.args[0] == "force") {
-              auth.registeredAs(event.from).then((String s) {
-                if (s == null) {
+              auth.registeredAs(event.from).then((List<String> s) {
+                if (s[0] == null) {
                   event.reply("> Forcing an authentication lookup");
                   auth.authenticate(event.from);
                 } else {

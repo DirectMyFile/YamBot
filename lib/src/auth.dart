@@ -40,10 +40,10 @@ class Auth {
   }
 
   /**
-   * [String] is null if not logged in. Otherwise it retrieves the account
-   * the [nick] is logged in as.
+   * Element 0 of [List] is the registered username of the [nick] or null if
+   * not logged in. Element 1 of [List] is an error reason.
    */
-  Future<String> registeredAs(String nick) {
+  Future<List<String>> registeredAs(String nick) {
     if (_authenticated.containsKey(nick)) {
       return new Future.sync(() => _authenticated[nick]);
     } else if (_rejected.contains(nick)) {
@@ -84,16 +84,31 @@ class Auth {
 
   void _process(IRC.WhoisEvent event) {
     if (event.username != null) {
-      _authenticated.putIfAbsent(event.nickname, () => event.username);
-      _rejected.remove(event.nickname);
+      bool success = false;
+      for (var c in client.channels) {
+        var regular = event.member_in;
+        var voice = event.voice_in;
+        var op = event.op_in;
+        if (regular.contains(c.name)
+            || voice.contains(c.name)
+            || op.contains(c.name)) {
+          _authenticated.putIfAbsent(event.nickname, () => event.username);
+          _rejected.remove(event.nickname);
+          _done(event.username);
+          break;
+        }
+      }
+      if (!success) {
+        _done(null, "You must be in at least 1 channel that the bot is in to authenticate.");
+      }
     } else {
       _rejected.add(event.nickname);
+      _done(null, "You are not logged into NickServ");
     }
-    _done(event.username);
   }
 
-  void _done(String data) {
-    if (_completer != null) _completer.complete(data);
+  void _done(String data, [String reason]) {
+    if (_completer != null) _completer.complete([data, reason]);
     _completer = null;
     _queue.removeFirst();
     if (_queue.length > 0) _authenticate();
