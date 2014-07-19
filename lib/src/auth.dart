@@ -2,6 +2,10 @@ part of yambot;
 
 class Auth {
 
+  static const String UNLOGGED = "You are not logged into NickServ";
+  static const String CHANNEL =
+      "You must be in at least 1 channel that the bot is in to authenticate.";
+
   /**
    * The auth system this is good for
    */
@@ -12,12 +16,10 @@ class Auth {
    */
   final String network;
 
-  final Queue<String> _queue = new Queue<String>();
   final RegExp _regex = new RegExp(r"(\u0002)([^\u0002]+)\1");
+  final Queue<String> _queue = new Queue<String>();
 
   final Map<String, String> _authenticated = {};
-
-  // Nicks that are not logged in will be placed here
   final List<String> _rejected = [];
 
   Completer _completer;
@@ -45,9 +47,9 @@ class Auth {
    */
   Future<List<String>> registeredAs(String nick) {
     if (_authenticated.containsKey(nick)) {
-      return new Future.sync(() => _authenticated[nick]);
+      return new Future.sync(() => [_authenticated[nick]]);
     } else if (_rejected.contains(nick)) {
-      return new Future.sync(() => null);
+      return new Future.sync(() => [null, UNLOGGED]);
     } else {
       _completer = new Completer();
       authenticate(nick);
@@ -63,8 +65,7 @@ class Auth {
   }
 
   /**
-   * The [account] is the nickserv registered name to perform a lookup
-   * on.
+   * The [account] is the nickserv registered name to perform a lookup on.
    */
   void authenticate(String account) {
     if (_queue.length > 0) {
@@ -99,11 +100,11 @@ class Auth {
         }
       }
       if (!success) {
-        _done(null, "You must be in at least 1 channel that the bot is in to authenticate.");
+        _done(null, CHANNEL);
       }
     } else {
       _rejected.add(event.nickname);
-      _done(null, "You are not logged into NickServ");
+      _done(null, UNLOGGED);
     }
   }
 
