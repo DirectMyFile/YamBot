@@ -34,6 +34,10 @@ prefix:
     '#directcode': \$
 """;
 
+  /**
+   * Loads the configuration from the file system. If the configuration does
+   * not exist then a default configuration will be written to the file system.
+   */
   static load() {
     File f = new File(file);
     if (!f.existsSync()) {

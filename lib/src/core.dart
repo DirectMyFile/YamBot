@@ -6,10 +6,16 @@ class YamBot {
 
   final Map<String, IRC.Client> _clients = {};
 
+  /**
+   * Gets a client by its name.
+   */
   IRC.Client operator [](String s) {
     return _clients[s];
   }
 
+  /**
+   * Starts all the clients based on the configuration.
+   */
   void start() {
     for (var server in config['server']) {
       var botConfig = new IRC.BotConfig();
