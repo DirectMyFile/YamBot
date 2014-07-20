@@ -2,6 +2,7 @@ part of yambot;
 
 class Auth {
 
+  static const String LOGGED = "You are already logged into NickServ";
   static const String UNLOGGED = "You are not logged into NickServ";
   static const String CHANNEL =
       "You must be in at least 1 channel that the bot is in to authenticate.";

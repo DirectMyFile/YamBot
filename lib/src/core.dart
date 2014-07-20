@@ -96,7 +96,7 @@ class YamBot {
                   event.reply("> Forcing an authentication lookup");
                   auth.authenticate(event.from);
                 } else {
-                  event.reply("> You are already logged into NickServ");
+                  event.reply("> ${Auth.LOGGED}");
                 }
               });
             }
