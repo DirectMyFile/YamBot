@@ -10,6 +10,7 @@ import 'package:yaml/yaml.dart';
 part 'src/config.dart';
 part 'src/core.dart';
 part 'src/auth.dart';
+part 'src/bot.dart';
 
 /**
  * Launches the bot. The [path] will override the current [Directory]
