@@ -30,6 +30,10 @@ class Auth {
       _process(e);
     });
 
+    client.register((IRC.KickEvent e) {
+      _authenticated.remove(e.user);
+    });
+
     client.register((IRC.PartEvent e) {
       _authenticated.remove(e.user);
     });
@@ -40,6 +44,8 @@ class Auth {
         _authenticated.putIfAbsent(e.now, () => ns);
       }
     });
+
+
   }
 
   /**
