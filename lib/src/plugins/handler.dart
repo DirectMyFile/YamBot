@@ -72,113 +72,107 @@ class PluginCommunicator {
 
   _handleEventListeners() {
     bot.bots.forEach((String network) {
-      Bot b = bot[network];
-      b.client.register((IRC.MessageEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "message";
-        data['target'] = e.target;
-        data['from'] = e.from;
-        data['private'] = e.isPrivate;
-        data['message'] = e.message;
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.CommandEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "command";
-        data['target'] = e.target;
-        data['from'] = e.from;
-        data['private'] = e.isPrivate;
-        data['message'] = e.message;
-
-        data['command'] = e.command;
-        data['args'] = e.args;
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.JoinEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "join";
-        data['channel'] = e.channel.name;
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.PartEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "part";
-        data['channel'] = e.channel.name;
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.BotJoinEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "bot-join";
-        data['channel'] = e.channel.name;
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.BotPartEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "bot-part";
-        data['channel'] = e.channel.name;
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.ReadyEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "ready";
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.InviteEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "invite";
-        data['user'] = e.user;
-        data['channel'] = e.channel;
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.NoticeEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "notice";
-        data['target'] = e.target;
-        data['from'] = e.from;
-        data['private'] = e.isPrivate;
-        data['message'] = e.message;
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.TopicEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "topic";
-        data['channel'] = e.channel.name;
-        data['topic'] = e.topic;
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.ConnectEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "connect";
-        pm.sendAll(data);
-      });
-
-      b.client.register((IRC.DisconnectEvent e) {
-        var data = {};
-        data['network'] = network;
-        data['event'] = "disconnect";
-        pm.sendAll(data);
-      });
+      var nel = new NetworkEventListener(network, this);
+      nel.handle();
     });
+  }
+}
+
+class NetworkEventListener {
+
+  final PluginCommunicator com;
+  final String network;
+
+  NetworkEventListener(this.network, this.com);
+
+  handle() {
+    Bot b = com.bot[network];
+    b.client.register((IRC.MessageEvent e) {
+      var data = common("message");
+      commonSendable(data, e);
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.CommandEvent e) {
+      var data = common("command");
+      commonSendable(data, e);
+
+      data['command'] = e.command;
+      data['args'] = e.args;
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.NoticeEvent e) {
+      var data = common("notice");
+      commonSendable(data, e);
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.JoinEvent e) {
+      var data = common("join");
+      data['channel'] = e.channel.name;
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.PartEvent e) {
+      var data = common("part");
+      data['channel'] = e.channel.name;
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.BotJoinEvent e) {
+      var data = common("bot-join");
+      data['channel'] = e.channel.name;
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.BotPartEvent e) {
+      var data = common("bot-part");
+      data['channel'] = e.channel.name;
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.ReadyEvent e) {
+      var data = common("ready");
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.InviteEvent e) {
+      var data = common("invite");
+      data['user'] = e.user;
+      data['channel'] = e.channel;
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.TopicEvent e) {
+      var data = common("topic");
+      data['channel'] = e.channel.name;
+      data['topic'] = e.topic;
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.ConnectEvent e) {
+      var data = common("connect");
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.DisconnectEvent e) {
+      var data = common("disconnect");
+      com.pm.sendAll(data);
+    });
+  }
+
+  Map common(String event) {
+    return {
+      'network': network,
+      'event': event
+    };
+  }
+
+  void commonSendable(Map data, dynamic event) {
+    data['target'] = event.target;
+    data['from'] = event.from;
+    data['private'] = event.isPrivate;
+    data['message'] = event.message;
   }
 }
