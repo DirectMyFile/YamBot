@@ -12,12 +12,12 @@ class CoreBot {
   /**
    * Initializes [CoreBot] based on the default configuration
    */
-  CoreBot() : config = YamlConfiguration.load();
+  CoreBot() : config = DefaultConfig.load();
 
   /**
    * Initializes [CoreBot] based on a custom configuration. The [config] must
    * conform to the same specifications as the default configuration.
-   * See [YamlConfiguration] for the default configuration.
+   * See [DefaultConfig] for the default configuration.
    */
   CoreBot.conf(this.config);
 

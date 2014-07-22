@@ -1,39 +1,37 @@
 part of bot;
 
 /**
- * The internal configuration system. This configuration will never
- * change at runtime and remains static.
+ * The internal configuration system.
  */
-class YamlConfiguration {
+class DefaultConfig {
 
   /**
    * The configuration file containing bot information.
    */
-  static const String file = "config.yaml";
+  static const String file = "config.json";
 
   /**
-   * A default configuration that is workable.
+   * A default workable configuration.
    */
-  static const String defaultConfig =
-"""
-server:
-  - name: Esper
-    nickname: PolymorphicBot
-    realname: PolymorphicBot
-    host: irc.esper.net
-    port: 6667
-    owner: <nickserv name>
-    password: <nickserv password>
+  static final Map defaultConfig =
+  {
+    "server": [{
+      "name": "Esper",
+      "nickname": "PolymorphicBot",
+      "realname": "PolymorphicBot",
+      "host": "irc.esper.net",
+      "port": 6667,
+      "owner": "<nickserv name>",
+      "password": "<nickserv password>"
+    }],
+    "channel": {
+      "Esper": ["#directcode"]
+    },
+    "prefix": {
+      "Esper": ["default: \$", "#directcode", "\$"]
+    }
+  };
 
-channel:
-  Esper:
-    - '#directcode'
-
-prefix:
-  Esper:
-    default: \$
-    '#directcode': \$
-""";
 
   /**
    * Loads the configuration from the file system. If the configuration does
@@ -42,9 +40,10 @@ prefix:
   static load() {
     File f = new File(file);
     if (!f.existsSync()) {
-      f.writeAsStringSync(defaultConfig);
-      return loadYaml(defaultConfig);
+      var encoder = new JsonEncoder.withIndent("  ");
+      f.writeAsStringSync(encoder.convert(defaultConfig));
+      return defaultConfig;
     }
-    return loadYaml(f.readAsStringSync());
+    return JSON.decode(f.readAsStringSync());
   }
 }

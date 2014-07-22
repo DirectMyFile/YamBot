@@ -10,4 +10,3 @@ environment:
 dependencies:
   irc: '>=1.4.2 <1.5.0'
   plugins: '>=0.2.1 <0.3.0'
-  yaml: '>=0.10.0 <2.0.0'

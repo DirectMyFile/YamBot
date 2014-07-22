@@ -1,12 +1,12 @@
 library bot;
 
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
 import "package:irc/irc.dart" as IRC;
 import 'package:plugins/loader.dart';
-import 'package:yaml/yaml.dart';
 
 part 'src/plugins/manager.dart';
 part 'src/config.dart';
