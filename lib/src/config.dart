@@ -28,7 +28,7 @@ class DefaultConfig {
       "Esper": ["#directcode"]
     },
     "prefix": {
-      "Esper": ["default: \$", "#directcode", "\$"]
+      "Esper": {"default": "\$", "#directcode": "\$"}
     }
   };
 
