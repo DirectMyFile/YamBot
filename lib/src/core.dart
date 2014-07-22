@@ -1,6 +1,6 @@
-part of yambot;
+part of bot;
 
-class YamBot {
+class CoreBot {
 
   /**
    * The overall configuration for the entire bot.
@@ -10,16 +10,16 @@ class YamBot {
   final Map<String, Bot> _clients = {};
 
   /**
-   * Initializes [YamBot] based on the default configuration
+   * Initializes [CoreBot] based on the default configuration
    */
-  YamBot() : config = YamlConfiguration.load();
+  CoreBot() : config = YamlConfiguration.load();
 
   /**
-   * Initializes [YamBot] based on a custom configuration. The [config] must
+   * Initializes [CoreBot] based on a custom configuration. The [config] must
    * conform to the same specifications as the default configuration.
    * See [YamlConfiguration] for the default configuration.
    */
-  YamBot.conf(this.config);
+  CoreBot.conf(this.config);
 
   /**
    * Gets a bot by its name.

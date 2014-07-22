@@ -1,3 +1,4 @@
-# YamBot
+# PolyMorphic Bot
 
-An Easy IRC Bot that uses only YAML for configuration.
+An easy to use IRC bot written in dart. It is designed to be extensible and
+flexible through plugins.

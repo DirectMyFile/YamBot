@@ -1,7 +1,7 @@
-part of yambot;
+part of bot;
 
 /**
- * The internal configuration system for YamBot. This configuration will never
+ * The internal configuration system. This configuration will never
  * change at runtime and remains static.
  */
 class YamlConfiguration {
@@ -18,8 +18,8 @@ class YamlConfiguration {
 """
 server:
   - name: Esper
-    nickname: YamBot
-    realname: YamBot
+    nickname: PolymorphicBot
+    realname: PolymorphicBot
     host: irc.esper.net
     port: 6667
     owner: <nickserv name>

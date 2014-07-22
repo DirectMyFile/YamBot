@@ -1,9 +1,9 @@
-part of yambot;
+part of bot;
 
 class PluginHandler {
 
   final PluginManager pm = new PluginManager();
-  final YamBot bot;
+  final CoreBot bot;
 
   PluginHandler(this.bot);
 

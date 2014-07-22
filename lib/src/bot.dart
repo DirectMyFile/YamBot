@@ -1,4 +1,4 @@
-part of yambot;
+part of bot;
 
 class Bot {
 

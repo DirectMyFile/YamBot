@@ -1,4 +1,4 @@
-library yambot;
+library bot;
 
 import 'dart:collection';
 import 'dart:async';
@@ -17,16 +17,16 @@ part 'src/bot.dart';
 /**
  * Launches the bot. The [path] will override the current [Directory]
  * and read all configurations from it.
- * Returns [YamBot].
+ * Returns [CoreBot].
  */
-YamBot launchYamBot(String path) {
+CoreBot launchBot(String path) {
   var dir = new Directory(path).absolute;
   if (!dir.existsSync()) {
     throw new Exception("'$path' does not exist");
   }
   Directory.current = dir;
 
-  var bot = new YamBot();
+  var bot = new CoreBot();
   var handler = new PluginHandler(bot);
 
   bot.init();
