@@ -28,9 +28,7 @@ class Bot {
   IRC.Client get client => _client;
   IRC.Client _client;
 
-  Bot(this.server, this.serverConfig, this.channelConfig, this.prefixConfig);
-
-  void start() {
+  Bot(this.server, this.serverConfig, this.channelConfig, this.prefixConfig) {
     var botConfig = new IRC.BotConfig();
     botConfig.nickname = serverConfig['nickname'];
     botConfig.realname = serverConfig['realname'];
@@ -42,7 +40,9 @@ class Bot {
     _registerReadyHandler();
     _registerMessageHandler();
     _registerCommandHandler();
+  }
 
+  void start() {
     print("[$server] Connecting");
     client.connect();
   }
@@ -57,6 +57,8 @@ class Bot {
 
   void _registerReadyHandler() {
     client.register((IRC.ReadyEvent event) {
+      client.identify(username: serverConfig['owner'],
+                      password: serverConfig['password']);
       print("[$server] Connection complete");
       for (var chan in channelConfig) {
         print("[$server] Joining $chan");

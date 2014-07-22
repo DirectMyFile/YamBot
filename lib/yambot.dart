@@ -5,8 +5,10 @@ import 'dart:async';
 import 'dart:io';
 
 import "package:irc/irc.dart" as IRC;
+import 'package:plugins/loader.dart';
 import 'package:yaml/yaml.dart';
 
+part 'src/plugins/manager.dart';
 part 'src/config.dart';
 part 'src/core.dart';
 part 'src/auth.dart';
@@ -23,7 +25,15 @@ YamBot launchYamBot(String path) {
     throw new Exception("'$path' does not exist");
   }
   Directory.current = dir;
+
   var bot = new YamBot();
-  bot.start();
+  var handler = new PluginHandler(bot);
+
+  bot.init();
+  handler.initListeners();
+
+  handler.init().then((_) {
+    bot.start();
+  });
   return bot;
 }

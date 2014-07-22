@@ -23,6 +23,7 @@ server:
     host: irc.esper.net
     port: 6667
     owner: <nickserv name>
+    password: <nickserv password>
 
 channel:
   Esper:
