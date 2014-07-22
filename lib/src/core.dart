@@ -12,14 +12,27 @@ class CoreBot {
   /**
    * Initializes [CoreBot] based on the default configuration
    */
-  CoreBot() : config = DefaultConfig.load();
+  factory CoreBot() {
+    return new CoreBot.conf(DefaultConfig.load());
+  }
 
   /**
    * Initializes [CoreBot] based on a custom configuration. The [config] must
    * conform to the same specifications as the default configuration.
    * See [DefaultConfig] for the default configuration.
    */
-  CoreBot.conf(this.config);
+  CoreBot.conf(this.config) {
+    for (var server in config['server']) {
+      var name = server['name'];
+      var chan = config['channel'][name];
+      var pref = config['prefix'][name];
+      Bot b = new Bot(name, server, chan, pref);
+      if (_clients.containsKey(name)) {
+        throw new Exception("Server name '$name' already taken");
+      }
+      _clients[name] = b;
+    }
+  }
 
   /**
    * Gets a bot by its name.
@@ -32,23 +45,6 @@ class CoreBot {
    * Get all the bot names.
    */
   List<String> get bots => _clients.keys.toList(growable: false);
-
-  /**
-   * Loads in all the [Bot]s, but doesn't connect them. See [start] for
-   * connecting the [Bot]s.
-   */
-  void init() {
-    for (var server in config['server']) {
-      var name = server['name'];
-      var chan = config['channel'][name];
-      var pref = config['prefix'][name];
-      Bot b = new Bot(name, server, chan, pref);
-      if (_clients.containsKey(name)) {
-        throw new Exception("Server name '$name' already taken");
-      }
-      _clients[name] = b;
-    }
-  }
 
   /**
    * Starts all the clients based on the configuration.
