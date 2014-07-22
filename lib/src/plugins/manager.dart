@@ -10,6 +10,20 @@ class PluginHandler {
   Future init() {
     return load().then((List<Plugin> plugins) {
       print("[Plugins] Registered: ${plugins.join(" ")}");
+
+      pm.listenAllRequest((plugin, request) {
+        switch (request.command) {
+          case "networks":
+            request.reply({
+              "networks": bot.bots
+            });
+            break;
+          default:
+            throw new Exception("${plugin} sent an invalid request: ${request.command}");
+            break;
+        }
+      });
+
       pm.listenAll((String plugin, Map _data) {
         var m = new VerificationManager(plugin, _data);
         var b = bot[m['network']];
@@ -80,7 +94,7 @@ class PluginHandler {
         data['args'] = e.args;
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.JoinEvent e) {
         var data = {};
         data['network'] = network;
@@ -88,7 +102,7 @@ class PluginHandler {
         data['channel'] = e.channel.name;
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.PartEvent e) {
         var data = {};
         data['network'] = network;
@@ -96,7 +110,7 @@ class PluginHandler {
         data['channel'] = e.channel.name;
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.BotJoinEvent e) {
         var data = {};
         data['network'] = network;
@@ -104,7 +118,7 @@ class PluginHandler {
         data['channel'] = e.channel.name;
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.BotPartEvent e) {
         var data = {};
         data['network'] = network;
@@ -112,14 +126,14 @@ class PluginHandler {
         data['channel'] = e.channel.name;
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.ReadyEvent e) {
         var data = {};
         data['network'] = network;
         data['event'] = "ready";
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.InviteEvent e) {
         var data = {};
         data['network'] = network;
@@ -128,7 +142,7 @@ class PluginHandler {
         data['channel'] = e.channel;
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.NoticeEvent e) {
         var data = {};
         data['network'] = network;
@@ -139,7 +153,7 @@ class PluginHandler {
         data['message'] = e.message;
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.TopicEvent e) {
         var data = {};
         data['network'] = network;
@@ -148,14 +162,14 @@ class PluginHandler {
         data['topic'] = e.topic;
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.ConnectEvent e) {
         var data = {};
         data['network'] = network;
         data['event'] = "connect";
         pm.sendAll(data);
       });
-      
+
       b.client.register((IRC.DisconnectEvent e) {
         var data = {};
         data['network'] = network;
@@ -184,7 +198,7 @@ class VerificationManager {
 
   VerificationManager(this.plugin, this.data);
 
-  dynamic operator[](String field) {
+  dynamic operator [](String field) {
     return verify(field);
   }
 
