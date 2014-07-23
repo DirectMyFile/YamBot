@@ -40,7 +40,7 @@ class PluginHandler {
           var spec = yaml.loadYaml(pubspec.readAsStringSync());
           var plugin_name = spec["name"] as String;
           print("[Plugins] Fetching Dependencies for Plugin '${plugin_name}'");
-          var result = Process.runSync("pub", ["get"], workingDirectory: entity.path);
+          var result = Process.runSync(Platform.isWindows ? "pub.bat" : "pub", ["get"], workingDirectory: entity.path);
           if (result.exitCode != 0) {
             print("[Plugins] Failed to Fetch Dependencies for Plugin '${plugin_name}'");
             if (result.stdout.trim() != "") {
