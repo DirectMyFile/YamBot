@@ -4,7 +4,6 @@ class PluginHandler {
 
   final PluginManager pm = new PluginManager();
   final CoreBot bot;
-
   PluginCommunicator _handler;
 
   PluginHandler(this.bot) {
@@ -20,16 +19,22 @@ class PluginHandler {
   }
 
   Future load() {
+    var requirements = {};
+    var plugin_names = [];
     var dir = new Directory("plugins");
     if (!dir.existsSync()) dir.createSync();
-    /* Patched Loader to Follow Symlinks */
-    Future loadAll(Directory directory, [List<String> args]) {
-      List<Future> futures = [];
+    
+    /* Patched loadAll() method */
+    Future loadAll(Directory directory) {
+      var loaders = [];
+      
       directory.listSync(followLinks: true).forEach((entity) {
         if (!(entity is Directory))
           return;
         var packages_dir = new Directory("${entity.path}/packages");
         var pubspec = new File("${entity.path}/pubspec.yaml");
+        
+        
         if (!packages_dir.existsSync() && pubspec.existsSync()) {
           /* Execute 'pub get' */
           var spec = yaml.loadYaml(pubspec.readAsStringSync());
@@ -49,9 +54,43 @@ class PluginHandler {
             exit(1);
           }
         }
-        var loader = new PluginLoader(entity);
-        futures.add(pm.load(loader, args));
+        
+        var loader = () => new PluginLoader(entity);
+        loaders.add(loader);
+        
+        var spec = yaml.loadYaml(pubspec.readAsStringSync());
+        
+        if (spec.containsKey("requires")) {
+          requirements[spec["name"]] = new List.from(spec['requires']);
+        } else {
+          requirements[spec["name"]] = [];
+        }
+        
+        plugin_names.add(spec["name"]);
       });
+      
+      /* Resolve Plugin Requirements */
+      {
+        print("[Plugins] Resolving Plugin Requirements");
+        for (var name in plugin_names) {
+          var requires = requirements[name];
+          requires.removeWhere((it) => plugin_names.contains(it));
+          if (requires.length != 0) {
+            print("[Plugins] Failed to resolve requirements for plugin '${name}'");
+            var noun = requires.length == 1 ? "it" : "they";
+            var verb = requires.length == 1 ? "was" : "were";
+            print("[Plugins] '${name}' requires '${requires.join(", ")}', but ${noun} ${verb} not found");
+            exit(1);
+          }
+        }
+      }
+      
+      var futures = [];
+      
+      loaders.forEach((loader) {
+        futures.add(pm.load(loader()));
+      });
+      
       return Future.wait(futures);
     }
     return loadAll(dir);
