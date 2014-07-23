@@ -4,6 +4,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
+import 'package:yaml/yaml.dart' as yaml;
 
 import "package:irc/irc.dart" as IRC;
 import 'package:plugins/loader.dart';

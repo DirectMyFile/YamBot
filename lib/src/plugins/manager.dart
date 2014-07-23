@@ -28,6 +28,27 @@ class PluginHandler {
       directory.listSync(followLinks: true).forEach((entity) {
         if (!(entity is Directory))
           return;
+        var packages_dir = new Directory("${entity.path}/packages");
+        var pubspec = new File("${entity.path}/pubspec.yaml");
+        if (!packages_dir.existsSync() && pubspec.existsSync()) {
+          /* Execute 'pub get' */
+          var spec = yaml.loadYaml(pubspec.readAsStringSync());
+          var plugin_name = spec["name"] as String;
+          print("[Plugins] Fetching Dependencies for Plugin '${plugin_name}'");
+          var result = Process.runSync("pub", ["get"], workingDirectory: entity.path);
+          if (result.exitCode != 0) {
+            print("[Plugins] Failed to Fetch Dependencies for Plugin '${plugin_name}'");
+            if (result.stdout.trim() != "") {
+              print("[STDOUT]");
+              stdout.write(result.stdout);
+            }
+            if (result.stderr.trim() != "") {
+              print("[STDERR]");
+              stdout.write(result.stderr); 
+            }
+            exit(1);
+          }
+        }
         var loader = new PluginLoader(entity);
         futures.add(pm.load(loader, args));
       });
