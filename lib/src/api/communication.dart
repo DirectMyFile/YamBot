@@ -30,6 +30,10 @@ class APIConnector {
     conn.send(request);
   }
   
+  StreamSubscription<Map<String, dynamic>> handleEvent(void handler(Map<String, dynamic> data)) => conn.listen(handler);
+  
+  void handleRequest(void handler(Request request)) => conn.listenRequest(handler);
+  
   void message(String network, String target, String message) {
     send("message", {
       "network": network,

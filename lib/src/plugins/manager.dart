@@ -22,7 +22,18 @@ class PluginHandler {
   Future load() {
     var dir = new Directory("plugins");
     if (!dir.existsSync()) dir.createSync();
-    return pm.loadAll(dir);
+    /* Patched Loader to Follow Symlinks */
+    Future loadAll(Directory directory, [List<String> args]) {
+      List<Future> futures = [];
+      directory.listSync(followLinks: true).forEach((entity) {
+        if (!(entity is Directory))
+          return;
+        var loader = new PluginLoader(entity);
+        futures.add(pm.load(loader, args));
+      });
+      return Future.wait(futures);
+    }
+    return loadAll(dir);
   }
 }
 
