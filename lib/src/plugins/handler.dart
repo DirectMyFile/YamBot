@@ -21,6 +21,11 @@ class PluginCommunicator {
             "networks": bot.bots
           });
           break;
+        case "config":
+          request.reply({
+            "config": bot.config
+          });
+          break;
         default:
           throw new Exception("${plugin} sent an invalid request: ${request.command}");
           break;
