@@ -7,13 +7,13 @@ class PluginCommunicator {
 
   PluginCommunicator(this.pm, this.bot);
 
-  handle() {
+  void handle() {
     _handleRequests();
     _handleNormals();
     _handleEventListeners();
   }
 
-  _handleRequests() {
+  void _handleRequests() {
     pm.listenAllRequest((plugin, request) {
       switch (request.command) {
         case "networks":
@@ -41,7 +41,7 @@ class PluginCommunicator {
     });
   }
 
-  _handleNormals() {
+  void _handleNormals() {
     pm.listenAll((String plugin, Map _data) {
       var m = new VerificationManager(plugin, _data);
       var b = bot[m['network']];
@@ -93,7 +93,7 @@ class PluginCommunicator {
     });
   }
 
-  _handleEventListeners() {
+  void _handleEventListeners() {
     bot.bots.forEach((String network) {
       var nel = new NetworkEventListener(network, this);
       nel.handle();
@@ -108,7 +108,7 @@ class NetworkEventListener {
 
   NetworkEventListener(this.network, this.com);
 
-  handle() {
+  void handle() {
     Bot b = com.bot[network];
     b.client.register((IRC.MessageEvent e) {
       var data = common("message");
