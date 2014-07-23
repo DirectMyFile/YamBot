@@ -26,6 +26,14 @@ class PluginCommunicator {
             "config": bot.config
           });
           break;
+        case "request":
+          var plugin = request.data["plugin"];
+          var command = request.data["command"];
+          var data = request.data["data"];
+          pm.get(plugin, command, data).then((response) {
+            request.reply(response);
+          });
+          break;
         default:
           throw new Exception("${plugin} sent an invalid request: ${request.command}");
           break;
