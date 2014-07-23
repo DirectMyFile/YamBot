@@ -4,10 +4,12 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:yaml/yaml.dart' as yaml;
 import 'package:irc/irc.dart' as IRC;
 import 'package:plugins/loader.dart';
+import 'package:path/path.dart' as path;
 
 part 'src/plugins/manager.dart';
 part 'src/plugins/handler.dart';
