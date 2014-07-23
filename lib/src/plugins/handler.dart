@@ -82,6 +82,11 @@ class PluginCommunicator {
           var data = m['data'];
           pm.send(plugin, data);
           break;
+        case "update-config":
+          var config = m['config'];
+          bot.config.clear();
+          bot.config.addAll(config);
+          break;
         default:
           throw new Exception("$plugin sent an invalid command: $command");
       }
