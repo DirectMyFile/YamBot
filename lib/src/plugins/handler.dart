@@ -45,11 +45,11 @@ class PluginCommunicator {
     pm.listenAll((String plugin, Map _data) {
       var m = new VerificationManager(plugin, _data);
       var b = bot[m['network']];
-      var c = m['command'];
-      if (c != null) {
-        m.type = c;
+      var command = m['command'];
+      if (command != null) {
+        m.type = command;
       }
-      switch (c) {
+      switch (command) {
         case "message":
           var msg = m['message'] as String;
           var target = m['target'] as String;
@@ -77,8 +77,13 @@ class PluginCommunicator {
           var line = m['line'] as String;
           b.client.send(line);
           break;
+        case "send":
+          var plugin = m['plugin'];
+          var data = m['data'];
+          pm.send(plugin, data);
+          break;
         default:
-          throw new Exception("$plugin sent an invalid command: $c");
+          throw new Exception("$plugin sent an invalid command: $command");
       }
     });
   }
