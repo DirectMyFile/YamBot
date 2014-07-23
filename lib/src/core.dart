@@ -26,11 +26,11 @@ class CoreBot {
       var name = server['name'];
       var chan = config['channel'][name];
       var pref = config['prefix'][name];
-      Bot b = new Bot(name, server, chan, pref);
+      var bot = new Bot(name, server, chan, pref);
       if (_clients.containsKey(name)) {
         throw new Exception("Server name '$name' already taken");
       }
-      _clients[name] = b;
+      _clients[name] = bot;
     }
   }
 

@@ -59,7 +59,7 @@ class Bot {
     client.register((IRC.ReadyEvent event) {
       client.identify(username: serverConfig['owner'],
                       password: serverConfig['password']);
-      print("[$server] Connection complete");
+      print("[$server] Bot is Ready");
       for (var chan in channelConfig) {
         print("[$server] Joining $chan");
         event.join(chan);
