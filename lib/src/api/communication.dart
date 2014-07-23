@@ -1,4 +1,4 @@
-part of api;
+part of polymorphic.api;
 
 class APIConnector {
   final Receiver conn;

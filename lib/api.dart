@@ -1,4 +1,4 @@
-library api;
+library polymorphic.api;
 
 import "dart:isolate";
 import "dart:async";

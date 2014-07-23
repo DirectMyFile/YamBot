@@ -1,12 +1,12 @@
-library bot;
+library polymorphic.bot;
 
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
-import 'package:yaml/yaml.dart' as yaml;
 
-import "package:irc/irc.dart" as IRC;
+import 'package:yaml/yaml.dart' as yaml;
+import 'package:irc/irc.dart' as IRC;
 import 'package:plugins/loader.dart';
 
 part 'src/plugins/manager.dart';
@@ -23,16 +23,36 @@ part 'src/bot.dart';
  */
 CoreBot launchBot(String path) {
   var dir = new Directory(path).absolute;
+  
   if (!dir.existsSync()) {
     throw new Exception("'$path' does not exist");
   }
+  
+  var shutting_down = false;
+  
   Directory.current = dir;
 
   var bot = new CoreBot();
   var handler = new PluginHandler(bot);
+  
+  [ProcessSignal.SIGINT].forEach((ProcessSignal signal) {
+    signal.watch().listen((data) {
+      if (!shutting_down) {
+        shutting_down = true;
+        print("Shutting Down");
+        handler.pm.killAll();
+        bot.bots.forEach((it) {
+          bot._clients[it].client.disconnect(reason: "Stopping Bot", force: true).then((_) {
+            exit(0);
+          });
+        });
+      }
+    });
+  });
 
   handler.init().then((_) {
     bot.start();
   });
+  
   return bot;
 }
