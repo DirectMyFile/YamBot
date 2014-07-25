@@ -33,6 +33,12 @@ class Bot {
   IRC.Client get client => _client;
   IRC.Client _client;
 
+  /**
+   * The manager handles permissions
+   */
+  Auth get authManager => _authManager;
+  Auth _authManager;
+
   Bot(this.server, this.serverConfig,
       this.channelConfig, this.prefixConfig,
       this.permsConfig) {
@@ -101,17 +107,17 @@ class Bot {
   }
 
   void _registerCommandHandler() {
-    Auth auth = new Auth(server, this);
+    _authManager = new Auth(server, this);
 
     client.register((IRC.CommandEvent event) {
       String node = "auth";
-      auth.hasPermission("core", event.from, node).then((bool has) {
+      _authManager.hasPermission("core", event.from, node).then((bool has) {
         if (!has) {
           event.reply("${event.from}> You are not authorized to perform this action (missing core.$node)");
           return;
         }
         if (event.args.length == 0) {
-          auth.registeredAs(event.from).then((List<String> s) {
+          _authManager.registeredAs(event.from).then((List<String> s) {
             if (s[0] == null) {
               event.reply("> ${s[1]}");
             } else {
@@ -120,10 +126,10 @@ class Bot {
           });
         } else if (event.args.length == 1) {
           if (!event.isPrivate && event.args[0] == "force") {
-            auth.registeredAs(event.from).then((List<String> s) {
+            _authManager.registeredAs(event.from).then((List<String> s) {
               if (s[0] == null) {
                 event.reply("> Forcing an authentication lookup");
-                auth.authenticate(event.from);
+                _authManager.authenticate(event.from);
               } else {
                 event.reply("> ${Auth.LOGGED}");
               }

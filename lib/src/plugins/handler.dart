@@ -15,6 +15,7 @@ class PluginCommunicator {
 
   void _handleRequests() {
     pm.listenAllRequest((plugin, request) {
+      var m = new VerificationManager(plugin, request.data);
       switch (request.command) {
         case "networks":
           request.reply({
@@ -27,11 +28,25 @@ class PluginCommunicator {
           });
           break;
         case "request":
-          var plugin = request.data["plugin"];
-          var command = request.data["command"];
-          var data = request.data["data"];
+          var plugin = m['plugin'];
+          var command = m['command'];
+          var data = m['data'];
           pm.get(plugin, command, data).then((response) {
             request.reply(response);
+          });
+          break;
+        case "permission":
+          var node = m['node'];
+          var net = m['network'];
+          var nick = m['nick'];
+          var target = m['target'];
+          bot[net].authManager.hasPermission(plugin, nick, node).then((bool has) {
+            if (!has) {
+              var b = bot[net];
+              b.client.message(target,
+                  "$nick> You are not authorized to perform this action (missing $plugin.$node)");
+            }
+            request.reply({ "has": has });
           });
           break;
         default:
