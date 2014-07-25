@@ -53,9 +53,9 @@ class Auth {
 
       var node_parts = node.split(".");
 
-      var success = userHasMatch(nickserv, plugin, node_parts);
+      var success = _userHasMatch(nickserv, plugin, node_parts);
       if (success == null) {
-        success = userHasMatch("*", plugin, node_parts);
+        success = _userHasMatch("*", plugin, node_parts);
       }
       return success != null ? success : false;
     });
@@ -105,21 +105,21 @@ class Auth {
     bot.client.send("WHOIS ${_queue.first}");
   }
 
-  bool userHasMatch(String user, String plugin, node_parts) {
+  bool _userHasMatch(String user, String plugin, node_parts) {
     var success;
     var perms = bot.permsConfig[user];
     for (var perm in (perms == null ? [] : perms)) {
       var perm_parts = perm.split(".");
-      if (hasMatch("-" + plugin, perm_parts, node_parts)) {
+      if (_hasMatch("-" + plugin, perm_parts, node_parts)) {
         return false;
-      } else if (hasMatch(plugin, perm_parts, node_parts)) {
+      } else if (_hasMatch(plugin, perm_parts, node_parts)) {
         success = true;
       }
     }
     return success;
   }
 
-  bool hasMatch(String plugin, perm_parts, node_parts) {
+  bool _hasMatch(String plugin, perm_parts, node_parts) {
     if (perm_parts[0] != plugin) return false;
     var success = false;
 
