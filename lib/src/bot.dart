@@ -23,12 +23,19 @@ class Bot {
   final prefixConfig;
 
   /**
+   * Holds all the permission nodes the user has permission to.
+   */
+  final permsConfig;
+
+  /**
    * The client which manages the IRC connections and data.
    */
   IRC.Client get client => _client;
   IRC.Client _client;
 
-  Bot(this.server, this.serverConfig, this.channelConfig, this.prefixConfig) {
+  Bot(this.server, this.serverConfig,
+      this.channelConfig, this.prefixConfig,
+      this.permsConfig) {
     var botConfig = new IRC.BotConfig();
     botConfig.nickname = serverConfig['nickname'];
     botConfig.realname = serverConfig['realname'];
@@ -94,9 +101,15 @@ class Bot {
   }
 
   void _registerCommandHandler() {
-    Auth auth = new Auth(server, client);
+    Auth auth = new Auth(server, this);
+
     client.register((IRC.CommandEvent event) {
-      if (event.command == "auth") {
+      String node = "auth";
+      auth.hasPermission("core", event.from, node).then((bool has) {
+        if (!has) {
+          event.reply("${event.from}> You are not authorized to perform this action (missing core.$node)");
+          return;
+        }
         if (event.args.length == 0) {
           auth.registeredAs(event.from).then((List<String> s) {
             if (s[0] == null) {
@@ -117,7 +130,7 @@ class Bot {
             });
           }
         }
-      }
-    });
+      });
+    }, filter: (IRC.CommandEvent e) => e.command != "auth");
   }
 }

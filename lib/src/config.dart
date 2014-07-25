@@ -29,6 +29,11 @@ class DefaultConfig {
     },
     "prefix": {
       "Esper": {"default": "\$", "#directcode": "\$"}
+    },
+    "permissions": {
+      "Esper": {
+        "*": [ "core.auth" ]
+      }
     }
   };
 

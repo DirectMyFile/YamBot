@@ -23,30 +23,29 @@ class PluginHandler {
     var plugin_names = [];
     var dir = new Directory("plugins");
     if (!dir.existsSync()) dir.createSync();
-    
+
     /* Patched loadAll() method */
     Future loadAll(Directory directory) {
       var loaders = [];
-      
+
       directory.listSync(followLinks: true).forEach((entity) {
-        if (!(entity is Directory))
-          return;
+        if (!(entity is Directory)) return;
         var packages_dir = new Directory("${entity.path}/packages");
         var pubspec = new File("${entity.path}/pubspec.yaml");
         var spec = yaml.loadYaml(pubspec.readAsStringSync());
-        
+
         var info = {
           "dependencies": [],
           "main": "main.dart",
           "update_dependencies": false
         };
-        
+
         if (spec["plugin"] != null) {
           info = spec["plugin"];
         }
-        
+
         var plugin_name = spec["name"] as String;
-        
+
         if (!packages_dir.existsSync() && pubspec.existsSync()) {
           /* Execute 'pub get' */
           print("[Plugins] Fetching Dependencies for Plugin '${plugin_name}'");
@@ -59,12 +58,12 @@ class PluginHandler {
             }
             if (result.stderr.trim() != "") {
               print("[STDERR]");
-              stdout.write(result.stderr); 
+              stdout.write(result.stderr);
             }
             exit(1);
           }
         }
-        
+
         if (info['update_dependencies'] != null ? info['update_dependencies'] : false) {
           var result = Process.runSync(Platform.isWindows ? "pub.bat" : "pub", ["upgrade"], workingDirectory: entity.path);
           if (result.exitCode != 0) {
@@ -75,21 +74,21 @@ class PluginHandler {
             }
             if (result.stderr.trim() != "") {
               print("[STDERR]");
-              stdout.write(result.stderr); 
+              stdout.write(result.stderr);
             }
             exit(1);
           }
         }
-        
-        
+
+
         var loader = () => new CustomFilePluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
         loaders.add(loader);
-                
+
         requirements[spec['name']] = new List.from(info['dependencies']);
-        
+
         plugin_names.add(spec["name"]);
       });
-      
+
       /* Resolve Plugin Requirements */
       {
         print("[Plugins] Resolving Plugin Requirements");
@@ -105,13 +104,13 @@ class PluginHandler {
           }
         }
       }
-      
+
       var futures = [];
-      
+
       loaders.forEach((loader) {
         futures.add(pm.load(loader()));
       });
-      
+
       return Future.wait(futures);
     }
     return loadAll(dir);
@@ -120,9 +119,9 @@ class PluginHandler {
 
 class CustomFilePluginLoader extends PluginLoader {
   String main;
-  
+
   CustomFilePluginLoader(Directory directory, [this.main = "main.dart"]) : super(directory);
-  
+
   @override
   Future<Isolate> load(SendPort port, List<String> args) {
     args = args == null ? [] : args;

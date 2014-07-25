@@ -10,7 +10,7 @@ class Auth {
   /**
    * The auth system this is good for
    */
-  final IRC.Client client;
+  final Bot bot;
 
   /**
    * The network this auth system is connected to.
@@ -25,28 +25,43 @@ class Auth {
 
   Completer _completer;
 
-  Auth(this.network, this.client) {
-    client.register((IRC.WhoisEvent e) {
+  Auth(this.network, this.bot) {
+    bot.client.register((IRC.WhoisEvent e) {
       _process(e);
     });
 
-    client.register((IRC.KickEvent e) {
+    bot.client.register((IRC.KickEvent e) {
       _authenticated.remove(e.user);
     });
 
-    client.register((IRC.PartEvent e) {
+    bot.client.register((IRC.PartEvent e) {
       _authenticated.remove(e.user);
     });
 
-    client.register((IRC.NickChangeEvent e) {
+    bot.client.register((IRC.NickChangeEvent e) {
       if (_authenticated.containsKey(e.original)) {
         var ns = _authenticated.remove(e.original);
         _authenticated.putIfAbsent(e.now, () => ns);
       }
     });
-
-
   }
+
+  Future<bool> hasPermission(String plugin, String nick, String node) {
+    return registeredAs(nick).then((List<String> info) {
+      var nickserv = info[0];
+      if (nickserv == null) return false;
+
+      var node_parts = node.split(".");
+
+      var success = userHasMatch(nickserv, plugin, node_parts);
+      if (success == null) {
+        success = userHasMatch("*", plugin, node_parts);
+      }
+      return success != null ? success : false;
+    });
+  }
+
+
 
   /**
    * Element 0 of [List] is the registered username of the [nick] or null if
@@ -87,13 +102,47 @@ class Auth {
    * Handles the queue one account at a time.
    */
   void _authenticate() {
-    client.send("WHOIS ${_queue.first}");
+    bot.client.send("WHOIS ${_queue.first}");
+  }
+
+  bool userHasMatch(String user, String plugin, node_parts) {
+    var success;
+    var perms = bot.permsConfig[user];
+    for (var perm in (perms == null ? [] : perms)) {
+      var perm_parts = perm.split(".");
+      if (hasMatch("-" + plugin, perm_parts, node_parts)) {
+        return false;
+      } else if (hasMatch(plugin, perm_parts, node_parts)) {
+        success = true;
+      }
+    }
+    return success;
+  }
+
+  bool hasMatch(String plugin, perm_parts, node_parts) {
+    if (perm_parts[0] != plugin) return false;
+    var success = false;
+
+    perm_parts.removeAt(0);
+    for (int i = 0; i < perm_parts.length; i++) {
+      if (i > node_parts.length) break;
+      if (perm_parts[i] == "*") {
+        return true;
+      } else if (node_parts[i] == perm_parts[i]) {
+        success = true;
+      } else {
+        success = false;
+        break;
+      }
+    }
+
+    return success;
   }
 
   void _process(IRC.WhoisEvent event) {
     if (event.username != null) {
       bool success = false;
-      for (var c in client.channels) {
+      for (var c in bot.client.channels) {
         var regular = event.member_in;
         var voice = event.voice_in;
         var op = event.op_in;
