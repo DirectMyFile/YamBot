@@ -170,6 +170,7 @@ class Auth {
           _authenticated.putIfAbsent(event.nickname, () => event.username);
           _rejected.remove(event.nickname);
           _done(event.username);
+          success = true;
           break;
         }
       }
