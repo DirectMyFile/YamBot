@@ -14,19 +14,11 @@ class APIConnector {
   Future<Map<String, dynamic>> get config =>
       get("config").then((response) => response["config"]);
 
-  Future<Map<String, dynamic>> request(String plugin, String command, [Map<String, dynamic> data]) {
-    return get("request", {
-      "plugin": plugin,
-      "command": command,
-      "data": data
-    });
-  }
-
   /**
    * [target] is where to send the message if the node is not matched.
    * [callback] is not called if the [user] has no permissions.
    */
-  Future<bool> permission(void callback(Map data), String network,
+  void permission(void callback(Map data), String network,
                           String target, String user, String node) {
     Map params = {
       "node": node,
@@ -34,12 +26,7 @@ class APIConnector {
       "nick": user,
       "target": target
     };
-    return conn.get("permission", params).then((Map data) {
-      if (data['has']) {
-        callback(data);
-      }
-      return data['has'];
-    });
+    conn.get("permission", params).callIf((data) => data['has']).then(callback);
   }
 
   void send(String command, Map<String, dynamic> data) {
