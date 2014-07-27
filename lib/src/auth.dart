@@ -125,7 +125,7 @@ class Auth {
 
     perm_parts.removeAt(0);
     for (int i = 0; i < perm_parts.length; i++) {
-      if (i > node_parts.length) break;
+      if (i >= node_parts.length) return false;
       if (perm_parts[i] == "*") {
         return true;
       } else if (node_parts[i] == perm_parts[i]) {
@@ -167,7 +167,7 @@ class Auth {
   void _done(String data, [String reason]) {
     if (_completer != null) _completer.complete([data, reason]);
     _completer = null;
-    _queue.removeFirst();
+    if (_queue.length > 0) _queue.removeFirst();
     if (_queue.length > 0) _authenticate();
   }
 }
