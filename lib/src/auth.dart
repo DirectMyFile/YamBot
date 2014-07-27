@@ -61,8 +61,6 @@ class Auth {
     });
   }
 
-
-
   /**
    * Element 0 of [List] is the registered username of the [nick] or null if
    * not logged in. Element 1 of [List] is an error reason.
@@ -107,7 +105,10 @@ class Auth {
 
   bool _userHasMatch(String user, String plugin, node_parts) {
     var success;
-    var perms = bot.permsConfig[user];
+
+    var groups = bot.permsConfig['groups'][user];
+    var perms = bot.permsConfig['nodes'][user];
+
     for (var perm in (perms == null ? [] : perms)) {
       var perm_parts = perm.split(".");
       if (_hasMatch("-" + plugin, perm_parts, node_parts)) {
@@ -116,6 +117,23 @@ class Auth {
         success = true;
       }
     }
+
+    // No need to check groups if already successful
+    if (success != null && success) return true;
+
+    for (var group in (groups == null ? [] : groups)) {
+      var group_perms = bot.groupsConfig[group];
+      if (group_perms == null) continue;
+      for (var perm in group_perms) {
+        var perm_parts = perm.split(".");
+        if (_hasMatch("-" + plugin, perm_parts, node_parts)) {
+          return false;
+        } else if (_hasMatch(plugin, perm_parts, node_parts)) {
+          success = true;
+        }
+      }
+    }
+
     return success;
   }
 

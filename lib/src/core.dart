@@ -26,8 +26,9 @@ class CoreBot {
       var name = server['name'];
       var chan = config['channel'][name];
       var pref = config['prefix'][name];
-      var perms = config['permissions'][name];
-      var bot = new Bot(name, server, chan, pref, perms);
+      var perms = config['permissions']['server'][name];
+      var groups = config['permissions']['groups'];
+      var bot = new Bot(name, server, chan, pref, perms, groups);
       if (_clients.containsKey(name)) {
         throw new Exception("Server name '$name' already taken");
       }

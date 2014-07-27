@@ -31,8 +31,18 @@ class DefaultConfig {
       "Esper": {"default": "\$", "#directcode": "\$"}
     },
     "permissions": {
-      "Esper": {
-        "*": [ "core.auth" ]
+      "groups": {
+        "public": [ "core.auth" ]
+      },
+      "server": {
+        "Esper": {
+          "groups": {
+            "*": [ "public" ]
+          },
+          "nodes": {
+            "*": []
+          }
+        }
       }
     }
   };
