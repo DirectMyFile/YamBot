@@ -5,56 +5,116 @@ import 'package:irc/irc.dart' as IRC;
 
 void main() {
   var perms = {
-    "*": [
-      "core.test",
-      "something.test.node"
+    "groups": {
+      "*": [ "public" ],
+      "user": [ "regular" ]
+    },
+    "nodes": {
+      "*": [
+        "core.test",
+        "something.test.node"
+      ],
+      "user": [
+        "-core.test",
+        "something.test"
+      ]
+    }
+  };
+
+  var groups = {
+    "public": [
+      "pub.command"
     ],
-    "user": [
-      "-core.test",
-      "something.test"
+    "regular": [
+      "reg.command"
     ]
   };
 
   var network = "TestNet";
-  var bot = new BotMock(network, perms);
+  var bot = new BotMock(network, perms, groups);
   var auth = new Auth(network, bot);
 
   group("permissions", () {
-    test("user authenticated", () {
-      wrapFuture(auth.registeredAs("user").then((List info) {
-        expect(info[0], equals("user"));
-      }));
+    _guestTest(auth);
+    _userTest(auth);
+  });
+}
+
+void _guestTest(Auth auth) {
+  String nick = "guest";
+
+  test("$nick authenticated", () {
+    wrapFuture(auth.registeredAs(nick).then((List info) {
+      expect(info[0], equals(nick));
+    }));
+  });
+
+  group("$nick node:", () {
+    test("pub.command", () {
+      auth.hasPermission("pub", nick, "command").then((bool val) {
+        expect(val, isTrue, reason: "$nick should have permission");
+      });
     });
 
-    test("guest authenticated", () {
-      wrapFuture(auth.registeredAs("guest").then((List info) {
-        expect(info[0], equals("guest"));
-      }));
-    });
-
-    test("guest nodes", () {
-      String nick = "guest";
+    test("core.test", () {
       auth.hasPermission("core", nick, "test").then((bool val) {
-        expect(val, isTrue, reason: "Guest doesn't have permission to node 'core.test'");
-      });
-      auth.hasPermission("something", nick, "test").then((bool val) {
-        expect(val, isFalse, reason: "Guest has permission to node 'something.test'");
+        expect(val, isTrue, reason: "$nick should have permission");
       });
     });
 
-    test("user nodes", () {
-      String nick = "user";
+    test("something.test", () {
       auth.hasPermission("something", nick, "test").then((bool val) {
-        expect(val, isTrue, reason: "User doesn't have permission node 'something.test'");
-      });
-      auth.hasPermission("something", nick, "test.node").then((bool val) {
-        expect(val, isTrue, reason: "User doesn't have permission node 'something.test.node'");
-      });
-      auth.hasPermission("core", nick, "test").then((bool val) {
-        expect(val, isFalse, reason: "User has permission to a negated node '-core.test'");
+        expect(val, isFalse, reason: "$nick should not have permission");
       });
     });
 
+    test("reg.command", () {
+      auth.hasPermission("reg", nick, "command").then((bool val) {
+        expect(val, isFalse, reason: "$nick should not have permission");
+      });
+    });
+  });
+}
+
+void _userTest(Auth auth) {
+  String nick = "user";
+
+  test("$nick authenticated", () {
+    wrapFuture(auth.registeredAs(nick).then((List info) {
+      expect(info[0], equals(nick));
+    }));
+  });
+
+  group("$nick node:", () {
+    test("pub.command", () {
+      auth.hasPermission("pub", nick, "command").then((bool val) {
+        expect(val, isTrue, reason: "$nick should have permission");
+      });
+    });
+
+    test("something.test", () {
+      auth.hasPermission("something", "user", "test").then((bool val) {
+        expect(val, isTrue, reason: "$nick should have permission");
+      });
+    });
+
+    test("something.test.node", () {
+      auth.hasPermission("something", "user", "test.node").then((bool val) {
+        expect(val, isTrue, reason: "$nick should have permission");
+      });
+    });
+
+    test("reg.command", () {
+      auth.hasPermission("reg", "user", "command").then((bool val) {
+        expect(val, isTrue, reason: "$nick should have permission");
+      });
+    });
+
+    test("-core.test", () {
+      auth.hasPermission("core", "user", "test").then((bool val) {
+        expect(val, isFalse, reason: "$nick should not have permission");
+      });
+    });
   });
 }
 
@@ -64,7 +124,8 @@ class BotMock extends Bot {
   IRC.Client get client => _mockClient == null ? super.client : _mockClient;
   IRC.Client _mockClient;
 
-  BotMock(String network, Map perms) : super (network, {}, {}, {}, perms) {
+  BotMock(String network, Map perms, Map groups)
+            : super (network, {}, {}, {}, perms, groups) {
     // Order sensitive in order to avoid an NPE
     _mockClient = new ClientMock(new IRC.BotConfig());
   }
