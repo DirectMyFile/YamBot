@@ -60,13 +60,13 @@ void main() {
 
 class BotMock extends Bot {
 
+  @override
   IRC.Client get client => _mockClient == null ? super.client : _mockClient;
   IRC.Client _mockClient;
 
   BotMock(String network, Map perms) : super (network, {}, {}, {}, perms) {
-    var conf = new IRC.BotConfig();
-    conf.nickname = "";
-    _mockClient = new ClientMock(conf);
+    // Order sensitive in order to avoid an NPE
+    _mockClient = new ClientMock(new IRC.BotConfig());
   }
 
 }
