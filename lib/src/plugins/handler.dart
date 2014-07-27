@@ -49,9 +49,20 @@ class PluginCommunicator {
             request.reply({ "has": has });
           });
           break;
+        case "channel":
+          var net = request.data['network'];
+          var chan = request.data['channel'];
+          var channel = bot._clients[net].client.channel(chan);
+          request.reply({
+            "name": channel.name,
+            "ops": channel.ops,
+            "voices": channel.voices,
+            "members": channel.members,
+            "topic": channel.topic
+          });
+          break;
         default:
           throw new Exception("${plugin} sent an invalid request: ${request.command}");
-          break;
       }
     });
   }
@@ -101,6 +112,10 @@ class PluginCommunicator {
           var config = m['config'];
           bot.config.clear();
           bot.config.addAll(config);
+          break;
+        case "whois":
+          var user = m['user'];
+          b.client.send("WHOIS ${user}");
           break;
         default:
           throw new Exception("$plugin sent an invalid command: $command");
@@ -196,6 +211,28 @@ class NetworkEventListener {
 
     b.client.register((IRC.DisconnectEvent e) {
       var data = common("disconnect");
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.ModeEvent e) {
+      var data = common("mode");
+      if (e.channel != null) {
+        data['channel'] = e.channel.name;
+      }
+      data['mode'] = e.mode;
+      data['user'] = e.user;
+      com.pm.sendAll(data);
+    });
+
+    b.client.register((IRC.WhoisEvent event) {
+      var data = common("whois");
+      data['member_in'] = event.member_in;
+      data['op_in'] = event.op_in;
+      data['voice_in'] = event.voice_in;
+      data['username'] = event.username;
+      data['server_operator'] = event.server_operator;
+      data['realname'] = event.realname;
+      data['nickname'] = event.nickname;
       com.pm.sendAll(data);
     });
   }
