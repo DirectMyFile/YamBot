@@ -19,12 +19,14 @@ class APIConnector {
    * [callback] is not called if the [user] has no permissions.
    */
   void permission(void callback(Map data), String network,
-                          String target, String user, String node) {
+                          String target, String user, String node,
+                          [bool notify]) {
     Map params = {
       "node": node,
       "network": network,
       "nick": user,
-      "target": target
+      "target": target,
+      "notify": notify
     };
     conn.get("permission", params).callIf((data) => data['has']).then(callback);
   }

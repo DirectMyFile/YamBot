@@ -40,11 +40,14 @@ class PluginCommunicator {
           var net = m['network'];
           var nick = m['nick'];
           var target = m['target'];
+          var notify = m['notify'];
           bot[net].authManager.hasPermission(plugin, nick, node).then((bool has) {
             if (!has) {
               var b = bot[net];
-              b.client.message(target,
+              if (notify == null || m['notify']) {
+                b.client.message(target,
                   "$nick> You are not authorized to perform this action (missing $plugin.$node)");
+              }
             }
             request.reply({ "has": has });
           });
