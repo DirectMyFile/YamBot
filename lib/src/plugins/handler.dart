@@ -40,7 +40,7 @@ class PluginCommunicator {
           var net = m['network'];
           var nick = m['nick'];
           var target = m['target'];
-          var notify = m['notify'];
+          var notify = request.data['notify']; // optional field
           bot[net].authManager.hasPermission(plugin, nick, node).then((bool has) {
             if (!has) {
               var b = bot[net];
