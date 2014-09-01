@@ -71,7 +71,9 @@ class Bot {
     }
     client.register(_rawHandler);
     client.register((IRC.ReadyEvent event) {
-      client.unregister(_rawHandler);
+      new Future.delayed(new Duration(milliseconds: 20), () {
+        client.unregister(_rawHandler);
+      });
     });
   }
 
