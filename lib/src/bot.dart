@@ -70,7 +70,9 @@ class Bot {
       print("[$server] ${event.line}");
     }
     client.register(_rawHandler);
-    client.register((IRC.ReadyEvent event) => client.unregister(_rawHandler));
+    client.register((IRC.ReadyEvent event) {
+      client.unregister(_rawHandler);
+    });
   }
 
   void _registerReadyHandler() {
