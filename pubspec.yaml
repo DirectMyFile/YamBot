@@ -1,5 +1,5 @@
 name: polymorphic_bot
-version: 1.0.1
+version: 1.2.0
 authors:
 - Kenneth Endfinger <kaendfinger@gmail.com>
 - samrg472 <samrg472@gmail.com>
@@ -11,6 +11,7 @@ dependencies:
   ansicolor: '>=0.0.9 <0.1.0'
   irc: '>=1.4.5 <1.5.0'
   path: '>=1.2.1 <2.0.0'
-  plugins: '>=1.0.0 <2.0.0'
+  plugins:
+    git: git://github.com/samrg472/plugins.dart.git
 dev_dependencies:
   scheduled_test: '>=0.11.1 <0.12.0'

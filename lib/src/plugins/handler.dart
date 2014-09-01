@@ -23,6 +23,7 @@ class PluginCommunicator {
           });
           break;
         case "config":
+          print("Got Configuration Request");
           request.reply({
             "config": bot.config
           });
