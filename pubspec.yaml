@@ -6,10 +6,10 @@ authors:
 description: Making all your YAML IRC bot dreams a magical experience
 homepage: https://github.com/DirectMyFile/YamBot
 environment:
-  sdk: '>=1.5.0'
+  sdk: '>=1.6.0'
 dependencies:
   ansicolor: '>=0.0.9 <0.1.0'
-  irc: '>=1.4.4 <1.5.0'
+  irc: '>=1.4.5 <1.5.0'
   path: '>=1.2.1 <2.0.0'
   plugins: '>=1.0.0 <2.0.0'
 dev_dependencies:
