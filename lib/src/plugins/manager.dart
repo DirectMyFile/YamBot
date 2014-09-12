@@ -1,16 +1,16 @@
 part of polymorphic.bot;
 
 class PluginHandler {
-
-  final PluginManager pm = new PluginManager();
   final CoreBot bot;
+  
+  PluginManager pm;
   PluginCommunicator _handler;
 
-  PluginHandler(this.bot) {
-    _handler = new PluginCommunicator(pm, bot);
-  }
+  PluginHandler(this.bot);
 
   Future init() {
+    pm = new PluginManager();
+    _handler = new PluginCommunicator(pm, bot, this);
     return load().then((List<Plugin> plugins) {
       print("[Plugins] Registered: ${plugins.join(" ")}");
       _handler.handle();
@@ -114,6 +114,15 @@ class PluginHandler {
       return Future.wait(futures);
     }
     return loadAll(dir);
+  }
+  
+  void killPlugins() {
+    pm.killAll();
+  }
+  
+  Future reloadPlugins() {
+    killPlugins();
+    return init();
   }
 }
 

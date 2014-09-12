@@ -4,8 +4,9 @@ class PluginCommunicator {
 
   final PluginManager pm;
   final CoreBot bot;
+  final PluginHandler handler;
 
-  PluginCommunicator(this.pm, this.bot);
+  PluginCommunicator(this.pm, this.bot, this.handler);
 
   void handle() {
     _handleRequests();
@@ -34,6 +35,15 @@ class PluginCommunicator {
           pm.get(plugin, command, data).then((response) {
             request.reply(response);
           });
+          break;
+        case "plugins":
+          request.reply({
+            "names": pm.plugins
+          });
+          break;
+        case "plugin-pubspec":
+          var plugin = m['plugin'];
+          request.reply(pm.plugin(plugin).pubspec);
           break;
         case "permission":
           var node = m['node'];
@@ -93,6 +103,12 @@ class PluginCommunicator {
           var msg = m['message'] as String;
           var target = m['target'] as String;
           b.client.action(target, msg);
+          break;
+        case "reload-plugins":
+          pm.sendAll({
+            "event": "shutdown"
+          });
+          handler.reloadPlugins();
           break;
         case "join":
           var channel = m['channel'] as String;
