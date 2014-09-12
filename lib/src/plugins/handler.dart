@@ -23,7 +23,6 @@ class PluginCommunicator {
           });
           break;
         case "config":
-          print("Got Configuration Request");
           request.reply({
             "config": bot.config
           });
@@ -116,6 +115,28 @@ class PluginCommunicator {
           var config = m['config'];
           bot.config.clear();
           bot.config.addAll(config);
+          break;
+        case "quit":
+          var reason = m['reason'] != null ? m['reason'] : "Bot Quitting";
+          b.client.disconnect(reason: reason);
+          break;
+        case "stop-bot":
+          var futures = [];
+          
+          for (var botname in bot.bots) {
+            var completer = new Completer();
+            futures.add(completer.future);
+            var it = bot._clients[botname];
+            it.client.register((IRC.DisconnectEvent event) {
+              completer.complete();
+            }, once: true);
+            it.client.disconnect();
+          }
+          
+          Future.wait(futures).then((_) {
+            pm.killAll();
+            exit(0);
+          });
           break;
         case "whois":
           var user = m['user'];
