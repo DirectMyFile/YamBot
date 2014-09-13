@@ -84,7 +84,7 @@ class PluginHandler {
         var loader = () => new CustomFilePluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
         loaders.add(loader);
 
-        requirements[spec['name']] = new List.from(info['dependencies']);
+        requirements[spec['name']] = new List.from(info['dependencies'] == null ? [] : info['dependencies']);
 
         plugin_names.add(spec["name"]);
       });

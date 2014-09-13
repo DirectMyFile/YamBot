@@ -6,7 +6,7 @@ class APIConnector {
   APIConnector(SendPort port) :
     conn = new Receiver(port);
 
-  Future<Map<String, dynamic>> get(String command, [Map<String, dynamic> data]) {
+  ConditionalFuture<Map<String, dynamic>> get(String command, [Map<String, dynamic> data]) {
     if (data == null) data = {};
     return conn.get(command, data);
   }

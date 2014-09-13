@@ -38,12 +38,29 @@ class PluginCommunicator {
           break;
         case "plugins":
           request.reply({
-            "names": pm.plugins
+            "names": pm.plugins.toList()
           });
           break;
-        case "plugin-pubspec":
-          var plugin = m['plugin'];
-          request.reply(pm.plugin(plugin).pubspec);
+        case "plugin-commands":
+          String pluginName = m['plugin'];
+          var pubspec = pm.plugin(pluginName).pubspec;
+          
+          if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
+            request.reply(null);
+          } else {
+            Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
+            Map<String, Map<String, dynamic>> converted = {};
+            for (var name in commands.keys) {
+               converted[name] = {
+                "usage": commands[name]['usage'],
+                "description": commands[name]['description']
+               };
+            }
+            
+            request.reply(converted);
+          }
+          
+          
           break;
         case "permission":
           var node = m['node'];

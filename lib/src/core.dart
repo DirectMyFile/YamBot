@@ -23,6 +23,7 @@ class CoreBot {
    */
   CoreBot.conf(this.config) {
     for (var server in config['server']) {
+      if (server['enabled'] == false) continue;
       var name = server['name'];
       var chan = config['channel'][name];
       var pref = config['prefix'][name];
