@@ -31,12 +31,18 @@ class APIConnector {
     conn.get("permission", params).callIf((data) => data['has']).then(callback);
   }
 
-  void send(String command, Map<String, dynamic> data) {
+  void send(String command, Map<String, dynamic> data, {String plugin}) {
     var request = {
       "command": command
     };
+    
     request.addAll(data);
-    conn.send(request);
+    
+    if (plugin != null) {
+      conn.intercom(plugin, data);
+    } else {
+      conn.send(request);
+    }
   }
 
   StreamSubscription<Map<String, dynamic>> handleEvent(void handler(Map<String, dynamic> data)) => conn.listen(handler);
@@ -50,4 +56,14 @@ class APIConnector {
       "target": target
     });
   }
+  
+  void notice(String network, String target, String message) {
+    send("notice", {
+      "network": network,
+      "message": message,
+      "target": target
+    });
+  }
+  
+  void handlePluginEvent(void handler(String plugin, Map<String, dynamic> data)) => conn.listenIntercom(handler);
 }

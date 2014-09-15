@@ -60,7 +60,6 @@ class PluginCommunicator {
             request.reply(converted);
           }
           
-          
           break;
         case "permission":
           var node = m['node'];
@@ -111,48 +110,58 @@ class PluginCommunicator {
           var target = m['target'] as String;
           b.client.message(target, msg);
           break;
+          
         case "notice":
           var msg = m['message'] as String;
           var target = m['target'] as String;
           b.client.notice(target, msg);
           break;
+          
         case "action":
           var msg = m['message'] as String;
           var target = m['target'] as String;
           b.client.action(target, msg);
           break;
+          
         case "reload-plugins":
           pm.sendAll({
             "event": "shutdown"
           });
           handler.reloadPlugins();
           break;
+          
         case "join":
           var channel = m['channel'] as String;
           b.client.join(channel);
           break;
+          
         case "part":
           var channel = m['channel'] as String;
-          b.client.join(channel);
+          b.client.part(channel);
           break;
+          
         case "raw":
           var line = m['line'] as String;
           b.client.send(line);
           break;
+          
         case "send":
           var plugin = m['plugin'];
           var data = m['data'];
           pm.send(plugin, data);
           break;
+          
         case "update-config":
           var config = m['config'];
           bot.config.clear();
           bot.config.addAll(config);
           break;
+        
         case "quit":
           var reason = m['reason'] != null ? m['reason'] : "Bot Quitting";
           b.client.disconnect(reason: reason);
           break;
+        
         case "stop-bot":
           var futures = [];
           
@@ -175,6 +184,7 @@ class PluginCommunicator {
           var user = m['user'];
           b.client.send("WHOIS ${user}");
           break;
+        
         default:
           throw new Exception("$plugin sent an invalid command: $command");
       }
