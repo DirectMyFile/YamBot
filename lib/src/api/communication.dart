@@ -11,9 +11,12 @@ class BotConnector {
     return conn.get(command, data);
   }
 
-  Future<Map<String, dynamic>> get config =>
+  Future<Map<String, dynamic>> getConfig() =>
       get("config").then((response) => response["config"]);
 
+  @deprecated
+  Future<Map<String, dynamic>> get config => getConfig();
+  
   /**
    * [target] is where to send the message if the node is not matched.
    * [callback] is not called if the [user] has no permissions.
@@ -55,6 +58,14 @@ class BotConnector {
       "message": message,
       "target": target
     });
+  }
+  
+  Future<List<String>> getPlugins() {
+    return get("plugins").then((data) => data['plugins']);
+  }
+  
+  Future<List<String>> getNetworks() {
+    return get("networks").then((data) => data['networks']);
   }
   
   void notice(String network, String target, String message) {
