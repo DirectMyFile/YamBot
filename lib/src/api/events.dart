@@ -39,6 +39,10 @@ class EventManager {
     });
   }
   
+  void onShutdown(void action()) {
+    on("shutdown").listen((_) => action());
+  }
+  
   void handleEvent(Map<String, dynamic> data) {
     String name = data['event'];
     

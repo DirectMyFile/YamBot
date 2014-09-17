@@ -1,10 +1,13 @@
 library polymorphic.api;
 
 import "dart:async";
+import "dart:convert";
 import "dart:isolate";
+import "dart:io";
 import "package:plugins/plugin.dart";
 
 part "src/api/communication.dart";
 part "src/api/request.dart";
 part "src/api/events.dart";
 part "src/api/commands.dart";
+part "src/api/storage.dart";

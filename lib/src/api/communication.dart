@@ -75,7 +75,11 @@ class BotConnector {
     });
   }
   
-  EventManager createEventManager() => new EventManager(this);
+  EventManager createEventManager() {
+    var manager = new EventManager(this);
+    manager.apply();
+    return manager;
+  }
   
   void handlePluginEvent(void handler(String plugin, Map<String, dynamic> data)) => conn.listenIntercom(handler);
 }
