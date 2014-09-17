@@ -14,7 +14,6 @@ class BotConnector {
   Future<Map<String, dynamic>> getConfig() =>
       get("config").then((response) => response["config"]);
 
-  @deprecated
   Future<Map<String, dynamic>> get config => getConfig();
   
   /**
