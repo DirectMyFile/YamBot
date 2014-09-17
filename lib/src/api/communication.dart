@@ -1,9 +1,9 @@
 part of polymorphic.api;
 
-class APIConnector {
+class BotConnector {
   final Receiver conn;
 
-  APIConnector(SendPort port) :
+  BotConnector(SendPort port) :
     conn = new Receiver(port);
 
   ConditionalFuture<Map<String, dynamic>> get(String command, [Map<String, dynamic> data]) {
@@ -64,6 +64,8 @@ class APIConnector {
       "target": target
     });
   }
+  
+  EventManager createEventManager() => new EventManager(this);
   
   void handlePluginEvent(void handler(String plugin, Map<String, dynamic> data)) => conn.listenIntercom(handler);
 }
