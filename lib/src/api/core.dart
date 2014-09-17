@@ -81,5 +81,12 @@ class BotConnector {
     return manager;
   }
   
+  Storage createStorage(String group, String name) {
+    var file = new File("data/${group}/${name}.json");
+    file.parent.createSync(recursive: true);
+    
+    return new Storage(file);
+  }
+  
   void handlePluginEvent(void handler(String plugin, Map<String, dynamic> data)) => conn.listenIntercom(handler);
 }
