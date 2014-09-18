@@ -6,9 +6,10 @@ class Storage {
   Map<String, dynamic> json = {};
   
   bool _changed = true;
+  final bool pretty;
   
-  Storage(this.file) {
-    new Timer.periodic(new Duration(seconds: 1), (timer) {
+  Storage(this.file, {this.pretty: true}) {
+    new Timer.periodic(new Duration(seconds: 2), (timer) {
       _save();
     });
   }
@@ -18,14 +19,15 @@ class Storage {
       return;
     }
     
-    var content = file.readAsStringSync();
+    var content = file.readAsStringSync().trim();
     json = JSON.decode(content);
   }
   
   void _save() {
     if (!_changed) return;
-    file.writeAsStringSync(JSON.encode(json));
     _changed = false;
+    var encoder = pretty ? new JsonEncoder.withIndent("  ") : JSON.encoder;
+    file.writeAsStringSync(encoder.convert(json));
   }
   
   dynamic get(String key, [dynamic defaultValue]) => json.containsKey(key) ? json[key] : defaultValue;

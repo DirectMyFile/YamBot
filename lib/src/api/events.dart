@@ -4,7 +4,7 @@ typedef void CommandHandler(CommandEvent event);
 
 class EventManager {
   final BotConnector bot;
-    
+  
   StreamSubscription _eventSub;
   
   final Map<String, StreamController> _controllers = {};
