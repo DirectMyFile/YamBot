@@ -11,8 +11,8 @@ import 'package:irc/irc.dart' as IRC;
 import 'package:plugins/loader.dart';
 import 'package:path/path.dart' as path;
 
-part 'src/plugins/manager.dart';
 part 'src/plugins/handler.dart';
+part 'src/plugins/communicator.dart';
 part 'src/config.dart';
 part 'src/core.dart';
 part 'src/auth.dart';
