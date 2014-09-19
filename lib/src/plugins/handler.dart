@@ -126,6 +126,7 @@ class PluginHandler {
   }
   
   Future reloadPlugins() {
+    print("[Plugins] Reloading");
     killPlugins();
     return init();
   }
@@ -139,7 +140,9 @@ class BotPluginLoader extends PluginLoader {
   @override
   Future<Isolate> load(SendPort port, List<String> args) {
     args = args == null ? [] : args;
+    
     var loc = path.joinAll([directory.absolute.path, main]);
+    
     return Isolate.spawnUri(new Uri.file(loc), args, port).then((isolate) {
       return isolate;
     });
