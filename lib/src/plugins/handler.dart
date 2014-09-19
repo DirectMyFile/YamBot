@@ -1,5 +1,7 @@
 part of polymorphic.bot;
 
+typedef PluginLoader PluginLoaderCreator();
+
 class PluginHandler {
   final CoreBot bot;
   
@@ -19,17 +21,17 @@ class PluginHandler {
   }
 
   Future load() {
-    var requirements = {};
-    var pluginNames = [];
+    var requirements = <String, List<String>>{};
+    var pluginNames = <String>[];
     var pluginsDirectory = new Directory("plugins");
     if (!pluginsDirectory.existsSync()) pluginsDirectory.createSync();
 
     /* Patched loadAll() method */
     Future loadAll(Directory directory) {
-      var loaders = [];
+      var loaders = <PluginLoaderCreator>[];
 
       directory.listSync(followLinks: true).forEach((entity) {
-        if (!(entity is Directory)) return;
+        if (entity is! Directory) return;
         var packagesDirectory = new Directory("${entity.path}/packages");
         var pubspec = new File("${entity.path}/pubspec.yaml");
         Map<String, dynamic> spec = yaml.loadYaml(pubspec.readAsStringSync());
@@ -44,14 +46,14 @@ class PluginHandler {
           info = spec["plugin"];
         }
 
-        var plugin_name = spec["name"] as String;
+        String pluginName = spec["name"];
 
         if (!packagesDirectory.existsSync() && pubspec.existsSync()) {
           /* Execute 'pub get' */
-          print("[Plugins] Fetching Dependencies for Plugin '${plugin_name}'");
+          print("[Plugins] Fetching Dependencies for Plugin '${pluginName}'");
           var result = Process.runSync(Platform.isWindows ? "pub.bat" : "pub", ["get"], workingDirectory: entity.path);
           if (result.exitCode != 0) {
-            print("[Plugins] Failed to Fetch Dependencies for Plugin '${plugin_name}'");
+            print("[Plugins] Failed to Fetch Dependencies for Plugin '${pluginName}'");
             if (result.stdout.trim() != "") {
               print("[STDOUT]");
               stdout.write(result.stdout);
@@ -67,7 +69,7 @@ class PluginHandler {
         if (info['update_dependencies'] != null ? info['update_dependencies'] : false) {
           var result = Process.runSync(Platform.isWindows ? "pub.bat" : "pub", ["upgrade"], workingDirectory: entity.path);
           if (result.exitCode != 0) {
-            print("[Plugins] Failed to Update Dependencies for Plugin '${plugin_name}'");
+            print("[Plugins] Failed to Update Dependencies for Plugin '${pluginName}'");
             if (result.stdout.trim() != "") {
               print("[STDOUT]");
               stdout.write(result.stdout);
@@ -84,9 +86,9 @@ class PluginHandler {
         var loader = () => new BotPluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
         loaders.add(loader);
 
-        requirements[spec['name']] = new List.from(info['dependencies'] == null ? [] : info['dependencies']);
+        requirements[pluginName] = new List<String>.from(info['dependencies'] == null ? [] : info['dependencies']);
 
-        pluginNames.add(spec["name"]);
+        pluginNames.add(pluginName);
       });
 
       /* Resolve Plugin Requirements */
