@@ -10,7 +10,7 @@ class PluginHandler {
 
   Future init() {
     pm = new PluginManager();
-    _communicator = new PluginCommunicator(pm, bot, this);
+    _communicator = new PluginCommunicator(bot, this);
     return load().then((List<Plugin> plugins) {
       print("[Plugins] Registered: ${plugins.join(" ")}");
       _communicator.handle();

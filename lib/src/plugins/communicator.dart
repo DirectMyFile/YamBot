@@ -1,12 +1,12 @@
 part of polymorphic.bot;
 
 class PluginCommunicator {
-
-  final PluginManager pm;
   final CoreBot bot;
   final PluginHandler handler;
 
-  PluginCommunicator(this.pm, this.bot, this.handler);
+  PluginManager get pm => handler.pm;
+  
+  PluginCommunicator(this.bot, this.handler);
 
   void handle() {
     _handleRequests();
