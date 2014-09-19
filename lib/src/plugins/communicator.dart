@@ -50,6 +50,7 @@ class PluginCommunicator {
           } else {
             Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
             Map<String, Map<String, dynamic>> converted = {};
+            
             for (var name in commands.keys) {
                converted[name] = {
                 "usage": commands[name]['usage'],

@@ -81,7 +81,7 @@ class PluginHandler {
         }
 
 
-        var loader = () => new CustomFilePluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
+        var loader = () => new BotPluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
         loaders.add(loader);
 
         requirements[spec['name']] = new List.from(info['dependencies'] == null ? [] : info['dependencies']);
@@ -129,10 +129,10 @@ class PluginHandler {
   }
 }
 
-class CustomFilePluginLoader extends PluginLoader {
+class BotPluginLoader extends PluginLoader {
   final String main;
 
-  CustomFilePluginLoader(Directory directory, [this.main = "main.dart"]) : super(directory);
+  BotPluginLoader(Directory directory, [this.main = "main.dart"]) : super(directory);
 
   @override
   Future<Isolate> load(SendPort port, List<String> args) {
