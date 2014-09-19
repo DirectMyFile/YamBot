@@ -41,7 +41,7 @@ class BotConnector {
     request.addAll(data);
     
     if (plugin != null) {
-      conn.intercom(plugin, data);
+      conn.intercom(plugin, request);
     } else {
       conn.send(request);
     }
