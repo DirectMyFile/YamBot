@@ -14,7 +14,7 @@ class PluginHandler {
     pm = new PluginManager();
     _communicator = new PluginCommunicator(bot, this);
     return load().then((List<Plugin> plugins) {
-      print("[Plugins] Registered: ${plugins.join(" ")}");
+      print("[Plugins] Registered: ${plugins.join(", ")}");
       _communicator.handle();
       return plugins;
     });
