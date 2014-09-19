@@ -33,8 +33,8 @@ class PluginHandler {
       directory.listSync(followLinks: true).forEach((entity) {
         if (entity is! Directory) return;
         var packagesDirectory = new Directory("${entity.path}/packages");
-        var pubspec = new File("${entity.path}/pubspec.yaml");
-        Map<String, dynamic> spec = yaml.loadYaml(pubspec.readAsStringSync());
+        var pubspecFile = new File("${entity.path}/pubspec.yaml");
+        Map<String, dynamic> pubspec = yaml.loadYaml(pubspecFile.readAsStringSync());
 
         var info = {
           "dependencies": [],
@@ -42,13 +42,13 @@ class PluginHandler {
           "update_dependencies": false
         };
 
-        if (spec["plugin"] != null) {
-          info = spec["plugin"];
+        if (pubspec["plugin"] != null) {
+          info = pubspec["plugin"];
         }
 
-        String pluginName = spec["name"];
+        String pluginName = pubspec["name"];
 
-        if (!packagesDirectory.existsSync() && pubspec.existsSync()) {
+        if (!packagesDirectory.existsSync() && pubspecFile.existsSync()) {
           /* Execute 'pub get' */
           print("[Plugins] Fetching Dependencies for Plugin '${pluginName}'");
           var result = Process.runSync(Platform.isWindows ? "pub.bat" : "pub", ["get"], workingDirectory: entity.path);
