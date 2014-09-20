@@ -13,6 +13,10 @@ class EventManager {
   
   void apply() {
     _eventSub = bot.handleEvent(handleEvent);
+    onShutdown(() {
+      print("[Plugin Event Manager] Shutting Down");
+      _eventSub.cancel();
+    });
   }
   
   void disable() => _eventSub.pause();

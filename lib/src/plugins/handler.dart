@@ -122,11 +122,17 @@ class PluginHandler {
     pm.sendAll({
       "event": "shutdown"
     });
+    
+    for (var pluginName in pm.plugins) {
+      var plugin = pm.plugin(pluginName);
+      pm.kill(pluginName);
+      sleep(new Duration(milliseconds: 100));
+    }
+    
     pm.killAll();
   }
   
   Future reloadPlugins() {
-    print("[Plugins] Reloading");
     killPlugins();
     return init();
   }

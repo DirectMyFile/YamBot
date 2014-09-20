@@ -8,8 +8,10 @@ class Storage {
   bool _changed = true;
   final bool pretty;
   
+  Timer _saveTimer;
+  
   Storage(this.file, {this.pretty: true}) {
-    new Timer.periodic(new Duration(seconds: 2), (timer) {
+    _saveTimer = new Timer.periodic(new Duration(seconds: 2), (timer) {
       _save();
     });
   }
@@ -35,6 +37,10 @@ class Storage {
   void set(String key, dynamic value) {
     json[key] = value;
     _changed = true;
+  }
+  
+  void destroy() {
+    _saveTimer.cancel();
   }
   
   Map<String, dynamic> get map => new Map.from(json);
