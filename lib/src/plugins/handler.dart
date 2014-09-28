@@ -123,11 +123,7 @@ class PluginHandler {
       "event": "shutdown"
     });
     
-    for (var pluginName in pm.plugins) {
-      var plugin = pm.plugin(pluginName);
-      pm.kill(pluginName);
-      sleep(new Duration(milliseconds: 100));
-    }
+    sleep(new Duration(milliseconds: 500));
     
     pm.killAll();
   }
