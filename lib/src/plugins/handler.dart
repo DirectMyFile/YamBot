@@ -124,7 +124,7 @@ class PluginHandler {
     });
     
     sleep(new Duration(milliseconds: 500));
-    
+        
     pm.killAll();
   }
   
