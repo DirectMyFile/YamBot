@@ -282,10 +282,13 @@ class NetworkEventListener {
     b.client.register((IRC.WhoisEvent event) {
       var data = common("whois");
       data['member_in'] = event.member_in;
-      data['op_in'] = event.op_in;
-      data['voice_in'] = event.voice_in;
+      data['op_in'] = event.operatorChannels;
+      data['operatorChannels'] = event.operatorChannels;
+      data['voice_in'] = event.voicedChannels;
+      data['voicedChannels'] = event.voicedChannels;
       data['username'] = event.username;
-      data['server_operator'] = event.server_operator;
+      data['server_operator'] = event.isServerOperator;
+      data['isServerOperator'] = event.isServerOperator;
       data['realname'] = event.realname;
       data['nickname'] = event.nickname;
       com.pm.sendAll(data);

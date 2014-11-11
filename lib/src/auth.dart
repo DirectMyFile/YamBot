@@ -162,8 +162,8 @@ class Auth {
       bool success = false;
       for (var c in bot.client.channels) {
         var regular = event.member_in;
-        var voice = event.voice_in;
-        var op = event.op_in;
+        var voice = event.voicedChannels;
+        var op = event.operatorChannels;
         if (regular.contains(c.name)
             || voice.contains(c.name)
             || op.contains(c.name)) {
