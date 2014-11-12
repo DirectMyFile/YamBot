@@ -61,6 +61,16 @@ class Auth {
     });
   }
 
+  Future<bool> addPermission(String plugin, String nick, String node) {
+    return hasPermission(plugin, nick, node).then((alreadyHas) {
+      if (alreadyHas) {
+        throw new Exception("Permission already exists.");
+      }
+    }).then((_) {
+      throw new UnimplementedError("Not yet implemented.");
+    });
+  }
+
   /**
    * Element 0 of [List] is the registered username of the [nick] or null if
    * not logged in. Element 1 of [List] is an error reason.
@@ -78,7 +88,7 @@ class Auth {
   }
 
   /**
-   * Deauthenticates the [nickname] if authenticated.
+   * De-authenticates the [nickname] if authenticated.
    */
   void deauthenticate(String nickname) {
     _authenticated.remove(nickname);

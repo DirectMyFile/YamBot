@@ -80,7 +80,7 @@ class Bot {
   void _registerReadyHandler() {
     client.register((IRC.ReadyEvent event) {
       client.identify(username: serverConfig['owner'],
-                      password: serverConfig['password']);
+                      password: serverConfig['password'], nickserv: serverConfig['nickserv'] != null ? serverConfig['nickserv'] : "NickServ");
       print("[$server] Bot is Ready");
       for (var chan in channelConfig) {
         print("[$server] Joining $chan");
