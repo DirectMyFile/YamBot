@@ -12,6 +12,6 @@ dependencies:
   irc: '>=1.4.5 <1.5.0'
   path: '>=1.2.1 <2.0.0'
   plugins:
-    git: git://github.com/samrg472/plugins.dart.git
+    git: git://github.com/kaendfinger/plugins.dart.git
 dev_dependencies:
   scheduled_test: '>=0.11.1 <0.12.0'

@@ -6,12 +6,13 @@ class PluginCommunicator {
 
   PluginManager get pm => handler.pm;
   
-  PluginCommunicator(this.bot, this.handler);
+  PluginCommunicator(this.bot, this.handler) {
+    _handleEventListeners();
+  }
 
   void handle() {
     _handleRequests();
     _handleNormals();
-    _handleEventListeners();
   }
 
   void _handleRequests() {

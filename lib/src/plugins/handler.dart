@@ -8,11 +8,12 @@ class PluginHandler {
   PluginManager pm;
   PluginCommunicator _communicator;
 
-  PluginHandler(this.bot);
-
-  Future init() {
+  PluginHandler(this.bot) {
     pm = new PluginManager();
     _communicator = new PluginCommunicator(bot, this);
+  }
+
+  Future init() {
     return load().then((List<Plugin> plugins) {
       print("[Plugins] Registered: ${plugins.join(", ")}");
       _communicator.handle();
@@ -118,19 +119,20 @@ class PluginHandler {
     return loadAll(pluginsDirectory);
   }
   
-  void killPlugins() {
+  Future killPlugins() {
     pm.sendAll({
       "event": "shutdown"
     });
-    
-    sleep(new Duration(milliseconds: 500));
-        
-    pm.killAll();
+
+    return new Future.delayed(new Duration(milliseconds: 500)).then((_) {
+      pm.killAll();
+    }).then((_) {
+      sleep(new Duration(milliseconds: 100));
+    });
   }
   
   Future reloadPlugins() {
-    killPlugins();
-    return init();
+    return killPlugins().then((_) => init());
   }
 }
 
