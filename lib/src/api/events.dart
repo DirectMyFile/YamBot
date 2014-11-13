@@ -44,8 +44,6 @@ class EventManager {
       }
 
       _isShutdown = true;
-
-      print("SHUTDOWN");
     });
   }
   
@@ -84,7 +82,6 @@ class EventManager {
   
   void handleEvent(Map<String, dynamic> data) {
     if (_isShutdown) {
-      print("We are shutdown. Let's not handle this event.");
       return;
     }
 
