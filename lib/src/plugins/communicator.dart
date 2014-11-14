@@ -148,7 +148,7 @@ class PluginCommunicator {
           bot.config.addAll(config);
           break;
         case "quit":
-          var reason = m['reason'] != null ? m['reason'] : "Bot Quitting";
+          var reason = _data['reason'] != null ? m['reason'] : "Bot Quitting";
           b.client.disconnect(reason: reason);
           break;
         case "stop-bot":
