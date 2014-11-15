@@ -61,7 +61,60 @@ class PluginCommunicator {
             
             request.reply(converted);
           }
-          
+          break;
+        case "command-exists":
+          String name = m['command'];
+          List<String> cmdNames = [];
+
+          for (var pluginName in pm.plugins) {
+            var plugin = pm.plugin(pluginName);
+
+            var pubspec = plugin.pubspec;
+
+            if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
+              request.reply(null);
+            } else {
+              Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
+              Map<String, Map<String, dynamic>> converted = {};
+
+              for (var name in commands.keys) {
+                cmdNames.add(name);
+              }
+            }
+          }
+
+          var exists = cmdNames.contains(name);
+
+          request.reply({
+            "exists": exists
+          });
+          break;
+        case "command-info":
+          var allCommands = {};
+          for (var pluginName in pm.plugins) {
+            var plugin = pm.plugin(pluginName);
+
+            var pubspec = plugin.pubspec;
+
+            if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
+              request.reply(null);
+            } else {
+              Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
+              Map<String, Map<String, dynamic>> converted = {};
+
+              for (var name in commands.keys) {
+                converted[name] = {
+                  "usage": commands[name]['usage'],
+                  "description": commands[name]['description']
+                };
+              }
+
+              allCommands.addAll(converted);
+            }
+          }
+
+          request.reply(allCommands[m['command']]);
+
           break;
         case "permission":
           var node = m['node'];
