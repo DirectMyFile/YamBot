@@ -124,10 +124,8 @@ class PluginHandler {
       "event": "shutdown"
     });
 
-    return new Future.delayed(new Duration(milliseconds: 500)).then((_) {
+    return new Future.delayed(new Duration(milliseconds: 100)).then((_) {
       pm.killAll();
-    }).then((_) {
-      sleep(new Duration(milliseconds: 100));
     });
   }
   
