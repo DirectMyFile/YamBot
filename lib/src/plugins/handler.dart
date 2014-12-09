@@ -145,7 +145,7 @@ class BotPluginLoader extends PluginLoader {
     
     var loc = path.joinAll([directory.absolute.path, main]);
     
-    return Isolate.spawnUri(new Uri.file(loc), args, port).then((isolate) {
+    return Isolate.spawnUri(new Uri.file(loc), args, port, packageRoot: new Uri.file(new Directory(directory.path + "/" + "packages").path)).then((isolate) {
       return isolate;
     });
   }
