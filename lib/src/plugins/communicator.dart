@@ -126,7 +126,7 @@ class PluginCommunicator {
             if (!has) {
               var b = bot[net];
               if (notify == null || m['notify']) {
-                b.client.message(target,
+                b.client.sendMessage(target,
                   "$nick> You are not authorized to perform this action (missing $plugin.$node)");
               }
             }
@@ -136,13 +136,48 @@ class PluginCommunicator {
         case "channel":
           var net = request.data['network'];
           var chan = request.data['channel'];
-          var channel = bot._clients[net].client.channel(chan);
+          var channel = bot._clients[net].client.getChannel(chan);
           request.reply({
             "name": channel.name,
             "ops": channel.ops,
             "voices": channel.voices,
             "members": channel.members,
+            "owners": channel.owners,
+            "halfops": channel.halfops,
             "topic": channel.topic
+          });
+          break;
+        case "whois":
+          var net = m['network'];
+          var user = m['user'];
+          bot[net].client.whois(user).then((event) {
+            var memberIn  = () {
+              var list = <String>[];
+              list.addAll(event.builder.channels.where((i) =>
+                  !event.builder.opIn.contains(i) &&
+                  !event.builder.voiceIn.contains(i) &&
+                  !event.builder.halfOpIn.contains(i) &&
+                  !event.builder.ownerIn.contains(i)
+              ));
+              return list; 
+            }();
+            request.reply({
+              "away": event.away,
+              "awayMessage": event.awayMessage,
+              "isServerOperator": event.isServerOperator,
+              "hostname": event.hostname,
+              "idle": event.idle,
+              "idleTime": event.idleTime,
+              "memberIn": memberIn,
+              "operatorIn": event.builder.opIn,
+              "channels": event.builder.channels,
+              "ownerIn": event.builder.ownerIn,
+              "halfOpIn": event.builder.halfOpIn,
+              "voiceIn": event.builder.voiceIn,
+              "nickname": event.builder.nickname,
+              "realname": event.builder.realname,
+              "username": event.builder.username
+            });
           });
           break;
         default:
@@ -163,17 +198,17 @@ class PluginCommunicator {
         case "message":
           var msg = m['message'] as String;
           var target = m['target'] as String;
-          b.client.message(target, msg);
+          b.client.sendMessage(target, msg);
           break;
         case "notice":
           var msg = m['message'] as String;
           var target = m['target'] as String;
-          b.client.notice(target, msg);
+          b.client.sendNotice(target, msg);
           break;
         case "action":
           var msg = m['message'] as String;
           var target = m['target'] as String;
-          b.client.action(target, msg);
+          b.client.sendAction(target, msg);
           break;
         case "reload-plugins":
           handler.reloadPlugins();
@@ -273,12 +308,14 @@ class NetworkEventListener {
     b.client.register((IRC.JoinEvent e) {
       var data = common("join");
       data['channel'] = e.channel.name;
+      data['user'] = e.user;
       com.pm.sendAll(data);
     });
 
     b.client.register((IRC.PartEvent e) {
       var data = common("part");
       data['channel'] = e.channel.name;
+      data['user'] = e.user;
       com.pm.sendAll(data);
     });
 
@@ -332,7 +369,8 @@ class NetworkEventListener {
       data['user'] = e.user;
       com.pm.sendAll(data);
     });
-
+    
+    // deprecated
     b.client.register((IRC.WhoisEvent event) {
       var data = common("whois");
       data['member_in'] = event.member_in;

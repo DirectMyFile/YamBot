@@ -47,7 +47,7 @@ class Bot {
   Bot(this.server, this.serverConfig,
       this.channelConfig, this.prefixConfig,
       this.permsConfig, this.groupsConfig) {
-    var botConfig = new IRC.BotConfig();
+    var botConfig = new IRC.IrcConfig();
     botConfig.nickname = serverConfig['nickname'];
     botConfig.realname = serverConfig['realname'];
     botConfig.host = serverConfig['host'];

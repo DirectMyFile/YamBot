@@ -7,7 +7,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:yaml/yaml.dart' as yaml;
-import 'package:irc/irc.dart' as IRC;
+import 'package:irc/client.dart' as IRC;
 import 'package:plugins/loader.dart';
 import 'package:path/path.dart' as path;
 
@@ -44,7 +44,7 @@ CoreBot launchBot(String path) {
         print("Shutting Down");
         handler.pm.killAll();
         bot.bots.forEach((it) {
-          bot._clients[it].client.disconnect(reason: "Stopping Bot", force: true).then((_) {
+          bot._clients[it].client.disconnect(reason: "Stopping Bot").then((_) {
             exit(0);
           });
         });

@@ -1,7 +1,7 @@
 import 'package:scheduled_test/scheduled_test.dart';
 
 import 'package:polymorphic_bot/bot.dart';
-import 'package:irc/irc.dart' as IRC;
+import 'package:irc/client.dart' as IRC;
 
 void main() {
   var perms = {
@@ -127,7 +127,7 @@ class BotMock extends Bot {
   BotMock(String network, Map perms, Map groups)
             : super (network, {}, {}, {}, perms, groups) {
     // Order sensitive in order to avoid an NPE
-    _mockClient = new ClientMock(new IRC.BotConfig());
+    _mockClient = new ClientMock(new IRC.IrcConfig());
   }
 
 }
@@ -139,7 +139,7 @@ class ClientMock extends IRC.Client {
   @override
   List<IRC.Channel> channels = [new IRC.Channel(null, "#demo")];
 
-  ClientMock(IRC.BotConfig config) : super(config);
+  ClientMock(IRC.IrcConfig config) : super(config);
 
   @override
   void send(String line) {
