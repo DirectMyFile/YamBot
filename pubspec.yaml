@@ -3,7 +3,7 @@ version: 2.1.2
 authors:
 - Kenneth Endfinger <kaendfinger@gmail.com>
 - samrg472 <samrg472@gmail.com>
-description: Making all your IRC bot dreams a magical experience
+description: Making all your bot dreams a magical experience
 homepage: https://github.com/PolymorphicBot/
 environment:
   sdk: '>=1.8.0'
