@@ -2,6 +2,11 @@ part of polymorphic.bot;
 
 typedef PluginLoader PluginLoaderCreator();
 
+class PluginLoadHelper {
+  String name;
+  PluginLoaderCreator loader;
+}
+
 class PluginHandler {
   final CoreBot bot;
   
@@ -29,7 +34,7 @@ class PluginHandler {
 
     /* Patched loadAll() method */
     Future loadAll(Directory directory) {
-      var loaders = <PluginLoaderCreator>[];
+      var loaders = <PluginLoadHelper>[];
 
       directory.listSync(followLinks: true).forEach((entity) {
         if (entity is! Directory) return;
@@ -85,7 +90,7 @@ class PluginHandler {
 
 
         var loader = () => new BotPluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
-        loaders.add(loader);
+        loaders.add(new PluginLoadHelper()..name = pluginName..loader = loader);
 
         requirements[pluginName] = new List<String>.from(info['dependencies'] == null ? [] : info['dependencies']);
 
@@ -111,7 +116,7 @@ class PluginHandler {
       var futures = [];
 
       loaders.forEach((loader) {
-        futures.add(pm.load(loader()));
+        futures.add(pm.load(loader.loader(), args: [loader.name]));
       });
 
       return Future.wait(futures);

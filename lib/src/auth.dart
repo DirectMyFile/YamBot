@@ -113,17 +113,17 @@ class Auth {
     bot.client.send("WHOIS ${_queue.first}");
   }
 
-  bool _userHasMatch(String user, String plugin, node_parts) {
+  bool _userHasMatch(String user, String plugin, nodeParts) {
     var success;
 
     var groups = bot.permsConfig['groups'][user];
     var perms = bot.permsConfig['nodes'][user];
 
     for (var perm in (perms == null ? [] : perms)) {
-      var perm_parts = perm.split(".");
-      if (_hasMatch("-" + plugin, perm_parts, node_parts)) {
+      var permParts = perm.split(".");
+      if (_hasMatch("-" + plugin, permParts, nodeParts)) {
         return false;
-      } else if (_hasMatch(plugin, perm_parts, node_parts)) {
+      } else if (_hasMatch(plugin, permParts, nodeParts)) {
         success = true;
       }
     }
@@ -132,13 +132,13 @@ class Auth {
     if (success != null && success) return true;
 
     for (var group in (groups == null ? [] : groups)) {
-      var group_perms = bot.groupsConfig[group];
-      if (group_perms == null) continue;
-      for (var perm in group_perms) {
+      var groupPerms = bot.groupsConfig[group];
+      if (groupPerms == null) continue;
+      for (var perm in groupPerms) {
         var perm_parts = perm.split(".");
-        if (_hasMatch("-" + plugin, perm_parts, node_parts)) {
+        if (_hasMatch("-" + plugin, perm_parts, nodeParts)) {
           return false;
-        } else if (_hasMatch(plugin, perm_parts, node_parts)) {
+        } else if (_hasMatch(plugin, perm_parts, nodeParts)) {
           success = true;
         }
       }
@@ -147,16 +147,16 @@ class Auth {
     return success;
   }
 
-  bool _hasMatch(String plugin, perm_parts, node_parts) {
-    if (perm_parts[0] != plugin) return false;
+  bool _hasMatch(String plugin, permParts, nodeParts) {
+    if (permParts[0] != plugin) return false;
     var success = false;
 
-    perm_parts.removeAt(0);
-    for (int i = 0; i < perm_parts.length; i++) {
-      if (i >= node_parts.length) return false;
-      if (perm_parts[i] == "*") {
+    permParts.removeAt(0);
+    for (int i = 0; i < permParts.length; i++) {
+      if (i >= nodeParts.length) return false;
+      if (permParts[i] == "*") {
         return true;
-      } else if (node_parts[i] == perm_parts[i]) {
+      } else if (nodeParts[i] == permParts[i]) {
         success = true;
       } else {
         success = false;
