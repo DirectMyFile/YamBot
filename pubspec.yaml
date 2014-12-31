@@ -16,4 +16,4 @@ dependencies:
 dev_dependencies:
   scheduled_test: '>=0.11.1 <0.12.0'
 executables:
-  polymorphic: bot
+  polymorphic:
