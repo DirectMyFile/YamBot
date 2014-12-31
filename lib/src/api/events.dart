@@ -1,6 +1,7 @@
 part of polymorphic.api;
 
 typedef void CommandHandler(CommandEvent event);
+typedef void MessageHandler(MessageEvent event);
 
 typedef void ShutdownAction();
 
@@ -58,6 +59,27 @@ class EventManager {
     return _controllers[name].stream;
   }
   
+  void onMessage(MessageHandler handler, {Pattern pattern}) {
+    var sub = on("message").map((it) {
+      var network = it["network"];
+      var target = it["target"];
+      var from = it["from"];
+      var private = it["private"];
+      var message = it["message"];
+      
+      return new MessageEvent(bot, network, target, from, private, message);
+    }).where((MessageEvent it) {
+      if (pattern != null) {
+        return it.message.allMatches(pattern).isNotEmpty;
+      }
+      return true;
+    }).listen((event) {
+      handler(event);
+    });
+    
+    _subs.add(sub);
+  }
+  
   void command(String name, CommandHandler handler) {
     var sub = on("command").where((data) => data['command'] == name).listen((data) {
       var command = data['command'];
@@ -69,6 +91,7 @@ class EventManager {
       
       handler(new CommandEvent(bot, network, command, message, user, channel, args));
     });
+    
     _subs.add(sub);
   }
   
@@ -88,5 +111,20 @@ class EventManager {
     String name = data['event'];
     
     if (_controllers.containsKey(name)) _controllers[name].add(data);
+  }
+}
+
+class MessageEvent {
+  final BotConnector bot;
+  final String network;
+  final String target;
+  final String from;
+  final bool isPrivate;
+  final String message;
+  
+  MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.message);
+  
+  void reply(String msg) {
+    bot.message(network, target, msg);
   }
 }
