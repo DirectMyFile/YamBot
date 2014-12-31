@@ -11,6 +11,8 @@ import 'package:irc/client.dart' as IRC;
 import 'package:plugins/loader.dart';
 import 'package:path/path.dart' as path;
 
+import 'api.dart' as Polymorphic;
+
 part 'src/plugins/handler.dart';
 part 'src/plugins/communicator.dart';
 part 'src/config.dart';
