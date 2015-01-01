@@ -13,6 +13,8 @@ class PluginHandler {
   PluginManager pm;
   PluginCommunicator _communicator;
 
+  List<String> _elevatedPlugins = [];
+  
   PluginHandler(this.bot) {
     pm = new PluginManager();
     _communicator = new PluginCommunicator(bot, this);
@@ -20,13 +22,14 @@ class PluginHandler {
 
   Future init() {
     return load().then((List<Plugin> plugins) {
-      print("[Plugins] Registered: ${plugins.join(", ")}");
+      print("[Plugin Manager] Registered: ${plugins.join(", ")}");
       _communicator.handle();
       return plugins;
     });
   }
 
   Future load() {
+    _elevatedPlugins.clear();
     var requirements = <String, List<String>>{};
     var pluginNames = <String>[];
     var pluginsDirectory = new Directory("plugins");
@@ -45,7 +48,8 @@ class PluginHandler {
         var info = {
           "dependencies": [],
           "main": "main.dart",
-          "update_dependencies": false
+          "update_dependencies": false,
+          "elevated": false
         };
 
         if (pubspec["plugin"] != null) {
@@ -53,13 +57,18 @@ class PluginHandler {
         }
 
         String pluginName = pubspec["name"];
+        
+        if (info["elevated"]) {
+          print("[Plugin Manager] ${pluginName} is elevated.");
+          _elevatedPlugins.add(pluginName);
+        }
 
         if (!packagesDirectory.existsSync() && pubspecFile.existsSync()) {
           /* Execute 'pub get' */
-          print("[Plugins] Fetching Dependencies for Plugin '${pluginName}'");
+          print("[Plugin Manager] Fetching dependencies for plugin '${pluginName}'");
           var result = Process.runSync(Platform.isWindows ? "pub.bat" : "pub", ["get"], workingDirectory: entity.path);
           if (result.exitCode != 0) {
-            print("[Plugins] Failed to Fetch Dependencies for Plugin '${pluginName}'");
+            print("[Plugin Manager] Failed to fetch dependencies for plugin '${pluginName}'");
             if (result.stdout.trim() != "") {
               print("[STDOUT]");
               stdout.write(result.stdout);
@@ -75,11 +84,13 @@ class PluginHandler {
         if (info['update_dependencies'] != null ? info['update_dependencies'] : false) {
           var result = Process.runSync(Platform.isWindows ? "pub.bat" : "pub", ["upgrade"], workingDirectory: entity.path);
           if (result.exitCode != 0) {
-            print("[Plugins] Failed to Update Dependencies for Plugin '${pluginName}'");
+            print("[Plugin Manager] Failed to update dependencies for plugin '${pluginName}'");
+            
             if (result.stdout.trim() != "") {
               print("[STDOUT]");
               stdout.write(result.stdout);
             }
+            
             if (result.stderr.trim() != "") {
               print("[STDERR]");
               stdout.write(result.stderr);
@@ -87,7 +98,6 @@ class PluginHandler {
             exit(1);
           }
         }
-
 
         var loader = () => new BotPluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
         loaders.add(new PluginLoadHelper()..name = pluginName..loader = loader);
@@ -99,15 +109,15 @@ class PluginHandler {
 
       /* Resolve Plugin Requirements */
       {
-        print("[Plugins] Resolving Plugin Requirements");
+        print("[Plugin Manager] Resolving plugin requirements");
         for (var name in pluginNames) {
           List<String> requires = requirements[name];
           requires.removeWhere((it) => pluginNames.contains(it));
           if (requires.isNotEmpty) {
-            print("[Plugins] Failed to resolve requirements for plugin '${name}'");
+            print("[Plugin Manager] Failed to resolve requirements for plugin '${name}'");
             var noun = requires.length == 1 ? "it" : "they";
             var verb = requires.length == 1 ? "was" : "were";
-            print("[Plugins] '${name}' requires '${requires.join(", ")}', but ${noun} ${verb} not found");
+            print("[Plugin Manager] '${name}' requires '${requires.join(", ")}', but ${noun} ${verb} not found");
             exit(1);
           }
         }
@@ -136,6 +146,10 @@ class PluginHandler {
   
   Future reloadPlugins() {
     return killPlugins().then((_) => init());
+  }
+  
+  bool isPluginElevated(String plugin) {
+    return _elevatedPlugins.contains(plugin);
   }
 }
 

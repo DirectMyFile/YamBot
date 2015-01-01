@@ -237,9 +237,9 @@ typedef void PluginEventHandler(String plugin, Map<String, dynamic> data);
 
 class Plugin {
   final String name;
-  final SendPort port;
+  final SendPort _port;
 
-  Plugin(this.name, this.port);
+  Plugin(this.name, this._port);
 
   Receiver _conn;
   BotConnector _bot;
@@ -257,6 +257,8 @@ class Plugin {
   void enable() => _eventSub.resume();
 
   Stream<Map<String, dynamic>> on(String name) {
+    _init();
+    
     if (!_controllers.containsKey(name)) {
       _controllers[name] = new StreamController.broadcast();
     }
@@ -264,15 +266,21 @@ class Plugin {
     return _controllers[name].stream;
   }
   
-  void onShutdown(void action()) {
+  void onShutdown(ShutdownAction action) {
+    _init();
+    
     _shutdown.add(action);
   }
   
   void registerSubscription(StreamSubscription sub) {
+    _init();
+    
     _subs.add(sub);
   }
   
   void _handleEvent(Map<String, dynamic> data) {
+    _init();
+    
     if (_isShutdown) {
       return;
     }
@@ -284,7 +292,7 @@ class Plugin {
   
   void _init() {
     if (_conn == null) {
-      _conn = new Receiver(port);
+      _conn = new Receiver(_port);
       
       _eventSub = _conn.listen((it) {
         _handleEvent(it);
@@ -337,10 +345,14 @@ class Plugin {
   }
   
   void addRemoteMethod(String name, RequestHandler handler) {
+    _init();
+    
     _requestHandlers[name] = handler;
   }
   
   void onPluginEvent(PluginEventHandler handler) {
+    _init();
+    
     _pluginEventHandlers.add(handler);
   }
   
@@ -349,6 +361,12 @@ class Plugin {
     
     if (data == null) data = {};
     return _conn.get(command, data);
+  }
+  
+  void log(String message) {
+    _init();
+    
+    print("[${name}] ${message}");
   }
   
   void send(String command, Map<String, dynamic> data, {String plugin}) {

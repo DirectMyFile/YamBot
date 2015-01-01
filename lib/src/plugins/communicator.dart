@@ -24,11 +24,13 @@ class PluginCommunicator {
             "networks": bot.bots
           });
           break;
+        
         case "config":
           request.reply({
             "config": bot.config
           });
           break;
+        
         case "request":
           var plugin = m['plugin'];
           var command = m['command'];
@@ -37,11 +39,13 @@ class PluginCommunicator {
             request.reply(response);
           });
           break;
+        
         case "plugins":
           request.reply({
             "names": pm.plugins.toList()
           });
           break;
+        
         case "plugin-commands":
           String pluginName = m['plugin'];
           var pubspec = pm.plugin(pluginName).pubspec;
@@ -200,9 +204,11 @@ class PluginCommunicator {
       var m = new VerificationManager(plugin, _data);
       var b = bot[m['network']];
       var command = m['command'];
+      
       if (command != null) {
         m.type = command;
       }
+      
       switch (command) {
         case "message":
           var msg = m['message'] as String;
@@ -248,6 +254,14 @@ class PluginCommunicator {
           var reason = _data['reason'] != null ? m['reason'] : "Bot Quitting";
           b.client.disconnect(reason: reason);
           break;
+        case "broadcast":
+          if (!handler.isPluginElevated(plugin)) {
+            throw new Exception("Plugin must declare itself as being elevated in order to broadcast a message to all plugins.");
+          }
+          
+          var data = m['data'];
+          pm.sendAll(data);
+          break;
         case "stop-bot":
           var futures = [];
           
@@ -285,7 +299,6 @@ class PluginCommunicator {
 }
 
 class NetworkEventListener {
-
   final PluginCommunicator com;
   final String network;
 
