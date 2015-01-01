@@ -362,6 +362,20 @@ class Plugin {
     _methods[name] = handler;
   }
   
+  Future<dynamic> callRemoteMethod(String plugin, String method, dynamic arguments) {
+    var data = arguments is Map ? arguments : {
+      "value": arguments
+    };
+    
+    return get("request", {
+      "command": method,
+      "plugin": plugin,
+      "data": data
+    }).then((value) {
+      return (value.keys.length == 1 && value.keys.single == "value") ? value["value"] : value;
+    });
+  }
+  
   void onPluginEvent(PluginEventHandler handler, {String plugin}) {
     _init();
     
