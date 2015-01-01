@@ -23,3 +23,12 @@ class CommandEvent {
 
   CommandEvent(this.bot, this.network, this.command, this.message, this.user, this.channel, this.args);
 }
+
+class CommandInfo {
+  final String plugin;
+  final String name;
+  final String usage;
+  final String description;
+  
+  CommandInfo(this.plugin, this.name, this.usage, this.description);
+}

@@ -89,8 +89,10 @@ class PluginCommunicator {
             "exists": exists
           });
           break;
+        
         case "command-info":
           var allCommands = {};
+          
           for (var pluginName in pm.plugins) {
             var plugin = pm.plugin(pluginName);
 
@@ -104,6 +106,7 @@ class PluginCommunicator {
 
               for (var name in commands.keys) {
                 converted[name] = {
+                  "plugin": pluginName,
                   "usage": commands[name]['usage'],
                   "description": commands[name]['description']
                 };
@@ -111,6 +114,12 @@ class PluginCommunicator {
 
               allCommands.addAll(converted);
             }
+          }
+          
+          if (m.data.containsKey("command")) {
+            request.reply(allCommands[m["command"]]);
+          } else {
+            request.reply(allCommands);
           }
 
           request.reply(allCommands[m['command']]);

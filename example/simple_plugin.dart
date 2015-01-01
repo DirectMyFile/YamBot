@@ -3,10 +3,11 @@ import "package:polymorphic_bot/api.dart";
 BotConnector bot;
 
 // Main Entry Point
-void main(_, port) {
-  // Creates a Bot Connector for your plugin.
-  // The Bot Connector is the central place for communication between your plugin and PolymorphicBot.
-  bot = new BotConnector(port);
+// A Plugin instance is passed in. Plugin Communication is handled with your plugin instance.
+void main(_, Plugin plugin) {
+  // Gets the Bot Connector for your plugin.
+  // The Bot Connector is what you use to communicate with the bot.
+  bot = plugin.getBot();
   
   // Simple Hello Command
   bot.command("hello", (event) {
@@ -15,7 +16,7 @@ void main(_, port) {
   });
   
   // Handles Plugin Shutdowns
-  bot.onShutdown(() {
+  plugin.onShutdown(() {
     // Do Something Important
   });
 }
