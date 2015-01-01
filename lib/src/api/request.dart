@@ -1,3 +1,3 @@
 part of polymorphic.api;
 
-typedef void RequestHandler(Request request);
+typedef void RemoteCallHandler(RemoteCall call);

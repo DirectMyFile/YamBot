@@ -248,7 +248,7 @@ class Plugin {
   List<ShutdownAction> _shutdown = [];
   Map<String, StreamController> _controllers = {};
   List<Storage> _storages = [];
-  Map<String, RequestHandler> _requestHandlers = {};
+  Map<String, RemoteCallHandler> _methods = {};
   List<PluginEventHandler> _pluginEventHandlers = [];
 
   bool _isShutdown = false;
@@ -324,6 +324,18 @@ class Plugin {
           handler(plugin, data);
         }
       });
+      
+      _conn.listenRequest((request) {
+        if (!request.command.startsWith("__") && _methods.containsKey(request.command)) {
+          _methods[request.command](new RemoteCall(request));
+        }
+        
+        if (request.command == "__getRemoteMethods") {
+          request.reply({
+            "methods": _methods.keys
+          });
+        }
+      });
     }
     
     if (_bot == null) {
@@ -344,16 +356,20 @@ class Plugin {
     return storage;
   }
   
-  void addRemoteMethod(String name, RequestHandler handler) {
+  void addRemoteMethod(String name, RemoteCallHandler handler) {
     _init();
     
-    _requestHandlers[name] = handler;
+    _methods[name] = handler;
   }
   
-  void onPluginEvent(PluginEventHandler handler) {
+  void onPluginEvent(PluginEventHandler handler, {String plugin}) {
     _init();
     
-    _pluginEventHandlers.add(handler);
+    _pluginEventHandlers.add((name, data) {
+      if (plugin == null || name == plugin) {
+        handler(name, data);
+      }
+    });
   }
   
   ConditionalFuture<Map<String, dynamic>> get(String command, [Map<String, dynamic> data]) {
@@ -389,4 +405,17 @@ class Plugin {
     _init();
     return _bot;
   }
+}
+
+class RemoteCall {
+  final Request request;
+  
+  RemoteCall(this.request);
+  
+  dynamic getArgument(String name, {dynamic defaultValue}) => request.data.containsKey(name) ? request.data[name] : defaultValue;
+  void reply(dynamic value) => request.reply({
+    "value": value
+  });
+  
+  void replyMap(Map<String, dynamic> map) => request.reply(map);
 }
