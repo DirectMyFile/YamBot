@@ -58,7 +58,7 @@ class PluginHandler {
 
         String pluginName = pubspec["name"];
         
-        if (info["elevated"]) {
+        if (info["elevated"] != null && info["elevated"]) {
           print("[Plugin Manager] ${pluginName} is elevated.");
           _elevatedPlugins.add(pluginName);
         }
