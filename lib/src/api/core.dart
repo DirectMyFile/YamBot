@@ -245,7 +245,7 @@ class Plugin {
   final String name;
   final SendPort _port;
   
-  http.Client httpClient = new http.Client();
+  http.Client httpClient;
 
   Plugin(this.name, this._port);
 
@@ -299,6 +299,10 @@ class Plugin {
   }
   
   void _init() {
+    if (httpClient == null) {
+      httpClient = new http.Client();
+    }
+    
     if (_conn == null) {
       _conn = new Receiver(_port);
       
