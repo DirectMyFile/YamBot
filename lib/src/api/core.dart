@@ -341,7 +341,7 @@ class Plugin {
           
           if (name == "getRemoteMethods") {
             request.reply({
-              "value": _methods.keys.toList()
+              "value": _myMethods.values
             });
           } else if (name == "getRegisteredCommands") {
             request.reply({
@@ -370,7 +370,7 @@ class Plugin {
     return storage;
   }
   
-  void addRemoteMethod(String name, RemoteCallHandler handler) {
+  void addRemoteMethod(String name, RemoteCallHandler handler, {Map<String, dynamic> metadata: const {}}) {
     _init();
     
     if (name.startsWith("__")) {
@@ -379,9 +379,10 @@ class Plugin {
     }
     
     _methods[name] = handler;
+    _myMethods[name] = new RemoteMethod(name, metadata: metadata);
   }
   
-  Future<List<String>> getRemoteMethods(String plugin) {
+  Future<List<RemoteMethod>> getRemoteMethods(String plugin) {
     return callRemoteMethod(plugin, "__getRemoteMethods");
   }
   
@@ -442,6 +443,8 @@ class Plugin {
     _init();
     return _bot;
   }
+  
+  Map<String, RemoteMethod> _myMethods = {};
 }
 
 typedef void RemoteCallHandler(RemoteCall call);
@@ -458,4 +461,11 @@ class RemoteCall {
   });
   
   void replyMap(Map<String, dynamic> map) => request.reply(map);
+}
+
+class RemoteMethod {
+  final String name;
+  final Map<String, dynamic> metadata;
+  
+  RemoteMethod(this.name, {this.metadata: const {}});
 }
