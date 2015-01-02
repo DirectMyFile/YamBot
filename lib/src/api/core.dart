@@ -332,7 +332,7 @@ class Plugin {
         
         if (request.command == "__getRemoteMethods") {
           request.reply({
-            "methods": _methods.keys
+            "value": _methods.keys.toList()
           });
         }
       });
@@ -359,10 +359,19 @@ class Plugin {
   void addRemoteMethod(String name, RemoteCallHandler handler) {
     _init();
     
+    if (name.startsWith("__")) {
+      log("WARNING: Remote methods starting with '__' are reserved for internal use. Not adding remote method.");
+      return;
+    }
+    
     _methods[name] = handler;
   }
   
-  Future<dynamic> callRemoteMethod(String plugin, String method, dynamic arguments) {
+  Future<List<String>> getRemoteMethods(String plugin) {
+    return callRemoteMethod(plugin, "__getRemoteMethods");
+  }
+  
+  Future<dynamic> callRemoteMethod(String plugin, String method, [dynamic arguments]) {
     var data = arguments is Map ? arguments : {
       "value": arguments
     };
@@ -420,6 +429,8 @@ class Plugin {
     return _bot;
   }
 }
+
+typedef void RemoteCallHandler(RemoteCall call);
 
 class RemoteCall {
   final Request request;
