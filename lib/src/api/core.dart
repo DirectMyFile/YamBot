@@ -430,6 +430,14 @@ class Plugin {
     print("[${name}] ${message}");
   }
   
+  Future<bool> isPluginInstalled(String name) => getPlugins().then((plugins) {
+    return plugins.contains(name);
+  });
+  
+  Future<List<String>> getPlugins() {
+    return get("plugins").then((data) => data['plugins']);
+  }
+  
   void send(String command, Map<String, dynamic> data, {String plugin}) {
     _init();
     
