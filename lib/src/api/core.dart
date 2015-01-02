@@ -13,7 +13,7 @@ class BotConnector {
    * [target] is where to send the message if the node is not matched.
    * [callback] is not called if the [user] has no permissions.
    */
-  void permission(void callback(Map data), String network, String target, String user, String node, [bool notify]) {
+  void checkPermission(void callback(Map data), String network, String target, String user, String node, [bool notify]) {
     Map params = {
       "node": node,
       "network": network,
@@ -219,7 +219,7 @@ class BotConnector {
     });
   }
   
-  void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided"}) {
+  void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided", String permission}) {
     var info = new CommandInfo(plugin.name, name, usage, description);
     
     _myCommands.add(info);
@@ -232,7 +232,15 @@ class BotConnector {
       var network = data['network'];
       var message = data['message'];
 
-      handler(new CommandEvent(this, network, command, message, user, channel, args));
+      var event = new CommandEvent(this, network, command, message, user, channel, args);
+      
+      if (permission != null) {
+        event.require(permission, () {
+          handler(event);
+        });
+      } else {
+        handler(event);
+      }
     });
 
     plugin.registerSubscription(sub);

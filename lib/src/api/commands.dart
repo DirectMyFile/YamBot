@@ -14,7 +14,7 @@ class CommandEvent {
   }
 
   void require(String permission, void handle()) {
-    bot.permission((it) => handle(), network, channel, user, permission);
+    bot.checkPermission((it) => handle(), network, channel, user, permission);
   }
 
   void replyNotice(String message) {
