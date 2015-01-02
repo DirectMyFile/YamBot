@@ -244,6 +244,8 @@ typedef void PluginEventHandler(String plugin, Map<String, dynamic> data);
 class Plugin {
   final String name;
   final SendPort _port;
+  
+  http.Client httpClient = new http.Client();
 
   Plugin(this.name, this._port);
 
@@ -306,6 +308,7 @@ class Plugin {
       
       var sub;
       sub = on("shutdown").listen((_) {
+        httpClient.close();
         for (var action in _shutdown) {
           action();
         }
