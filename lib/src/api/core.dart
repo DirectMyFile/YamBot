@@ -196,6 +196,8 @@ class BotConnector {
     });
   }
   
+  List<CommandInfo> _myCommands = [];
+  
   Future<bool> doesCommandExist(String name) {
     return plugin.get("command-exists", {
       "command": name
@@ -217,7 +219,11 @@ class BotConnector {
     });
   }
   
-  void command(String name, CommandHandler handler) {
+  void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided"}) {
+    var info = new CommandInfo(plugin.name, name, usage, description);
+    
+    _myCommands.add(info);
+    
     var sub = plugin.on("command").where((data) => data['command'] == name).listen((data) {
       var command = data['command'];
       var args = data['args'];
@@ -330,10 +336,18 @@ class Plugin {
           _methods[request.command](new RemoteCall(request));
         }
         
-        if (request.command == "__getRemoteMethods") {
-          request.reply({
-            "value": _methods.keys.toList()
-          });
+        if (request.command.startsWith("__")) {
+          var name = request.command.substring(2);
+          
+          if (name == "getRemoteMethods") {
+            request.reply({
+              "value": _methods.keys.toList()
+            });
+          } else if (name == "getRegisteredCommands") {
+            request.reply({
+              "value": _bot._myCommands
+            });
+          }
         }
       });
     }
@@ -438,6 +452,7 @@ class RemoteCall {
   RemoteCall(this.request);
   
   dynamic getArgument(String name, {dynamic defaultValue}) => request.data.containsKey(name) ? request.data[name] : defaultValue;
+  
   void reply(dynamic value) => request.reply({
     "value": value
   });
