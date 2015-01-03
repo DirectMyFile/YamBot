@@ -99,7 +99,10 @@ class BotConnector {
   }
   
   Future<bool> isUserABot(String network, String user) {
-    return plugin.get("isUserABot").then((data) => data["value"]);
+    return plugin.get("isUserABot", {
+      "network": network,
+      "user": user
+    }).then((data) => data["value"]);
   }
   
   void onJoin(JoinHandler handler, {String channel, String user, String network}) {
