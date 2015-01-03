@@ -32,6 +32,14 @@ class BotConnector {
     });
   }
   
+  void sendAction(String network, String target, String message) {
+    plugin.send("action", {
+      "network": network,
+      "message": message,
+      "target": target
+    });
+  }
+  
   void joinChannel(String network, String channel) {
     plugin.send("join", {
       "network": network,
