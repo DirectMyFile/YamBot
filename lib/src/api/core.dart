@@ -374,6 +374,8 @@ class Plugin {
   }
   
   void _init() {
+    _initTime = new DateTime.now().millisecondsSinceEpoch;
+    
     if (httpClient == null) {
       httpClient = new http.Client();
     }
@@ -518,6 +520,8 @@ class Plugin {
     print("[${name}] ${message}");
   }
   
+  int _initTime;
+  
   bool _isServerListening = false;
   
   Stream<HttpRequest> listenServer() {
@@ -530,9 +534,18 @@ class Plugin {
     var requests = new StreamController.broadcast();
     
     HttpServer.bind("0.0.0.0", 0).then((server) {
-      send("setup-plugin-http", {
-        "port": server.port
-      });
+      var startTime = new DateTime.now();
+      if (startTime.millisecondsSinceEpoch - _initTime >= 5000) {
+        send("setup-plugin-http", {
+          "port": server.port
+        });
+      } else {
+        new Future.delayed(new Duration(seconds: 5), () {
+          send("setup-plugin-http", {
+            "port": server.port
+          });
+        }); 
+      }
       
       server.listen((request) {
         requests.add(request);

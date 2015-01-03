@@ -13,7 +13,7 @@ class PluginCommunicator {
   Map<String, int> _httpPorts = {};
 
   void handle() {
-    if (bot.config["http"] == null || bot.config["http"]["port"] != null) {
+    if (bot.config["http"] == null || bot.config["http"]["port"] == null) {
       print("[HTTP] ERROR: No HTTP Port Configured.");
       exit(1);
     }
@@ -23,9 +23,10 @@ class PluginCommunicator {
     HttpServer.bind(host, port).then((server) {
       server.listen((request) {
         var segments = request.uri.pathSegments;
-        if (segments.length >= 1 && _httpPorts.containsKey(segments[0])) {
+        if (segments.isNotEmpty && _httpPorts.containsKey(segments[0])) {
           var segs = []..addAll(segments)..removeAt(0);
           var path = segs.join("/");
+          print(path);
           if (path.trim().isEmpty) {
             path = "/";
           }
