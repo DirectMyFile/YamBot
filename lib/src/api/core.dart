@@ -526,7 +526,7 @@ class Plugin {
   
   Future<HttpServer> startHttpServer() {
     if (_isServerListening) {
-      throw new Exception("Server is already listening");
+      throw new Exception("Server is already listening.");
     }
     
     _isServerListening = true;
