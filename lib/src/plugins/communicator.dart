@@ -10,13 +10,7 @@ class PluginCommunicator {
     _handleEventListeners();
   }
   
-  Map<String, int> _httpPorts = {};
-
-  void handle() {
-    if (bot.config["http"] == null || bot.config["http"]["port"] == null) {
-      print("[HTTP] ERROR: No HTTP Port Configured.");
-      exit(1);
-    }
+  void initialStart() {
     var host = bot.config["http"]["host"] != null ? bot.config["http"]["host"] : "0.0.0.0";
     var port = bot.config["http"]["port"];
     
@@ -37,6 +31,15 @@ class PluginCommunicator {
         }
       });
     });
+  }
+  
+  Map<String, int> _httpPorts = {};
+
+  void handle() {
+    if (bot.config["http"] == null || bot.config["http"]["port"] == null) {
+      print("[HTTP] ERROR: No HTTP Port Configured.");
+      exit(1);
+    }
     
     _handleRequests();
     _handleNormals();

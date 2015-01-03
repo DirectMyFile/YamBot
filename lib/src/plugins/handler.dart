@@ -19,6 +19,7 @@ class PluginHandler {
   PluginHandler(this.bot) {
     pm = new PluginManager();
     _communicator = new PluginCommunicator(bot, this);
+    _communicator.initialStart();
   }
 
   Future init() {
