@@ -264,7 +264,13 @@ class PluginCommunicator {
       if (_methods.containsKey(request.command)) {
         var handler = _methods[request.command];
         var call = new Polymorphic.RemoteCall(request);
-        Zone.current.fork(zoneValues: {
+        Zone.current.fork(specification: new ZoneSpecification(handleUncaughtError: (Zone self, ZoneDelegate parent, Zone zone, error, StackTrace stackTrace) {
+          pm.send(plugin, {
+            "exception": {
+              "message": "ERROR while calling method '${request.command}': ${error}"
+            }
+          });
+        }), zoneValues: {
           "bot.plugin.method.plugin": plugin
         }).run(() {
           handler(call);
