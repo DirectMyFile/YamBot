@@ -1,5 +1,7 @@
 part of polymorphic.bot;
 
+typedef PluginRequestHandler(String plugin, Request request);
+
 class PluginCommunicator {
   final CoreBot bot;
   final PluginHandler handler;
@@ -51,6 +53,14 @@ class PluginCommunicator {
     });
   }
 
+  Map<String, Polymorphic.RemoteCallHandler> _methods = {};
+  Map<String, Polymorphic.RemoteMethod> _methodInfo = {};
+
+  void addBotMethod(String name, Polymorphic.RemoteCallHandler handler, {Map<String, dynamic> metadata: const {}}) {
+    _methods[name] = handler;
+    _methodInfo[name] = new Polymorphic.RemoteMethod(name, metadata: metadata);
+  }
+
   JsonEncoder _jsonEncoder = new JsonEncoder.withIndent("  ");
 
   String encodeJSON(obj) {
@@ -65,206 +75,206 @@ class PluginCommunicator {
       exit(1);
     }
 
+    _addBotMethods();
     _handleRequests();
     _handleNormals();
   }
 
+  void _addBotMethods() {
+    String getPluginName() => Zone.current["bot.plugin.method.plugin"];
+
+    addBotMethod("getNetworks", (call) {
+      call.reply(bot.bots);
+    });
+
+    addBotMethod("getConfig", (call) {
+      call.reply(bot.config);
+    });
+
+    addBotMethod("makePluginRequest", (call) {
+      var plugin = call.getArgument("plugin");
+      var command = call.getArgument("command");
+      var data = call.getArgument("data");
+
+      pm.get(plugin, command, data).then((response) {
+        call.replyMap(response);
+      });
+    });
+
+    addBotMethod("getPlugins", (call) {
+      call.reply(pm.plugins.toList());
+    });
+
+    addBotMethod("isUserABot", (call) {
+      var network = call.getArgument('network');
+      var user = call.getArgument('user');
+      bot[network].isUserBot(user).then((isBot) {
+        call.reply(isBot);
+      });
+    });
+
+    addBotMethod("doesCommandExist", (call) {
+      var name = call.getArgument("value");
+
+      List<String> cmdNames = [];
+
+      for (var pluginName in pm.plugins) {
+        var plugin = pm.plugin(pluginName);
+
+        var pubspec = plugin.pubspec;
+
+        if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
+          call.reply(null);
+        } else {
+          Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
+          Map<String, Map<String, dynamic>> converted = {};
+
+          for (var name in commands.keys) {
+            cmdNames.add(name);
+          }
+        }
+      }
+
+      var exists = cmdNames.contains(name);
+
+      call.reply(exists);
+    });
+
+    addBotMethod("forwardHttpPort", (call) {
+      var port = call.getArgument("value");
+
+      _httpPorts[getPluginName()] = port;
+    });
+
+    addBotMethod("unforwardHttpPort", (call) {
+      _httpPorts.remove(getPluginName());
+    });
+
+    addBotMethod("getCommandInfo", (call) {
+      var allCommands = {};
+
+      for (var pluginName in pm.plugins) {
+        var plugin = pm.plugin(pluginName);
+
+        var pubspec = plugin.pubspec;
+
+        if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
+          call.reply(null);
+        } else {
+          Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
+          Map<String, Map<String, dynamic>> converted = {};
+
+          for (var name in commands.keys) {
+            converted[name] = {
+              "plugin": pluginName,
+              "usage": commands[name]['usage'],
+              "description": commands[name]['description']
+            };
+          }
+
+          allCommands.addAll(converted);
+        }
+      }
+
+      if (call.request.data.containsKey("command")) {
+        call.reply(allCommands[call.getArgument("command")]);
+      } else {
+        if (call.getArgument("plugin") != null) {
+          var pc = {};
+          
+          for (var key in allCommands.keys) {
+            var info = allCommands[key];
+            
+            if (info["plugin"] == call.getArgument("plugin")) {
+              pc[key] = info;
+            }
+          }
+          
+          call.reply(pc);
+        } else {
+          call.reply(allCommands);
+        }
+      }
+    });
+
+    addBotMethod("checkPermission", (call) {
+      var node = call.getArgument('node');
+      var net = call.getArgument('network');
+      var user = call.getArgument('user');
+      var target = call.getArgument('target');
+      var notify = call.getArgument("notify", defaultValue: true);
+      bot[net].authManager.hasPermission(getPluginName(), user, node).then((bool has) {
+        if (!has) {
+          var b = bot[net];
+          if (notify == null || notify) {
+            b.client.sendMessage(target, "$user> You are not authorized to perform this action (missing ${getPluginName()}.${node}");
+          }
+        }
+        call.reply(has);
+      });
+    });
+
+    addBotMethod("getChannel", (call) {
+      var net = call.getArgument('network');
+      var chan = call.getArgument('channel');
+      var channel = bot._clients[net].client.getChannel(chan);
+      call.reply({
+        "name": channel.name,
+        "ops": channel.ops,
+        "voices": channel.voices,
+        "members": channel.members,
+        "owners": channel.owners,
+        "halfops": channel.halfops,
+        "topic": channel.topic
+      });
+    });
+
+    addBotMethod("whois", (call) {
+      var net = call.getArgument('network');
+      var user = call.getArgument('user');
+      bot[net].client.whois(user).then((event) {
+        var memberIn = () {
+          var list = <String>[];
+          list.addAll(event.builder.channels.where((i) => !event.builder.opIn.contains(i) && !event.builder.voiceIn.contains(i) && !event.builder.halfOpIn.contains(i) && !event.builder.ownerIn.contains(i)));
+          return list;
+        }();
+        call.reply({
+          "away": event.away,
+          "awayMessage": event.awayMessage,
+          "isServerOperator": event.isServerOperator,
+          "hostname": event.hostname,
+          "idle": event.idle,
+          "idleTime": event.idleTime,
+          "memberIn": memberIn,
+          "operatorIn": event.builder.opIn,
+          "channels": event.builder.channels,
+          "ownerIn": event.builder.ownerIn,
+          "halfOpIn": event.builder.halfOpIn,
+          "voiceIn": event.builder.voiceIn,
+          "nickname": event.builder.nickname,
+          "realname": event.builder.realname,
+          "username": event.builder.username
+        });
+      });
+    });
+  }
+
   void _handleRequests() {
     pm.listenAllRequest((plugin, request) {
-      var m = new VerificationManager(plugin, request.data);
-      switch (request.command) {
-        case "networks":
-          request.reply({
-            "networks": bot.bots
-          });
-          break;
-
-        case "config":
-          request.reply({
-            "config": bot.config
-          });
-          break;
-
-        case "request":
-          var plugin = m['plugin'];
-          var command = m['command'];
-          var data = m['data'];
-          pm.get(plugin, command, data).then((response) {
-            request.reply(response);
-          });
-          break;
-
-        case "isUserABot":
-          var network = m['network'];
-          var user = m['user'];
-          bot[network].isUserBot(user).then((isBot) {
-            request.reply({
-              "value": isBot
-            });
-          });
-          break;
-
-        case "plugins":
-          request.reply({
-            "names": pm.plugins.toList()
-          });
-          break;
-
-        case "plugin-commands":
-          String pluginName = m['plugin'];
-          var pubspec = pm.plugin(pluginName).pubspec;
-
-          if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
-            request.reply(null);
-          } else {
-            Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
-            Map<String, Map<String, dynamic>> converted = {};
-
-            for (var name in commands.keys) {
-              converted[name] = {
-                "usage": commands[name]['usage'],
-                "description": commands[name]['description']
-              };
-            }
-
-            request.reply(converted);
+      if (_methods.containsKey(request.command)) {
+        var handler = _methods[request.command];
+        var call = new Polymorphic.RemoteCall(request);
+        Zone.current.fork(zoneValues: {
+          "bot.plugin.method.plugin": plugin
+        }).run(() {
+          handler(call);
+        });
+      } else {
+        pm.send(plugin, {
+          "exception": {
+            "message": "ERROR: Tried to call bot method '${request.command}', however it does not exist."
           }
-          break;
-        case "command-exists":
-          String name = m['command'];
-          List<String> cmdNames = [];
-
-          for (var pluginName in pm.plugins) {
-            var plugin = pm.plugin(pluginName);
-
-            var pubspec = plugin.pubspec;
-
-            if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
-              request.reply(null);
-            } else {
-              Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
-              Map<String, Map<String, dynamic>> converted = {};
-
-              for (var name in commands.keys) {
-                cmdNames.add(name);
-              }
-            }
-          }
-
-          var exists = cmdNames.contains(name);
-
-          request.reply({
-            "exists": exists
-          });
-          break;
-
-        case "setup-plugin-http":
-          var port = request.data["port"];
-          _httpPorts[plugin] = port;
-          break;
-
-        case "shutdown-plugin-http":
-          _httpPorts.remove(plugin);
-          break;
-
-        case "command-info":
-          var allCommands = {};
-
-          for (var pluginName in pm.plugins) {
-            var plugin = pm.plugin(pluginName);
-
-            var pubspec = plugin.pubspec;
-
-            if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
-              request.reply(null);
-            } else {
-              Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
-              Map<String, Map<String, dynamic>> converted = {};
-
-              for (var name in commands.keys) {
-                converted[name] = {
-                  "plugin": pluginName,
-                  "usage": commands[name]['usage'],
-                  "description": commands[name]['description']
-                };
-              }
-
-              allCommands.addAll(converted);
-            }
-          }
-
-          if (m.data.containsKey("command")) {
-            request.reply(allCommands[m["command"]]);
-          } else {
-            request.reply(allCommands);
-          }
-
-          request.reply(allCommands[m['command']]);
-
-          break;
-        case "permission":
-          var node = m['node'];
-          var net = m['network'];
-          var nick = m['nick'];
-          var target = m['target'];
-          var notify = request.data['notify']; // optional field
-          bot[net].authManager.hasPermission(plugin, nick, node).then((bool has) {
-            if (!has) {
-              var b = bot[net];
-              if (notify == null || m['notify']) {
-                b.client.sendMessage(target, "$nick> You are not authorized to perform this action (missing $plugin.$node)");
-              }
-            }
-            request.reply({
-              "has": has
-            });
-          });
-          break;
-
-        case "channel":
-          var net = request.data['network'];
-          var chan = request.data['channel'];
-          var channel = bot._clients[net].client.getChannel(chan);
-          request.reply({
-            "name": channel.name,
-            "ops": channel.ops,
-            "voices": channel.voices,
-            "members": channel.members,
-            "owners": channel.owners,
-            "halfops": channel.halfops,
-            "topic": channel.topic
-          });
-          break;
-        case "whois":
-          var net = m['network'];
-          var user = m['user'];
-          bot[net].client.whois(user).then((event) {
-            var memberIn = () {
-              var list = <String>[];
-              list.addAll(event.builder.channels.where((i) => !event.builder.opIn.contains(i) && !event.builder.voiceIn.contains(i) && !event.builder.halfOpIn.contains(i) && !event.builder.ownerIn.contains(i)));
-              return list;
-            }();
-            request.reply({
-              "away": event.away,
-              "awayMessage": event.awayMessage,
-              "isServerOperator": event.isServerOperator,
-              "hostname": event.hostname,
-              "idle": event.idle,
-              "idleTime": event.idleTime,
-              "memberIn": memberIn,
-              "operatorIn": event.builder.opIn,
-              "channels": event.builder.channels,
-              "ownerIn": event.builder.ownerIn,
-              "halfOpIn": event.builder.halfOpIn,
-              "voiceIn": event.builder.voiceIn,
-              "nickname": event.builder.nickname,
-              "realname": event.builder.realname,
-              "username": event.builder.username
-            });
-          });
-          break;
-        default:
-          throw new Exception("${plugin} sent an invalid request: ${request.command}");
+        });
       }
     });
   }

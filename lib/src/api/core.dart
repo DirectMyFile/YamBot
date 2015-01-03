@@ -5,7 +5,7 @@ class BotConnector {
 
   BotConnector(this.plugin);
 
-  Future<Map<String, dynamic>> getConfig() => plugin.get("config").then((response) => response["config"]);
+  Future<Map<String, dynamic>> getConfig() => plugin.callMethod("getConfig");
 
   Future<Map<String, dynamic>> get config => getConfig();
 
@@ -21,7 +21,7 @@ class BotConnector {
       "target": target,
       "notify": notify
     };
-    plugin.get("permission", params).callIf((data) => data['has']).then(callback);
+    plugin.callMethod("checkPermission", params).callIf((has) => has).then(callback);
   }
 
   void sendMessage(String network, String target, String message) {
@@ -62,11 +62,11 @@ class BotConnector {
   }
 
   Future<List<String>> getPlugins() {
-    return plugin.get("plugins").then((data) => data['plugins']);
+    return plugin.getPlugins();
   }
 
   Future<List<String>> getNetworks() {
-    return plugin.get("networks").then((data) => data['networks']);
+    return plugin.callMethod("getNetworks");
   }
 
   void sendNotice(String network, String target, String message) {
@@ -99,10 +99,10 @@ class BotConnector {
   }
   
   Future<bool> isUserABot(String network, String user) {
-    return plugin.get("isUserABot", {
+    return plugin.callMethod("isUserABot", {
       "network": network,
       "user": user
-    }).then((data) => data["value"]);
+    });
   }
   
   void onJoin(JoinHandler handler, {String channel, String user, String network}) {
@@ -231,7 +231,7 @@ class BotConnector {
   }
   
   Future<List<CommandInfo>> getCommands([String pluginName]) {
-    return plugin.get(pluginName != null ? "plugin-commands" : "command-info", pluginName != null ? {
+    return plugin.callMethod("getCommandInfo", pluginName != null ? {
       "plugin": pluginName
     } : {}).then((response) {
       if (response == null) {
@@ -252,15 +252,11 @@ class BotConnector {
   List<CommandInfo> _myCommands = [];
   
   Future<bool> doesCommandExist(String name) {
-    return plugin.get("command-exists", {
-      "command": name
-    }).then((response) {
-      return response["exists"];
-    });
+    return plugin.callMethod("doesCommandExist", name);
   }
 
   Future<CommandInfo> getCommand(String name) {
-    return plugin.get("command-info", {
+    return plugin.callMethod("getCommandInfo", {
       "command": name
     }).then((response) {
       if (response == null) {
@@ -491,13 +487,7 @@ class Plugin {
       "value": arguments
     };
     
-    return get("request", {
-      "command": method,
-      "plugin": plugin,
-      "data": data
-    }).then((value) {
-      return (value.keys.length == 1 && value.keys.single == "value") ? value["value"] : value;
-    });
+    return callMethod("makePluginRequest", data);
   }
   
   void onPluginEvent(PluginEventHandler handler, {String plugin}) {
@@ -510,11 +500,21 @@ class Plugin {
     });
   }
   
-  ConditionalFuture<Map<String, dynamic>> get(String command, [Map<String, dynamic> data]) {
+  ConditionalFuture<Map<String, dynamic>> _get(String command, [Map<String, dynamic> data]) {
     _init();
     
     if (data == null) data = {};
     return _conn.get(command, data);
+  }
+  
+  ConditionalFuture<dynamic> callMethod(String name, [dynamic arguments]) {
+    var data = arguments is Map ? arguments : {
+      "value": arguments
+    };
+    
+    return _get(name, data).then((value) {
+      return (value.keys.length == 1 && value.keys.single == "value") ? value["value"] : value;
+    });
   }
   
   void log(String message) {
@@ -545,19 +545,15 @@ class Plugin {
       
       var startTime = new DateTime.now();
       if (startTime.millisecondsSinceEpoch - _initTime >= 5000) {
-        get("setup-plugin-http", {
-          "port": server.port
-        });
+        callMethod("forwardHttpPort", server.port);
       } else {
         new Future.delayed(new Duration(seconds: 5), () {
-          get("setup-plugin-http", {
-            "port": server.port
-          });
+          callMethod("forwardHttpPort", server.port);
         }); 
       }
       
       onShutdown(() {
-        get("shutdown-plugin-http", {});
+        callMethod("unforwardHttpPort", {});
         server.close();
       });
       
@@ -570,7 +566,7 @@ class Plugin {
   });
   
   Future<List<String>> getPlugins() {
-    return get("plugins").then((data) => data['plugins']);
+    return callMethod("getPlugins");
   }
   
   void send(String command, Map<String, dynamic> data, {String plugin}) {
