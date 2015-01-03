@@ -34,7 +34,7 @@ CoreBot launchBot(String path) {
     throw new Exception("'$path' does not exist");
   }
   
-  var shutting_down = false;
+  var isShuttingDown = false;
   
   Directory.current = dir;
 
@@ -43,8 +43,8 @@ CoreBot launchBot(String path) {
   
   [ProcessSignal.SIGINT].forEach((ProcessSignal signal) {
     signal.watch().listen((data) {
-      if (!shutting_down) {
-        shutting_down = true;
+      if (!isShuttingDown) {
+        isShuttingDown = true;
         print("Shutting Down");
         handler.pm.killAll();
         bot.bots.forEach((it) {
