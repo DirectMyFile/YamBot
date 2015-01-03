@@ -5,34 +5,58 @@ class PluginCommunicator {
   final PluginHandler handler;
 
   PluginManager get pm => handler.pm;
-  
+
   PluginCommunicator(this.bot, this.handler) {
     _handleEventListeners();
   }
-  
+
   void initialStart() {
     var host = bot.config["http"]["host"] != null ? bot.config["http"]["host"] : "0.0.0.0";
     var port = bot.config["http"]["port"];
-    
+
     HttpServer.bind(host, port).then((server) {
       server.listen((request) {
         var segments = request.uri.pathSegments;
-        if (segments.isNotEmpty && _httpPorts.containsKey(segments[0])) {
-          var segs = []..addAll(segments)..removeAt(0);
+        if (segments.length >= 2 && segments[0] == "plugin" && _httpPorts.containsKey(segments[1])) {
+          var name = segments[1];
+          var segs = []
+              ..addAll(segments)
+              ..removeAt(0)
+              ..removeAt(0);
           var path = segs.join("/");
           if (path.trim().isEmpty) {
             path = "/";
           }
-          HttpHelper.forward(request, path, InternetAddress.ANY_IP_V4.address, _httpPorts[segments[0]]);
+          HttpHelper.forward(request, path, InternetAddress.ANY_IP_V4.address, _httpPorts[name]);
+        }
+
+        var response = request.response;
+
+        if (request.uri.path.trim() == "/plugins.json") {
+          if (request.method != "GET") {
+            response.statusCode = HttpStatus.METHOD_NOT_ALLOWED;
+            response.writeln("ERROR: Only GET is allowed here.");
+            response.close();
+          } else {
+            response.statusCode = 200;
+            response.writeln(encodeJSON(pm.plugins));
+            response.close();
+          }
         } else {
-          request.response.statusCode = 404;
-          request.response.writeln("ERROR: 404 not found.");
-          request.response.close();
+          response.statusCode = 404;
+          response.writeln("ERROR: 404 not found.");
+          response.close();
         }
       });
     });
   }
-  
+
+  JsonEncoder _jsonEncoder = new JsonEncoder.withIndent("  ");
+
+  String encodeJSON(obj) {
+    return _jsonEncoder.convert(obj);
+  }
+
   Map<String, int> _httpPorts = {};
 
   void handle() {
@@ -40,7 +64,7 @@ class PluginCommunicator {
       print("[HTTP] ERROR: No HTTP Port Configured.");
       exit(1);
     }
-    
+
     _handleRequests();
     _handleNormals();
   }
@@ -54,13 +78,13 @@ class PluginCommunicator {
             "networks": bot.bots
           });
           break;
-        
+
         case "config":
           request.reply({
             "config": bot.config
           });
           break;
-        
+
         case "request":
           var plugin = m['plugin'];
           var command = m['command'];
@@ -69,7 +93,7 @@ class PluginCommunicator {
             request.reply(response);
           });
           break;
-          
+
         case "isUserABot":
           var network = m['network'];
           var user = m['user'];
@@ -79,30 +103,30 @@ class PluginCommunicator {
             });
           });
           break;
-        
+
         case "plugins":
           request.reply({
             "names": pm.plugins.toList()
           });
           break;
-        
+
         case "plugin-commands":
           String pluginName = m['plugin'];
           var pubspec = pm.plugin(pluginName).pubspec;
-          
+
           if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
             request.reply(null);
           } else {
             Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
             Map<String, Map<String, dynamic>> converted = {};
-            
+
             for (var name in commands.keys) {
-               converted[name] = {
+              converted[name] = {
                 "usage": commands[name]['usage'],
                 "description": commands[name]['description']
-               };
+              };
             }
-            
+
             request.reply(converted);
           }
           break;
@@ -133,19 +157,19 @@ class PluginCommunicator {
             "exists": exists
           });
           break;
-        
+
         case "setup-plugin-http":
           var port = request.data["port"];
           _httpPorts[plugin] = port;
           break;
-          
+
         case "shutdown-plugin-http":
           _httpPorts.remove(plugin);
           break;
-          
+
         case "command-info":
           var allCommands = {};
-          
+
           for (var pluginName in pm.plugins) {
             var plugin = pm.plugin(pluginName);
 
@@ -168,7 +192,7 @@ class PluginCommunicator {
               allCommands.addAll(converted);
             }
           }
-          
+
           if (m.data.containsKey("command")) {
             request.reply(allCommands[m["command"]]);
           } else {
@@ -188,14 +212,15 @@ class PluginCommunicator {
             if (!has) {
               var b = bot[net];
               if (notify == null || m['notify']) {
-                b.client.sendMessage(target,
-                  "$nick> You are not authorized to perform this action (missing $plugin.$node)");
+                b.client.sendMessage(target, "$nick> You are not authorized to perform this action (missing $plugin.$node)");
               }
             }
-            request.reply({ "has": has });
+            request.reply({
+              "has": has
+            });
           });
           break;
-          
+
         case "channel":
           var net = request.data['network'];
           var chan = request.data['channel'];
@@ -214,15 +239,10 @@ class PluginCommunicator {
           var net = m['network'];
           var user = m['user'];
           bot[net].client.whois(user).then((event) {
-            var memberIn  = () {
+            var memberIn = () {
               var list = <String>[];
-              list.addAll(event.builder.channels.where((i) =>
-                  !event.builder.opIn.contains(i) &&
-                  !event.builder.voiceIn.contains(i) &&
-                  !event.builder.halfOpIn.contains(i) &&
-                  !event.builder.ownerIn.contains(i)
-              ));
-              return list; 
+              list.addAll(event.builder.channels.where((i) => !event.builder.opIn.contains(i) && !event.builder.voiceIn.contains(i) && !event.builder.halfOpIn.contains(i) && !event.builder.ownerIn.contains(i)));
+              return list;
             }();
             request.reply({
               "away": event.away,
@@ -255,11 +275,11 @@ class PluginCommunicator {
         var m = new VerificationManager(plugin, _data);
         var b = bot[m['network']];
         var command = m['command'];
-        
+
         if (command != null) {
           m.type = command;
         }
-        
+
         switch (command) {
           case "message":
             var msg = m['message'] as String;
@@ -269,13 +289,13 @@ class PluginCommunicator {
           case "ctcp":
             var target = m["target"];
             var msg = m["message"];
-            
+
             b.client.sendCTCP(target, msg);
             break;
           case "notice":
             var msg = m['message'] as String;
             var target = m['target'] as String;
-            
+
             b.client.sendNotice(target, msg);
             break;
           case "action":
@@ -319,13 +339,13 @@ class PluginCommunicator {
             if (!handler.isPluginElevated(plugin)) {
               throw new Exception("Plugin must declare itself as being elevated in order to broadcast a message to all plugins.");
             }
-            
+
             var data = m['data'];
             pm.sendAll(data);
             break;
           case "stop-bot":
             var futures = [];
-            
+
             for (var botname in bot.bots) {
               var completer = new Completer();
               futures.add(completer.future);
@@ -335,12 +355,12 @@ class PluginCommunicator {
               }, once: true);
               it.client.disconnect();
             }
-            
+
             Future.wait(futures).then((_) {
               handler.killPlugins();
               exit(0);
             });
-            
+
             new Future.delayed(new Duration(seconds: 5), () {
               exit(0);
             });
@@ -383,7 +403,7 @@ class NetworkEventListener {
       commonSendable(data, e);
       com.pm.sendAll(data);
     });
-    
+
     b.client.register((IRC.CTCPEvent event) {
       var data = common("ctcp");
       data["target"] = event.target;
@@ -471,7 +491,7 @@ class NetworkEventListener {
       data['user'] = e.user;
       com.pm.sendAll(data);
     });
-    
+
     // deprecated
     b.client.register((IRC.WhoisEvent event) {
       var data = common("whois");
