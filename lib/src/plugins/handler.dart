@@ -31,6 +31,7 @@ class PluginHandler {
   Future load() {
     _elevatedPlugins.clear();
     var requirements = <String, List<String>>{};
+    var conflicts = <String, List<String>>{};
     var pluginNames = <String>[];
     var pluginsDirectory = new Directory("plugins");
     if (!pluginsDirectory.existsSync()) pluginsDirectory.createSync();
@@ -103,7 +104,8 @@ class PluginHandler {
         loaders.add(new PluginLoadHelper()..name = pluginName..loader = loader);
 
         requirements[pluginName] = new List<String>.from(info['dependencies'] == null ? [] : info['dependencies']);
-
+        conflicts[pluginName] = new List<String>.from(info['conflicts'] == null ? [] : info['conflicts']);
+        
         pluginNames.add(pluginName);
       });
 
@@ -117,7 +119,18 @@ class PluginHandler {
             print("[Plugin Manager] Failed to resolve requirements for plugin '${name}'");
             var noun = requires.length == 1 ? "it" : "they";
             var verb = requires.length == 1 ? "was" : "were";
-            print("[Plugin Manager] '${name}' requires '${requires.join(", ")}', but ${noun} ${verb} not found");
+            print("[Plugin Manager] '${name}' requires '${requires.join(", ")}', but ${noun} ${verb} not found.");
+            exit(1);
+          }
+          
+          List<String> conflicting = conflicts[name];
+          conflicting.removeWhere((it) => !pluginNames.contains(it));
+          
+          if (conflicting.isNotEmpty) {
+            print("[Plugin Manager] Failed to resolve conflicts for plugin '${name}'");
+            var noun = requires.length == 1 ? "it" : "they";
+            var verb = requires.length == 1 ? "is" : "are";
+            print("[Plugin Manager] '${name}' conflicts with '${requires.join(", ")}', but ${noun} ${verb} installed.");
             exit(1);
           }
         }
