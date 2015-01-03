@@ -44,6 +44,9 @@ class DefaultConfig {
           }
         }
       }
+    },
+    "http": {
+      "port": 8050
     }
   };
 

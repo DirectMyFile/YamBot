@@ -13,6 +13,8 @@ import 'package:path/path.dart' as path;
 
 import 'api.dart' as Polymorphic;
 
+import "utils.dart";
+
 part 'src/plugins/handler.dart';
 part 'src/plugins/communicator.dart';
 part 'src/config.dart';

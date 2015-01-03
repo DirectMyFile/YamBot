@@ -518,6 +518,35 @@ class Plugin {
     print("[${name}] ${message}");
   }
   
+  bool _isServerListening = false;
+  
+  Stream<HttpRequest> listenServer() {
+    if (_isServerListening) {
+      throw new Exception("Server is already listening");
+    }
+    
+    _isServerListening = true;
+    
+    var requests = new StreamController.broadcast();
+    
+    HttpServer.bind("0.0.0.0", 0).then((server) {
+      send("setup-plugin-http", {
+        "port": server.port
+      });
+      
+      server.listen((request) {
+        requests.add(request);
+      });
+      
+      onShutdown(() {
+        get("shutdown-plugin-http", {});
+        server.close();
+      });
+    });
+    
+    return requests.stream;
+  }
+  
   Future<bool> isPluginInstalled(String name) => getPlugins().then((plugins) {
     return plugins.contains(name);
   });

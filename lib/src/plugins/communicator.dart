@@ -9,8 +9,35 @@ class PluginCommunicator {
   PluginCommunicator(this.bot, this.handler) {
     _handleEventListeners();
   }
+  
+  Map<String, int> _httpPorts = {};
 
   void handle() {
+    if (bot.config["http"] == null || bot.config["http"]["port"] != null) {
+      print("[HTTP] ERROR: No HTTP Port Configured.");
+      exit(1);
+    }
+    var host = bot.config["http"]["host"] != null ? bot.config["http"]["host"] : "0.0.0.0";
+    var port = bot.config["http"]["port"];
+    
+    HttpServer.bind(host, port).then((server) {
+      server.listen((request) {
+        var segments = request.uri.pathSegments;
+        if (segments.length >= 1 && _httpPorts.containsKey(segments[0])) {
+          var segs = []..addAll(segments)..removeAt(0);
+          var path = segs.join("/");
+          if (path.trim().isEmpty) {
+            path = "/";
+          }
+          HttpHelper.forward(request, path, InternetAddress.ANY_IP_V4.address, _httpPorts[segments[0]]);
+        } else {
+          request.response.statusCode = 404;
+          request.response.writeln("ERROR: 404 not found.");
+          request.response.close();
+        }
+      });
+    });
+    
     _handleRequests();
     _handleNormals();
   }
@@ -104,6 +131,15 @@ class PluginCommunicator {
           });
           break;
         
+        case "setup-plugin-http":
+          var port = request.data["port"];
+          _httpPorts[plugin] = port;
+          break;
+          
+        case "shutdown-plugin-http":
+          _httpPorts.remove(plugin);
+          break;
+          
         case "command-info":
           var allCommands = {};
           
