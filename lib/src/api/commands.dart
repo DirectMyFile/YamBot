@@ -10,7 +10,7 @@ class CommandEvent {
   final List<String> args;
 
   void reply(String message) {
-    bot.message(network, channel, message);
+    bot.sendMessage(network, channel, message);
   }
 
   void require(String permission, void handle()) {
@@ -18,7 +18,7 @@ class CommandEvent {
   }
 
   void replyNotice(String message) {
-    bot.notice(network, user, message);
+    bot.sendNotice(network, user, message);
   }
 
   CommandEvent(this.bot, this.network, this.command, this.message, this.user, this.channel, this.args);

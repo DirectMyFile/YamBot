@@ -58,11 +58,39 @@ class Bot {
     _registerReadyHandler();
     _registerMessageHandler();
     _registerCommandHandler();
+    
+    client.register((IRC.CTCPEvent event) {
+      if (event.message.trim().toUpperCase() == "ARE YOU A BOT") {
+        client.sendCTCP(event.user, "I AM A BOT");
+      }
+    });
   }
 
   void start() {
     print("[$server] Connecting");
     client.connect();
+  }
+  
+  List<String> _knownBots = [];
+  
+  Future<bool> isUserBot(String user) {
+    var isBot = false;
+    
+    if (_knownBots.contains(user)) {
+      return new Future.value(true);
+    }
+    
+    client.register((IRC.CTCPEvent event) {
+      isBot = event.message.trim().toUpperCase() == "I AM A BOT";
+    }, filter: (IRC.CTCPEvent event) => event.user != user && event.target != client.nickname, once: true);
+    client.sendCTCP(user, "ARE YOU A BOT");
+    
+    return new Future.delayed(new Duration(seconds: 2), () {
+      if (isBot) {
+        _knownBots.add(user);
+      }
+      return isBot;
+    });
   }
 
   void _registerRawHandler() {

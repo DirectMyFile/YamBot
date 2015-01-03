@@ -146,6 +146,16 @@ class PluginCommunicator {
             request.reply({ "has": has });
           });
           break;
+          
+        case "":
+          var network = m["network"];
+          var user = m["user"];
+          var plugin = m["plugin"];
+          var node = m["node"];
+          
+          
+          break;
+          
         case "channel":
           var net = request.data['network'];
           var chan = request.data['channel'];

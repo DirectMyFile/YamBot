@@ -24,11 +24,32 @@ class BotConnector {
     plugin.get("permission", params).callIf((data) => data['has']).then(callback);
   }
 
-  void message(String network, String target, String message) {
+  void sendMessage(String network, String target, String message) {
     plugin.send("message", {
       "network": network,
       "message": message,
       "target": target
+    });
+  }
+  
+  void joinChannel(String network, String channel) {
+    plugin.send("join", {
+      "network": network,
+      "channel": channel
+    });
+  }
+  
+  void partChannel(String network, String channel) {
+    plugin.send("part", {
+      "network": network,
+      "channel": channel
+    });
+  }
+  
+  void sendRaw(String network, String line) {
+    plugin.send("raw", {
+      "network": network,
+      "line": line
     });
   }
 
@@ -40,7 +61,7 @@ class BotConnector {
     return plugin.get("networks").then((data) => data['networks']);
   }
 
-  void notice(String network, String target, String message) {
+  void sendNotice(String network, String target, String message) {
     plugin.send("notice", {
       "network": network,
       "message": message,

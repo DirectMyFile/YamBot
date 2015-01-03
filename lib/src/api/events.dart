@@ -20,7 +20,7 @@ class MessageEvent {
   MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.message);
   
   void reply(String msg) {
-    bot.message(network, target, msg);
+    bot.sendMessage(network, target, msg);
   }
 }
 
