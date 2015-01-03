@@ -83,6 +83,10 @@ class Bot {
   void clearBotMemory() => _botMemory.clear();
   
   Future<bool> isUserBot(String user) {
+    if (user == client.nickname) {
+      return new Future.value(true);
+    }
+    
     var isBot = false;
     
     if (_botMemory.containsKey(user)) {
