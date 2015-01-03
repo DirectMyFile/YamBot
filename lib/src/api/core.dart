@@ -189,7 +189,7 @@ class BotConnector {
   }
   
   void onCTCP(CTCPHandler handler, {String network, String target, String message, String user}) {
-    var sub = plugin.on("").where((data) {
+    var sub = plugin.on("ctcp").where((data) {
       bool matches = true;
       
       if (network != null && network != data["network"]) matches = false;
