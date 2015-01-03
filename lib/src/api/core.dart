@@ -536,12 +536,12 @@ class Plugin {
     HttpServer.bind("0.0.0.0", 0).then((server) {
       var startTime = new DateTime.now();
       if (startTime.millisecondsSinceEpoch - _initTime >= 5000) {
-        send("setup-plugin-http", {
+        get("setup-plugin-http", {
           "port": server.port
         });
       } else {
         new Future.delayed(new Duration(seconds: 5), () {
-          send("setup-plugin-http", {
+          get("setup-plugin-http", {
             "port": server.port
           });
         }); 
