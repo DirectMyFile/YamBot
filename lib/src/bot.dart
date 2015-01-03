@@ -64,6 +64,13 @@ class Bot {
         client.sendCTCP(event.user, "I AM A BOT");
       }
     });
+    
+    client.register((IRC.NickChangeEvent event) {
+      if (_botMemory.containsKey(event.original)) {
+        _botMemory[event.now] = _botMemory[event.original];
+        _botMemory.remove(event.original);
+      }
+    });
   }
 
   void start() {
@@ -71,13 +78,15 @@ class Bot {
     client.connect();
   }
   
-  List<String> _knownBots = [];
+  Map<String, bool> _botMemory = {};
+  
+  void clearBotMemory() => _botMemory.clear();
   
   Future<bool> isUserBot(String user) {
     var isBot = false;
     
-    if (_knownBots.contains(user)) {
-      return new Future.value(true);
+    if (_botMemory.containsKey(user)) {
+      return new Future.value(_botMemory[user]);
     }
     
     client.register((IRC.CTCPEvent event) {
@@ -86,9 +95,7 @@ class Bot {
     client.sendCTCP(user, "ARE YOU A BOT");
     
     return new Future.delayed(new Duration(seconds: 2), () {
-      if (isBot) {
-        _knownBots.add(user);
-      }
+      _botMemory[user] = isBot;
       return isBot;
     });
   }

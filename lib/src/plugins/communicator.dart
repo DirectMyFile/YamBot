@@ -157,15 +157,6 @@ class PluginCommunicator {
           });
           break;
           
-        case "":
-          var network = m["network"];
-          var user = m["user"];
-          var plugin = m["plugin"];
-          var node = m["node"];
-          
-          
-          break;
-          
         case "channel":
           var net = request.data['network'];
           var chan = request.data['channel'];
@@ -269,6 +260,9 @@ class PluginCommunicator {
           var config = m['config'];
           bot.config.clear();
           bot.config.addAll(config);
+          break;
+        case "clear-bot-memory":
+          b.clearBotMemory();
           break;
         case "quit":
           var reason = _data['reason'] != null ? m['reason'] : "Bot Quitting";
