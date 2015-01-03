@@ -549,6 +549,8 @@ class Plugin {
         get("shutdown-plugin-http", {});
         server.close();
       });
+      
+      return server;
     });
   }
   

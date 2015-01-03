@@ -17,13 +17,29 @@ class HttpHelper {
       
       request.listen((data) {
         req.add(data);
-        print("Writing Data");
       }).onDone(() {
         completer.complete(req.close());
       });
       
       return completer.future;
     }).then((HttpClientResponse res) {
+      // Special Handling for WebSockets
+      if (res.statusCode == HttpStatus.SWITCHING_PROTOCOLS) {
+        Socket resSocket;
+        Socket responseSocket;
+        return res.detachSocket().then((socket) {
+          resSocket = socket;
+          
+          return response.detachSocket();
+        }).then((socket) {
+          responseSocket = socket;
+          return resSocket.pipe(socket);
+        }).then((_) {
+          responseSocket.destroy();
+          resSocket.destroy();
+        });
+      }
+      
       var completer = new Completer();
       
       response.statusCode = res.statusCode;
