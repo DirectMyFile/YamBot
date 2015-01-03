@@ -273,7 +273,15 @@ class PluginCommunicator {
         }), zoneValues: {
           "bot.plugin.method.plugin": plugin
         }).run(() {
-          handler(call);
+          try {
+            handler(call);
+          } catch (e) {
+            pm.send(plugin, {
+              "exception": {
+                "message": "ERROR while calling method '${request.command}': ${e}"
+              }
+            });
+          }
         });
       } else {
         pm.send(plugin, {
