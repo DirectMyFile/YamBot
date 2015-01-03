@@ -4,6 +4,7 @@ typedef PluginLoader PluginLoaderCreator();
 
 class PluginLoadHelper {
   String name;
+  String displayName;
   PluginLoaderCreator loader;
 }
 
@@ -58,6 +59,11 @@ class PluginHandler {
         }
 
         String pluginName = pubspec["name"];
+        String displayName = pluginName;
+        
+        if (info.containsKey("display_name")) {
+          displayName = info["display_name"];
+        }
         
         if (info["elevated"] != null && info["elevated"]) {
           print("[Plugin Manager] ${pluginName} is elevated.");
@@ -101,7 +107,7 @@ class PluginHandler {
         }
 
         var loader = () => new BotPluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
-        loaders.add(new PluginLoadHelper()..name = pluginName..loader = loader);
+        loaders.add(new PluginLoadHelper()..name = pluginName..loader = loader..displayName = displayName);
 
         requirements[pluginName] = new List<String>.from(info['dependencies'] == null ? [] : info['dependencies']);
         conflicts[pluginName] = new List<String>.from(info['conflicts'] == null ? [] : info['conflicts']);
@@ -139,7 +145,7 @@ class PluginHandler {
       var futures = [];
 
       loaders.forEach((loader) {
-        futures.add(pm.load(loader.loader(), args: [loader.name]));
+        futures.add(pm.load(loader.loader(), args: [loader.name, loader.displayName]));
       });
 
       return Future.wait(futures);
@@ -177,7 +183,7 @@ class BotPluginLoader extends PluginLoader {
     
     var loc = path.joinAll([directory.absolute.path, main]);
     
-    return Isolate.spawnUri(new Uri.file(loc), args, new Polymorphic.Plugin(args[0], port), packageRoot: new Uri.file(new Directory(directory.path + "/" + "packages").path)).then((isolate) {
+    return Isolate.spawnUri(new Uri.file(loc), args, new Polymorphic.Plugin(args[0], args[1], port), packageRoot: new Uri.file(new Directory(directory.path + "/" + "packages").path)).then((isolate) {
       return isolate;
     });
   }

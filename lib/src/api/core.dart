@@ -312,11 +312,12 @@ typedef void PluginEventHandler(String plugin, Map<String, dynamic> data);
 
 class Plugin {
   final String name;
+  final String displayName;
   final SendPort _port;
   
   http.Client httpClient;
 
-  Plugin(this.name, this._port);
+  Plugin(this.name, this.displayName, this._port);
 
   Receiver _conn;
   BotConnector _bot;
@@ -519,7 +520,7 @@ class Plugin {
   void log(String message) {
     _init();
     
-    print("[${name}] ${message}");
+    print("[${displayName}] ${message}");
   }
   
   int _initTime;
