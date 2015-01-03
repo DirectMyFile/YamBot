@@ -212,98 +212,113 @@ class PluginCommunicator {
 
   void _handleNormals() {
     pm.listenAll((String plugin, Map _data) {
-      var m = new VerificationManager(plugin, _data);
-      var b = bot[m['network']];
-      var command = m['command'];
-      
-      if (command != null) {
-        m.type = command;
-      }
-      
-      switch (command) {
-        case "message":
-          var msg = m['message'] as String;
-          var target = m['target'] as String;
-          b.client.sendMessage(target, msg);
-          break;
-        case "notice":
-          var msg = m['message'] as String;
-          var target = m['target'] as String;
-          b.client.sendNotice(target, msg);
-          break;
-        case "action":
-          var msg = m['message'] as String;
-          var target = m['target'] as String;
-          b.client.sendAction(target, msg);
-          break;
-        case "reload-plugins":
-          handler.reloadPlugins();
-          break;
-        case "join":
-          var channel = m['channel'] as String;
-          b.client.join(channel);
-          break;
-        case "part":
-          var channel = m['channel'] as String;
-          b.client.part(channel);
-          break;
-        case "raw":
-          var line = m['line'] as String;
-          b.client.send(line);
-          break;
-        case "send":
-          var plugin = m['plugin'];
-          var data = m['data'];
-          pm.send(plugin, data);
-          break;
-        case "update-config":
-          var config = m['config'];
-          bot.config.clear();
-          bot.config.addAll(config);
-          break;
-        case "clear-bot-memory":
-          b.clearBotMemory();
-          break;
-        case "quit":
-          var reason = _data['reason'] != null ? m['reason'] : "Bot Quitting";
-          b.client.disconnect(reason: reason);
-          break;
-        case "broadcast":
-          if (!handler.isPluginElevated(plugin)) {
-            throw new Exception("Plugin must declare itself as being elevated in order to broadcast a message to all plugins.");
+      try {
+        var m = new VerificationManager(plugin, _data);
+        var b = bot[m['network']];
+        var command = m['command'];
+        
+        if (command != null) {
+          m.type = command;
+        }
+        
+        switch (command) {
+          case "message":
+            var msg = m['message'] as String;
+            var target = m['target'] as String;
+            b.client.sendMessage(target, msg);
+            break;
+          case "ctcp":
+            var target = m["target"];
+            var msg = m["message"];
+            
+            b.client.sendCTCP(target, msg);
+            break;
+          case "notice":
+            var msg = m['message'] as String;
+            var target = m['target'] as String;
+            
+            b.client.sendNotice(target, msg);
+            break;
+          case "action":
+            var msg = m['message'] as String;
+            var target = m['target'] as String;
+            b.client.sendAction(target, msg);
+            break;
+          case "reload-plugins":
+            handler.reloadPlugins();
+            break;
+          case "join":
+            var channel = m['channel'] as String;
+            b.client.join(channel);
+            break;
+          case "part":
+            var channel = m['channel'] as String;
+            b.client.part(channel);
+            break;
+          case "raw":
+            var line = m['line'] as String;
+            b.client.send(line);
+            break;
+          case "send":
+            var plugin = m['plugin'];
+            var data = m['data'];
+            pm.send(plugin, data);
+            break;
+          case "update-config":
+            var config = m['config'];
+            bot.config.clear();
+            bot.config.addAll(config);
+            break;
+          case "clear-bot-memory":
+            b.clearBotMemory();
+            break;
+          case "quit":
+            var reason = _data['reason'] != null ? m['reason'] : "Bot Quitting";
+            b.client.disconnect(reason: reason);
+            break;
+          case "broadcast":
+            if (!handler.isPluginElevated(plugin)) {
+              throw new Exception("Plugin must declare itself as being elevated in order to broadcast a message to all plugins.");
+            }
+            
+            var data = m['data'];
+            pm.sendAll(data);
+            break;
+          case "stop-bot":
+            var futures = [];
+            
+            for (var botname in bot.bots) {
+              var completer = new Completer();
+              futures.add(completer.future);
+              var it = bot._clients[botname];
+              it.client.register((IRC.DisconnectEvent event) {
+                completer.complete();
+              }, once: true);
+              it.client.disconnect();
+            }
+            
+            Future.wait(futures).then((_) {
+              handler.killPlugins();
+              exit(0);
+            });
+            
+            new Future.delayed(new Duration(seconds: 5), () {
+              exit(0);
+            });
+            break;
+          case "whois":
+            var user = m['user'];
+            b.client.send("WHOIS ${user}");
+            break;
+          default:
+            throw new Exception("$plugin sent an invalid command: $command");
+        }
+      } on Exception catch (e) {
+        pm.send(plugin, {
+          "exception": {
+            "message": e.toString()
           }
-          
-          var data = m['data'];
-          pm.sendAll(data);
-          break;
-        case "stop-bot":
-          var futures = [];
-          
-          for (var botname in bot.bots) {
-            var completer = new Completer();
-            futures.add(completer.future);
-            var it = bot._clients[botname];
-            it.client.register((IRC.DisconnectEvent event) {
-              completer.complete();
-            }, once: true);
-            it.client.disconnect();
-          }
-          
-          Future.wait(futures).then((_) {
-            handler.killPlugins();
-            exit(0);
-          });
-          
-          new Future.delayed(new Duration(seconds: 5), () {
-            exit(0);
-          });
-          break;
-        case "whois":
-          var user = m['user'];
-          b.client.send("WHOIS ${user}");
-          break;
-        default:
-          throw new Exception("$plugin sent an invalid command: $command");
+        });
       }
     });
   }
@@ -327,6 +342,14 @@ class NetworkEventListener {
     b.client.register((IRC.MessageEvent e) {
       var data = common("message");
       commonSendable(data, e);
+      com.pm.sendAll(data);
+    });
+    
+    b.client.register((IRC.CTCPEvent event) {
+      var data = common("ctcp");
+      data["target"] = event.target;
+      data["user"] = event.user;
+      data["message"] = event.message;
       com.pm.sendAll(data);
     });
 

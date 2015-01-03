@@ -188,6 +188,23 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
   
+  void onCTCP(CTCPHandler handler, {String network, String target, String message, String user}) {
+    var sub = plugin.on("").where((data) {
+      bool matches = true;
+      
+      if (network != null && network != data["network"]) matches = false;
+      if (target != null && target != data["target"]) matches = false;
+      if (message != null && message != data["message"]) matches = false;
+      if (user != null && user != data["user"]) matches = false;
+      
+      return matches;
+    }).listen((data) {
+      var event = new CTCPEvent(this, data["network"], data["target"], data["user"], data["message"]);
+      
+      handler(event);
+    });
+  }
+  
   void onBotPart(BotPartHandler handler, {String network, String channel}) {
     var sub = plugin.on("bot-part").where((data) {
       bool matches = true;
@@ -281,6 +298,14 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
+  
+  void sendCTCP(String network, String target, String msg) {
+    plugin.send("ctcp", {
+      "network": network,
+      "target": target,
+      "message": msg
+    });
+  }
 }
 
 typedef void PluginEventHandler(String plugin, Map<String, dynamic> data);
@@ -342,6 +367,12 @@ class Plugin {
     if (_controllers.containsKey(name)) _controllers[name].add(data);
   }
   
+  List<PluginExceptionHandler> _exceptionHandlers = [];
+  
+  void onException(PluginExceptionHandler handler) {
+    _exceptionHandlers.add(handler);
+  }
+  
   void _init() {
     if (httpClient == null) {
       httpClient = new http.Client();
@@ -351,7 +382,20 @@ class Plugin {
       _conn = new Receiver(_port);
       
       _eventSub = _conn.listen((it) {
-        _handleEvent(it);
+        if (it["exception"] != null) {
+          var e = new PluginException(it["exception"]["message"]);
+          if (_exceptionHandlers.isNotEmpty) {
+            for (var handler in _exceptionHandlers) {
+              handler(e);
+            }
+          } else {
+            throw e;
+          }
+        }
+        
+        if (it["event"] != null) {
+          _handleEvent(it);          
+        }
       });
       
       var sub;
@@ -527,4 +571,15 @@ class RemoteMethod {
   final Map<String, dynamic> metadata;
   
   RemoteMethod(this.name, {this.metadata: const {}});
+}
+
+typedef void PluginExceptionHandler(PluginException e);
+
+class PluginException {
+  final String message;
+  
+  PluginException(this.message);
+  
+  @override
+  String toString() => message;
 }

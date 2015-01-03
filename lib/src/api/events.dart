@@ -6,6 +6,7 @@ typedef void JoinHandler(JoinEvent event);
 typedef void PartHandler(PartEvent event);
 typedef void BotJoinHandler(BotJoinEvent event);
 typedef void BotPartHandler(BotPartEvent event);
+typedef void CTCPHandler(CTCPEvent event);
 
 typedef void ShutdownAction();
 
@@ -40,6 +41,20 @@ class PartEvent {
   final String user;
   
   PartEvent(this.bot, this.network, this.channel, this.user);
+}
+
+class CTCPEvent {
+  final BotConnector bot;
+  final String network;
+  final String target;
+  final String user;
+  final String message;
+  
+  CTCPEvent(this.bot, this.network, this.target, this.user, this.message);
+  
+  void reply(String msg) {
+    bot.sendCTCP(network, target, msg);
+  }
 }
 
 class BotJoinEvent {
