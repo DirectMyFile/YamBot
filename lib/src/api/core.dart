@@ -90,6 +90,10 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
   
+  Future<bool> isUserABot(String network, String user) {
+    return plugin.get("isUserABot").then((data) => data["value"]);
+  }
+  
   void onJoin(JoinHandler handler, {String channel, String user, String network}) {
     var sub = plugin.on("join").where((data) {
       bool matches = true;

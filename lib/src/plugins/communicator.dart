@@ -39,6 +39,16 @@ class PluginCommunicator {
             request.reply(response);
           });
           break;
+          
+        case "isUserABot":
+          var network = m['network'];
+          var user = m['user'];
+          bot[network].isUserBot(user).then((isBot) {
+            request.reply({
+              "value": isBot
+            });
+          });
+          break;
         
         case "plugins":
           request.reply({
