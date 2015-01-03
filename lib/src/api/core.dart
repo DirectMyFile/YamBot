@@ -487,7 +487,11 @@ class Plugin {
       "value": arguments
     };
     
-    return callMethod("makePluginRequest", data);
+    return callMethod("makePluginRequest", {
+      "plugin": plugin,
+      "command": method,
+      "data": data
+    });
   }
   
   void onPluginEvent(PluginEventHandler handler, {String plugin}) {
