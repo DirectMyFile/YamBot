@@ -367,6 +367,8 @@ class Plugin {
     if (_controllers.containsKey(name)) _controllers[name].add(data);
   }
   
+  HttpServer httpServer;
+  
   List<PluginExceptionHandler> _exceptionHandlers = [];
   
   void onException(PluginExceptionHandler handler) {
@@ -524,6 +526,12 @@ class Plugin {
   
   bool _isServerListening = false;
   
+  Future<HttpRouter> createHttpRouter() {
+    return startHttpServer().then((server) {
+      return new HttpRouter(server);
+    });
+  }
+  
   Future<HttpServer> startHttpServer() {
     if (_isServerListening) {
       throw new Exception("Server is already listening.");
@@ -532,6 +540,8 @@ class Plugin {
     _isServerListening = true;
     
     return HttpServer.bind("0.0.0.0", 0).then((server) {
+      httpServer = server;
+      
       var startTime = new DateTime.now();
       if (startTime.millisecondsSinceEpoch - _initTime >= 5000) {
         get("setup-plugin-http", {
