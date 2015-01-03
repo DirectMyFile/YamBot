@@ -21,7 +21,11 @@ class BotConnector {
       "target": target,
       "notify": notify
     };
-    plugin.callMethod("checkPermission", params).callIf((has) => has).then(callback);
+    plugin.callMethod("checkPermission", params).then((has) {
+      if (has) {
+        callback(has);
+      }
+    });
   }
 
   void sendMessage(String network, String target, String message) {
