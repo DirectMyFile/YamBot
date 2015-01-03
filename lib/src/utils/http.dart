@@ -8,34 +8,41 @@ class HttpHelper {
     client.open(request.method, host, port, newPath).then((req) {
       var completer = new Completer();
       
+      request.cookies.addAll(req.cookies);
+      request.headers.forEach((name, value) {
+        for (var v in value) {
+          req.headers.add(name, v);
+        }
+      });
+      
       request.listen((data) {
         req.add(data);
+        print("Writing Data");
       }).onDone(() {
-        request.cookies.addAll(req.cookies);
-        request.headers.forEach((name, value) {
-          for (var v in value) {
-            req.headers.add(name, v);
-          }
-        });
         completer.complete(req.close());
       });
       
       return completer.future;
     }).then((HttpClientResponse res) {
-      res.listen((data) {
-        response.add(data);
-      });
+      var completer = new Completer();
       
-      response.cookies.addAll(res.cookies);
+      response.statusCode = res.statusCode;
+      
       res.headers.forEach((name, value) {
         for (var v in value) {
           response.headers.add(name, v);
         }
       });
       
-      response.statusCode = res.statusCode;
+      response.cookies.addAll(res.cookies);
       
-      return response.close();
+      res.listen((data) {
+        response.add(data);
+      }).onDone(() {
+        completer.complete(response.close());
+      });
+      
+      return completer.future;
     });
   }
 }

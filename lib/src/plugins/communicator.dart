@@ -26,7 +26,6 @@ class PluginCommunicator {
         if (segments.isNotEmpty && _httpPorts.containsKey(segments[0])) {
           var segs = []..addAll(segments)..removeAt(0);
           var path = segs.join("/");
-          print(path);
           if (path.trim().isEmpty) {
             path = "/";
           }
