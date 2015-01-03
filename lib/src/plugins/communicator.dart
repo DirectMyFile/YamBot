@@ -293,6 +293,10 @@ class PluginCommunicator {
             handler.killPlugins();
             exit(0);
           });
+          
+          new Future.delayed(new Duration(seconds: 5), () {
+            exit(0);
+          });
           break;
         case "whois":
           var user = m['user'];
