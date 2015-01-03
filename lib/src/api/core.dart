@@ -17,7 +17,7 @@ class BotConnector {
     Map params = {
       "node": node,
       "network": network,
-      "nick": user,
+      "user": user,
       "target": target,
       "notify": notify
     };
