@@ -77,6 +77,10 @@ class PluginCommunicator {
 
     _addBotMethods();
     _handleRequests();
+    
+    pm.listenAll((plugin, data) {
+      /* We don't use this anymore, everything is a method call */
+    });
   }
 
   void _addBotMethods() {
@@ -349,6 +353,10 @@ class PluginCommunicator {
       new Future.delayed(new Duration(seconds: 5), () {
         exit(0);
       });
+    }, isVoid: true);
+    
+    addBotMethod("__initialized", (call) {
+      /* Plugin was initialized */
     }, isVoid: true);
   }
 

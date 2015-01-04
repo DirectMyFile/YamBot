@@ -1,5 +1,7 @@
 part of polymorphic.api;
 
+typedef void ReadyAction();
+
 class BotConnector {
   final Plugin plugin;
 
@@ -366,6 +368,13 @@ class Plugin {
     return _controllers[name].stream;
   }
   
+  List<ReadyAction> _readyActions = [];
+  
+  void onReady(ReadyAction action) {
+    _init();
+    _readyActions.add(action);
+  }
+  
   void onShutdown(ShutdownAction action) {
     _init();
     
@@ -399,6 +408,11 @@ class Plugin {
   }
   
   void _init() {
+    if (_initCalled) {
+      return;
+    }
+    
+    _initCalled = true;
     _initTime = new DateTime.now().millisecondsSinceEpoch;
     
     if (httpClient == null) {
@@ -477,7 +491,15 @@ class Plugin {
     if (_bot == null) {
       _bot = new BotConnector(this);
     }
+    
+    for (var action in _readyActions) {
+      action();
+    }
+    
+    callMethod("__initialized", true);
   }
+  
+  bool _initCalled = false;
   
   Storage getStorage(String storageName, {String group}) {
     _init();
