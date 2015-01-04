@@ -10,8 +10,12 @@ class HttpRouter {
     });
   }
   
-  void addRoute(String pattern, HttpRequestHandler handler, {String method}) {
-    var route = new HttpRoute(pattern, handler, method);
+  void addRoute(dynamic pattern, HttpRequestHandler handler, {String method, bool matchSubPaths: false}) {
+    if (pattern is! String && pattern is! RegExp) {
+      throw new Exception("pattern must be a string or regexp");
+    }
+    
+    var route = new HttpRoute(pattern, handler, method, matchSubPaths);
     routes.add(route);
   }
   
@@ -30,8 +34,18 @@ class HttpRouter {
     var path = request.uri.path;
     
     for (var route in routes) {
-      var glob = new Glob(route.pattern);
-      if (glob.hasMatch(path) && (route.method != null ? route.method == request.method : true)) {
+      var pattern = route.pattern;
+      
+      var matches = false;
+      if (pattern is String) {
+        matches = pattern == path;        
+      } else if (pattern is RegExp) {
+        matches = pattern.hasMatch(path);
+      } else {
+        throw new Exception("Invalid Pattern Type");
+      }
+      
+      if (route.pattern.allMatches(path).isNotEmpty && (route.method != null ? route.method == request.method : true)) {
         route.handler(request);
         return;
       }
@@ -42,11 +56,12 @@ class HttpRouter {
 }
 
 class HttpRoute {
-  final String pattern;
+  final dynamic pattern;
   final HttpRequestHandler handler;
   final String method;
+  final bool matchSubPaths;
   
-  HttpRoute(this.pattern, this.handler, this.method);
+  HttpRoute(this.pattern, this.handler, this.method, this.matchSubPaths);
 }
 
 typedef void HttpRequestHandler(HttpRequest request);
