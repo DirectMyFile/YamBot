@@ -207,7 +207,7 @@ class PluginCommunicator {
         if (!has) {
           var b = bot[net];
           if (notify == null || notify) {
-            b.client.sendMessage(target, "$user> You are not authorized to perform this action (missing ${getPluginName()}.${node}");
+            b.client.sendMessage(target, "$user> You are not authorized to perform this action (missing ${getPluginName()}.${node})");
           }
         }
         call.reply(has);
