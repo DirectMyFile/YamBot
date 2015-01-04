@@ -119,16 +119,17 @@ class PluginHandler {
           }
         }
 
-        var loader = () => new BotPluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
-        loaders.add(new PluginLoadHelper()
-            ..name = pluginName
-            ..loader = loader
-            ..displayName = displayName);
+        if (!_disabled.contains(pluginName)) {
+          var loader = () => new BotPluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
+          loaders.add(new PluginLoadHelper()
+              ..name = pluginName
+              ..loader = loader
+              ..displayName = displayName);
+          pluginNames.add(pluginName);
+        }
 
         _requirements[pluginName] = new List<String>.from(info['dependencies'] == null ? [] : info['dependencies']);
         _conflicts[pluginName] = new List<String>.from(info['conflicts'] == null ? [] : info['conflicts']);
-
-        pluginNames.add(pluginName);
       });
 
       /* Resolve Plugin Requirements */
