@@ -73,3 +73,10 @@ class HttpHelper {
   }
 }
 
+class WebSocketHelper {
+  static Future echo(WebSocket socket) {
+    return socket.listen((data) {
+      socket.add(data);
+    }).asFuture();
+  }
+}

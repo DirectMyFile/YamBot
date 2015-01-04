@@ -17,6 +17,11 @@ void main(_, Plugin plugin) {
       request.response.writeln("Hello World");
       request.response.close();
     });
+    
+    // You can even handle WebSockets!
+    router.addWebSocketEndpoint("/ws", (socket) {
+      WebSocketHelper.echo(socket);
+    });
   });
   
   // Handles Plugin Shutdowns
