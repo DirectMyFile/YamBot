@@ -56,9 +56,9 @@ class PluginCommunicator {
   Map<String, Polymorphic.RemoteCallHandler> _methods = {};
   Map<String, Polymorphic.RemoteMethod> _methodInfo = {};
 
-  void addBotMethod(String name, Polymorphic.RemoteCallHandler handler, {Map<String, dynamic> metadata: const {}}) {
+  void addBotMethod(String name, Polymorphic.RemoteCallHandler handler, {Map<String, dynamic> metadata: const {}, bool isVoid: false}) {
     _methods[name] = handler;
-    _methodInfo[name] = new Polymorphic.RemoteMethod(name, metadata: metadata);
+    _methodInfo[name] = new Polymorphic.RemoteMethod(name, metadata: metadata, isVoid: isVoid);
   }
 
   JsonEncoder _jsonEncoder = new JsonEncoder.withIndent("  ");
@@ -77,7 +77,6 @@ class PluginCommunicator {
 
     _addBotMethods();
     _handleRequests();
-    _handleNormals();
   }
 
   void _addBotMethods() {
@@ -144,11 +143,11 @@ class PluginCommunicator {
       var port = call.getArgument("value");
 
       _httpPorts[getPluginName()] = port;
-    });
+    }, isVoid: true);
 
     addBotMethod("unforwardHttpPort", (call) {
       _httpPorts.remove(getPluginName());
-    });
+    }, isVoid: true);
 
     addBotMethod("getCommandInfo", (call) {
       var allCommands = {};
@@ -238,6 +237,7 @@ class PluginCommunicator {
           list.addAll(event.builder.channels.where((i) => !event.builder.opIn.contains(i) && !event.builder.voiceIn.contains(i) && !event.builder.halfOpIn.contains(i) && !event.builder.ownerIn.contains(i)));
           return list;
         }();
+        
         call.reply({
           "away": event.away,
           "awayMessage": event.awayMessage,
@@ -257,6 +257,99 @@ class PluginCommunicator {
         });
       });
     });
+    
+    addBotMethod("sendMessage", (call) {
+      var network = call.getArgument("network");
+      var target = call.getArgument("target");
+      var message = call.getArgument("message");
+      
+      bot[network].client.sendMessage(target, message);
+    }, isVoid: true);
+    
+    addBotMethod("sendNotice", (call) {
+      var network = call.getArgument("network");
+      var target = call.getArgument("target");
+      var message = call.getArgument("message");
+      
+      bot[network].client.sendNotice(target, message);
+    }, isVoid: true);
+    
+    addBotMethod("sendAction", (call) {
+      var network = call.getArgument("network");
+      var target = call.getArgument("target");
+      var message = call.getArgument("message");
+      
+      bot[network].client.sendAction(target, message);
+    }, isVoid: true);
+    
+    addBotMethod("sendCTCP", (call) {
+      var network = call.getArgument("network");
+      var target = call.getArgument("target");
+      var message = call.getArgument("message");
+      
+      bot[network].client.sendCTCP(target, message);
+    }, isVoid: true);
+    
+    addBotMethod("joinChannel", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      bot[network].client.join(channel);
+    }, isVoid: true);
+    
+    addBotMethod("partChannel", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      bot[network].client.part(channel);
+    }, isVoid: true);
+    
+    addBotMethod("clearBotMemory", (call) {
+      var network = call.getArgument("network");
+      
+      bot[network].clearBotMemory();
+    }, isVoid: true);
+    
+    addBotMethod("sendRawLine", (call) {
+      var network = call.getArgument("network");
+      var line = call.getArgument("line");
+      
+      bot[network].client.send(line);
+    }, isVoid: true);
+    
+    addBotMethod("reloadPlugins", (call) {
+      handler.reloadPlugins();
+    }, isVoid: true);
+    
+    addBotMethod("quit", (call) {
+      var network = call.getArgument("network");
+      var reason = call.getArgument("reason", defaultValue: "Bot Quitting");
+      
+      bot[network].client.disconnect(reason: reason);
+    }, isVoid: true);
+    
+    addBotMethod("stop", (call) {
+      var futures = [];
+
+      for (var botname in bot.bots) {
+        var completer = new Completer();
+        futures.add(completer.future);
+        var it = bot._clients[botname];
+        it.client.register((IRC.DisconnectEvent event) {
+          completer.complete();
+        }, once: true);
+        it.client.disconnect();
+      }
+
+      Future.wait(futures).then((_) {
+        handler.killPlugins();
+        exit(0);
+      });
+
+      new Future.delayed(new Duration(seconds: 5), () {
+        exit(0);
+      });
+    }, isVoid: true);
   }
 
   void _handleRequests() {
@@ -267,7 +360,7 @@ class PluginCommunicator {
         Zone.current.fork(specification: new ZoneSpecification(handleUncaughtError: (Zone self, ZoneDelegate parent, Zone zone, error, StackTrace stackTrace) {
           pm.send(plugin, {
             "exception": {
-              "message": "ERROR while calling method '${request.command}': ${error}"
+              "message": "Error while calling method '${request.command}' for '${plugin}' \n\n${error}"
             }
           });
         }), zoneValues: {
@@ -275,10 +368,14 @@ class PluginCommunicator {
         }).run(() {
           try {
             handler(call);
+            
+            if (_methodInfo[request.command].isVoid) {
+              call.reply(null);
+            }
           } catch (e) {
             pm.send(plugin, {
               "exception": {
-                "message": "ERROR while calling method '${request.command}': ${e}"
+                "message": "Error while calling method '${request.command}' for '${plugin}' \n\n${e}"
               }
             });
           }
@@ -286,120 +383,7 @@ class PluginCommunicator {
       } else {
         pm.send(plugin, {
           "exception": {
-            "message": "ERROR: Tried to call bot method '${request.command}', however it does not exist."
-          }
-        });
-      }
-    });
-  }
-
-  void _handleNormals() {
-    pm.listenAll((String plugin, Map _data) {
-      try {
-        var m = new VerificationManager(plugin, _data);
-        var b = bot[m['network']];
-        var command = m['command'];
-
-        if (command != null) {
-          m.type = command;
-        }
-
-        switch (command) {
-          case "message":
-            var msg = m['message'] as String;
-            var target = m['target'] as String;
-            b.client.sendMessage(target, msg);
-            break;
-          case "ctcp":
-            var target = m["target"];
-            var msg = m["message"];
-
-            b.client.sendCTCP(target, msg);
-            break;
-          case "notice":
-            var msg = m['message'] as String;
-            var target = m['target'] as String;
-
-            b.client.sendNotice(target, msg);
-            break;
-          case "action":
-            var msg = m['message'] as String;
-            var target = m['target'] as String;
-            b.client.sendAction(target, msg);
-            break;
-          case "reload-plugins":
-            handler.reloadPlugins();
-            break;
-          case "join":
-            var channel = m['channel'] as String;
-            b.client.join(channel);
-            break;
-          case "part":
-            var channel = m['channel'] as String;
-            b.client.part(channel);
-            break;
-          case "raw":
-            var line = m['line'] as String;
-            b.client.send(line);
-            break;
-          case "send":
-            var plugin = m['plugin'];
-            var data = m['data'];
-            pm.send(plugin, data);
-            break;
-          case "update-config":
-            var config = m['config'];
-            bot.config.clear();
-            bot.config.addAll(config);
-            break;
-          case "clear-bot-memory":
-            b.clearBotMemory();
-            break;
-          case "quit":
-            var reason = _data['reason'] != null ? m['reason'] : "Bot Quitting";
-            b.client.disconnect(reason: reason);
-            break;
-          case "broadcast":
-            if (!handler.isPluginElevated(plugin)) {
-              throw new Exception("Plugin must declare itself as being elevated in order to broadcast a message to all plugins.");
-            }
-
-            var data = m['data'];
-            pm.sendAll(data);
-            break;
-          case "stop-bot":
-            var futures = [];
-
-            for (var botname in bot.bots) {
-              var completer = new Completer();
-              futures.add(completer.future);
-              var it = bot._clients[botname];
-              it.client.register((IRC.DisconnectEvent event) {
-                completer.complete();
-              }, once: true);
-              it.client.disconnect();
-            }
-
-            Future.wait(futures).then((_) {
-              handler.killPlugins();
-              exit(0);
-            });
-
-            new Future.delayed(new Duration(seconds: 5), () {
-              exit(0);
-            });
-            break;
-          case "whois":
-            var user = m['user'];
-            b.client.send("WHOIS ${user}");
-            break;
-          default:
-            throw new Exception("$plugin sent an invalid command: $command");
-        }
-      } on Exception catch (e) {
-        pm.send(plugin, {
-          "exception": {
-            "message": e.toString()
+            "message": "The plugin '${plugin}' tried to call the method '${request.command}', however it does not exist."
           }
         });
       }

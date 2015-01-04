@@ -21,6 +21,7 @@ class BotConnector {
       "target": target,
       "notify": notify
     };
+    
     plugin.callMethod("checkPermission", params).then((has) {
       if (has) {
         callback(has);
@@ -29,7 +30,7 @@ class BotConnector {
   }
 
   void sendMessage(String network, String target, String message) {
-    plugin.send("message", {
+    plugin.callMethod("sendMessage", {
       "network": network,
       "message": message,
       "target": target
@@ -37,7 +38,7 @@ class BotConnector {
   }
   
   void sendAction(String network, String target, String message) {
-    plugin.send("action", {
+    plugin.callMethod("sendAction", {
       "network": network,
       "message": message,
       "target": target
@@ -45,21 +46,21 @@ class BotConnector {
   }
   
   void joinChannel(String network, String channel) {
-    plugin.send("join", {
+    plugin.callMethod("joinChannel", {
       "network": network,
       "channel": channel
     });
   }
   
   void partChannel(String network, String channel) {
-    plugin.send("part", {
+    plugin.callMethod("partChannel", {
       "network": network,
       "channel": channel
     });
   }
   
-  void sendRaw(String network, String line) {
-    plugin.send("raw", {
+  void sendRawLine(String network, String line) {
+    plugin.callMethod("sendRawLine", {
       "network": network,
       "line": line
     });
@@ -74,7 +75,7 @@ class BotConnector {
   }
 
   void sendNotice(String network, String target, String message) {
-    plugin.send("notice", {
+    plugin.callMethod("sendNotice", {
       "network": network,
       "message": message,
       "target": target
@@ -165,6 +166,27 @@ class BotConnector {
     });
     
     plugin.registerSubscription(sub);
+  }
+  
+  void reloadPlugins() {
+    plugin.callMethod("reloadPlugins");
+  }
+  
+  void stop() {
+    plugin.callMethod("stop");
+  }
+  
+  void clearBotMemory(String network) {
+    plugin.callMethod("clearBotMemory", {
+      "network": network
+    });
+  }
+  
+  void quit(String network, [String reason]) {
+    plugin.callMethod("quit", {
+      "network": network,
+      "reason": reason
+    });
   }
   
   void onBotJoin(BotJoinHandler handler, {String network, String channel}) {
@@ -300,7 +322,7 @@ class BotConnector {
   }
   
   void sendCTCP(String network, String target, String msg) {
-    plugin.send("ctcp", {
+    plugin.callMethod("sendCTCP", {
       "network": network,
       "target": target,
       "message": msg
@@ -508,14 +530,14 @@ class Plugin {
     });
   }
   
-  ConditionalFuture<Map<String, dynamic>> _get(String command, [Map<String, dynamic> data]) {
+  Future<Map<String, dynamic>> _get(String command, [Map<String, dynamic> data]) {
     _init();
     
     if (data == null) data = {};
     return _conn.get(command, data);
   }
   
-  ConditionalFuture<dynamic> callMethod(String name, [dynamic arguments]) {
+  Future<dynamic> callMethod(String name, [dynamic arguments]) {
     var data = arguments is Map ? arguments : {
       "value": arguments
     };
@@ -599,29 +621,6 @@ class Plugin {
   }
   
   Map<String, RemoteMethod> _myMethods = {};
-}
-
-typedef void RemoteCallHandler(RemoteCall call);
-
-class RemoteCall {
-  final Request request;
-  
-  RemoteCall(this.request);
-  
-  dynamic getArgument(String name, {dynamic defaultValue}) => request.data.containsKey(name) ? request.data[name] : defaultValue;
-  
-  void reply(dynamic value) => request.reply({
-    "value": value
-  });
-  
-  void replyMap(Map<String, dynamic> map) => request.reply(map);
-}
-
-class RemoteMethod {
-  final String name;
-  final Map<String, dynamic> metadata;
-  
-  RemoteMethod(this.name, {this.metadata: const {}});
 }
 
 typedef void PluginExceptionHandler(PluginException e);
