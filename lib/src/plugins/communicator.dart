@@ -29,7 +29,7 @@ class PluginCommunicator {
           if (path.trim().isEmpty) {
             path = "/";
           }
-          HttpHelper.forward(request, path, InternetAddress.ANY_IP_V4.address, _httpPorts[name]);
+          HttpHelper.forward(request, Uri.parse("http://${InternetAddress.ANY_IP_V4.address}:${_httpPorts[name]}${path}"));
         }
 
         var response = request.response;

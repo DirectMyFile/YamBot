@@ -3,9 +3,9 @@ part of polymorphic.utils;
 class HttpHelper {
   static HttpClient client = new HttpClient();
 
-  static void forward(HttpRequest request, String newPath, String host, int port) {
+  static void forward(HttpRequest request, Uri target) {
     var response = request.response;
-    client.open(request.method, host, port, newPath).then((req) {
+    client.openUrl(request.method, target).then((req) {
       var completer = new Completer();
 
       request.cookies.addAll(req.cookies);
