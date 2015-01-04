@@ -205,18 +205,28 @@ class Bot {
         }
         
         if (!Globals.pluginHandler._candidates.contains(event.args[0])) {
-          event.reply("> '${event.args[0]}' is not a valid plugin.");
+          event.reply("> ${event.args[0]} is not a valid plugin.");
           return;
         }
         
         if (!Globals.pluginHandler._disabled.contains(event.args[0])) {
-          event.reply("> '${event.args[0]}' is not disabled.");
+          event.reply("> ${event.args[0]} is not disabled.");
           return;
         }
         
         Globals.pluginHandler.enable(event.args[0]).then((_) {
-          event.reply("> '${event.args[0]}' is now enabled.");
-        });
+          event.reply("> ${event.args[0]} is now enabled.");
+        }).catchError((e) {
+          if (e is PluginDependencyException) {
+            var plugin = e.plugin;
+            var deps = e.dependencies;
+            
+            event.reply("Failed to enable ${plugin}: ${deps.map((it) => "'${it}'").join(", ")} ${deps.length > 1 ? "" : "depends"} ${deps.length > 1 ? "are" : "is"} required, but ${deps.length > 1 ? "they are" : "it is"} not enabled.");
+            return;
+          } else {
+            throw e;
+          }
+        });;
       });
     }, filter: (IRC.CommandEvent e) => e.command != "enable");
     
@@ -235,17 +245,27 @@ class Bot {
         }
         
         if (!Globals.pluginHandler._candidates.contains(event.args[0])) {
-          event.reply("> '${event.args[0]}' is not a valid plugin.");
+          event.reply("> ${event.args[0]} is not a valid plugin.");
           return;
         }
         
         if (Globals.pluginHandler._disabled.contains(event.args[0])) {
-          event.reply("> '${event.args[0]}' is not enabled.");
+          event.reply("> ${event.args[0]} is not enabled.");
           return;
         }
         
         Globals.pluginHandler.disable(event.args[0]).then((_) {
-          event.reply("> '${event.args[0]}' is now disabled.");
+          event.reply("> ${event.args[0]} is now disabled.");
+        }).catchError((e) {
+          if (e is PluginDependencyException) {
+            var plugin = e.plugin;
+            var deps = e.dependencies;
+            
+            event.reply("Failed to disable ${plugin}: ${deps.map((it) => "'${it}'").join(", ")} ${deps.length > 1 ? "all depend" : "depends"} on it, but ${deps.length > 1 ? "are" : "is"} not disabled.");
+            return;
+          } else {
+            throw e;
+          }
         });
       });
     }, filter: (IRC.CommandEvent e) => e.command != "disable");

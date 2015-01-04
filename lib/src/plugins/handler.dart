@@ -31,11 +31,14 @@ class PluginHandler {
   }
   
   List<String> _candidates = [];
-
+  Map<String, List<String>> _requirements = <String, List<String>>{};
+  Map<String, List<String>> _conflicts = <String, List<String>>{};
+  
   Future load() {
     _elevatedPlugins.clear();
-    var requirements = <String, List<String>>{};
-    var conflicts = <String, List<String>>{};
+    _requirements.clear();
+    _conflicts.clear();
+    
     var pluginNames = <String>[];
     var pluginsDirectory = new Directory("plugins");
     if (!pluginsDirectory.existsSync()) pluginsDirectory.createSync();
@@ -122,8 +125,8 @@ class PluginHandler {
             ..loader = loader
             ..displayName = displayName);
 
-        requirements[pluginName] = new List<String>.from(info['dependencies'] == null ? [] : info['dependencies']);
-        conflicts[pluginName] = new List<String>.from(info['conflicts'] == null ? [] : info['conflicts']);
+        _requirements[pluginName] = new List<String>.from(info['dependencies'] == null ? [] : info['dependencies']);
+        _conflicts[pluginName] = new List<String>.from(info['conflicts'] == null ? [] : info['conflicts']);
 
         pluginNames.add(pluginName);
       });
@@ -132,7 +135,7 @@ class PluginHandler {
       {
         print("[Plugin Manager] Resolving plugin requirements");
         for (var name in pluginNames) {
-          List<String> requires = requirements[name];
+          List<String> requires = _requirements[name];
           requires.removeWhere((it) => pluginNames.contains(it));
           if (requires.isNotEmpty) {
             print("[Plugin Manager] Failed to resolve requirements for plugin '${name}'");
@@ -142,7 +145,7 @@ class PluginHandler {
             exit(1);
           }
 
-          List<String> conflicting = conflicts[name];
+          List<String> conflicting = _conflicts[name];
           conflicting.removeWhere((it) => !pluginNames.contains(it));
 
           if (conflicting.isNotEmpty) {
@@ -178,15 +181,30 @@ class PluginHandler {
   }
 
   Future disable(String name) {
+    var requiredBy = _requirements.keys.where((it) {
+      return _requirements[it].contains(name) && !_disabled.contains(it);
+    }).toList();
+    
+    if (requiredBy.isNotEmpty) {
+      throw new PluginDependencyException(name, requiredBy);
+    }
+    
     if (!_disabled.contains(name)) {
       _disabled.add(name);
     }
+    
     return reloadPlugins();
   }
   
   Future enable(String name) {
     if (!_disabled.contains(name)) {
       return new Future.value();
+    }
+    
+    var needed = _requirements[name].where((it) => _disabled.contains(it)).toList();
+    
+    if (needed.isNotEmpty) {
+      throw new PluginDependencyException(name, needed);
     }
     
     _disabled.remove(name);
@@ -220,6 +238,13 @@ class BotPluginLoader extends PluginLoader {
       return isolate;
     });
   }
+}
+
+class PluginDependencyException {
+  final String plugin;
+  final List<String> dependencies;
+  
+  PluginDependencyException(this.plugin, this.dependencies);
 }
 
 class VerificationManager {
