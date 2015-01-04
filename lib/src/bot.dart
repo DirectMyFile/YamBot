@@ -244,7 +244,7 @@ class Bot {
           return;
         }
         
-        Globals.pluginHandler.enable(event.args[0]).then((_) {
+        Globals.pluginHandler.disable(event.args[0]).then((_) {
           event.reply("> '${event.args[0]}' is now disabled.");
         });
       });
