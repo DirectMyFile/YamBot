@@ -58,7 +58,7 @@ class HttpRouter {
         throw new Exception("Invalid Pattern Type");
       }
       
-      if (route.pattern.allMatches(path).isNotEmpty && (route.method != null ? route.method == request.method : true)) {
+      if (matches && (route.method != null ? route.method == request.method : true)) {
         route.handler(request);
         return;
       }
