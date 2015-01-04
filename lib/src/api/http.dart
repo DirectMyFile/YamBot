@@ -15,7 +15,7 @@ class HttpRouter {
       throw new Exception("pattern must be a string or regexp");
     }
     
-    var route = new HttpRoute(pattern, handler, method, matchSubPaths);
+    var route = new HttpRoute(pattern, handler, method);
     routes.add(route);
   }
   
@@ -59,9 +59,8 @@ class HttpRoute {
   final dynamic pattern;
   final HttpRequestHandler handler;
   final String method;
-  final bool matchSubPaths;
   
-  HttpRoute(this.pattern, this.handler, this.method, this.matchSubPaths);
+  HttpRoute(this.pattern, this.handler, this.method);
 }
 
 typedef void HttpRequestHandler(HttpRequest request);
