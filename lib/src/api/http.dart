@@ -30,6 +30,19 @@ class HttpRouter {
     _defaultHandler = handler;
   }
   
+  void addWebSocketEndpoint(String path, WebSocketHandler handler) {
+    addRoute(path, (request) {
+      if (!WebSocketTransformer.isUpgradeRequest(request)) {
+        request.response.statusCode = HttpStatus.BAD_REQUEST;
+        request.response.writeln("ERROR: This is a WebSocket endpoint.");
+        request.response.close();
+        return;
+      }
+      
+      WebSocketTransformer.upgrade(request).then(handler);
+    });
+  }
+  
   void handleRequest(HttpRequest request) {
     var path = request.uri.path;
     
@@ -64,3 +77,4 @@ class HttpRoute {
 }
 
 typedef void HttpRequestHandler(HttpRequest request);
+typedef void WebSocketHandler(WebSocket socket);
