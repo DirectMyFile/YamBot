@@ -22,6 +22,10 @@ part 'src/core.dart';
 part 'src/auth.dart';
 part 'src/bot.dart';
 
+class Globals {
+  static PluginHandler pluginHandler;
+}
+
 /**
  * Launches the bot. The [path] will override the current [Directory]
  * and read all configurations from it.
@@ -39,14 +43,14 @@ CoreBot launchBot(String path) {
   Directory.current = dir;
 
   var bot = new CoreBot();
-  var handler = new PluginHandler(bot);
+  var handler = Globals.pluginHandler = new PluginHandler(bot);
   
   [ProcessSignal.SIGINT].forEach((ProcessSignal signal) {
     signal.watch().listen((data) {
       if (!isShuttingDown) {
         isShuttingDown = true;
         print("Shutting Down");
-        handler.pm.killAll();
+        handler.killPlugins();
         bot.bots.forEach((it) {
           bot._clients[it].client.disconnect(reason: "Stopping Bot").then((_) {
             exit(0);

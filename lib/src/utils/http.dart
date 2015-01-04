@@ -79,4 +79,34 @@ class WebSocketHelper {
       socket.add(data);
     }).asFuture();
   }
+  
+  static Future proxy(WebSocket client, WebSocket target) {
+    var completer = new Completer();
+    
+    client.listen((data) {
+      target.add(data);
+    });
+    
+    target.listen((data) {
+      client.add(data);
+    });
+    
+    target.done.then((_) {
+      return client.close(target.closeCode, target.closeReason);
+    }).then((_) {
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+    });
+    
+    client.done.then((_) {
+      return target.close(client.closeCode, client.closeReason);
+    }).then((_) {
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+    });
+    
+    return completer.future;
+  }
 }

@@ -166,6 +166,7 @@ class Bot {
           event.reply("${event.from}> You are not authorized to perform this action (missing core.$node)");
           return;
         }
+        
         if (event.args.length == 0) {
           _authManager.registeredAs(event.from).then((List<String> s) {
             if (s[0] == null) {
@@ -188,5 +189,65 @@ class Bot {
         }
       });
     }, filter: (IRC.CommandEvent e) => e.command != "auth");
+    
+    client.register((IRC.CommandEvent event) {
+      String node = "enable";
+      
+      _authManager.hasPermission("core", event.from, node).then((bool has) {
+        if (!has) {
+          event.reply("${event.from}> You are not authorized to perform this action (missing core.$node)");
+          return;
+        }
+        
+        if (event.args.length != 1) {
+          event.reply("> Usage: enable <plugin>");
+          return;
+        }
+        
+        if (!Globals.pluginHandler._candidates.contains(event.args[0])) {
+          event.reply("> '${event.args[0]}' is not a valid plugin.");
+          return;
+        }
+        
+        if (!Globals.pluginHandler._disabled.contains(event.args[0])) {
+          event.reply("> '${event.args[0]}' is not disabled.");
+          return;
+        }
+        
+        Globals.pluginHandler.enable(event.args[0]).then((_) {
+          event.reply("> '${event.args[0]}' is now enabled.");
+        });
+      });
+    }, filter: (IRC.CommandEvent e) => e.command != "enable");
+    
+    client.register((IRC.CommandEvent event) {
+      String node = "disable";
+      
+      _authManager.hasPermission("core", event.from, node).then((bool has) {
+        if (!has) {
+          event.reply("${event.from}> You are not authorized to perform this action (missing core.$node)");
+          return;
+        }
+        
+        if (event.args.length != 1) {
+          event.reply("> Usage: disable <plugin>");
+          return;
+        }
+        
+        if (!Globals.pluginHandler._candidates.contains(event.args[0])) {
+          event.reply("> '${event.args[0]}' is not a valid plugin.");
+          return;
+        }
+        
+        if (Globals.pluginHandler._disabled.contains(event.args[0])) {
+          event.reply("> '${event.args[0]}' is not enabled.");
+          return;
+        }
+        
+        Globals.pluginHandler.enable(event.args[0]).then((_) {
+          event.reply("> '${event.args[0]}' is now disabled.");
+        });
+      });
+    }, filter: (IRC.CommandEvent e) => e.command != "disable");
   }
 }

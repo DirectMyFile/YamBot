@@ -10,12 +10,12 @@ class PluginLoadHelper {
 
 class PluginHandler {
   final CoreBot bot;
-  
+
   PluginManager pm;
   PluginCommunicator _communicator;
 
   List<String> _elevatedPlugins = [];
-  
+
   PluginHandler(this.bot) {
     pm = new PluginManager();
     _communicator = new PluginCommunicator(bot, this);
@@ -29,6 +29,8 @@ class PluginHandler {
       return plugins;
     });
   }
+  
+  List<String> _candidates = [];
 
   Future load() {
     _elevatedPlugins.clear();
@@ -40,6 +42,7 @@ class PluginHandler {
 
     /* Patched loadAll() method */
     Future loadAll(Directory directory) {
+      _candidates.clear();
       var loaders = <PluginLoadHelper>[];
 
       directory.listSync(followLinks: true).forEach((entity) {
@@ -60,12 +63,18 @@ class PluginHandler {
         }
 
         String pluginName = pubspec["name"];
-        String displayName = pluginName;
+        _candidates.add(pluginName);
         
+        if (_disabled.contains(pluginName)) {
+          return;
+        }
+        
+        String displayName = pluginName;
+
         if (info.containsKey("display_name")) {
           displayName = info["display_name"];
         }
-        
+
         if (info["elevated"] != null && info["elevated"]) {
           print("[Plugin Manager] ${pluginName} is elevated.");
           _elevatedPlugins.add(pluginName);
@@ -93,12 +102,12 @@ class PluginHandler {
           var result = Process.runSync(Platform.isWindows ? "pub.bat" : "pub", ["upgrade"], workingDirectory: entity.path);
           if (result.exitCode != 0) {
             print("[Plugin Manager] Failed to update dependencies for plugin '${pluginName}'");
-            
+
             if (result.stdout.trim() != "") {
               print("[STDOUT]");
               stdout.write(result.stdout);
             }
-            
+
             if (result.stderr.trim() != "") {
               print("[STDERR]");
               stdout.write(result.stderr);
@@ -108,11 +117,14 @@ class PluginHandler {
         }
 
         var loader = () => new BotPluginLoader(entity, info['main'] != null ? info['main'] : "main.dart");
-        loaders.add(new PluginLoadHelper()..name = pluginName..loader = loader..displayName = displayName);
+        loaders.add(new PluginLoadHelper()
+            ..name = pluginName
+            ..loader = loader
+            ..displayName = displayName);
 
         requirements[pluginName] = new List<String>.from(info['dependencies'] == null ? [] : info['dependencies']);
         conflicts[pluginName] = new List<String>.from(info['conflicts'] == null ? [] : info['conflicts']);
-        
+
         pluginNames.add(pluginName);
       });
 
@@ -129,10 +141,10 @@ class PluginHandler {
             print("[Plugin Manager] '${name}' requires '${requires.join(", ")}', but ${noun} ${verb} not found.");
             exit(1);
           }
-          
+
           List<String> conflicting = conflicts[name];
           conflicting.removeWhere((it) => !pluginNames.contains(it));
-          
+
           if (conflicting.isNotEmpty) {
             print("[Plugin Manager] Failed to resolve conflicts for plugin '${name}'");
             var noun = requires.length == 1 ? "it" : "they";
@@ -153,9 +165,10 @@ class PluginHandler {
     }
     return loadAll(pluginsDirectory);
   }
-  
+
   Future killPlugins() {
     pm.sendAll({
+      "type": "event",
       "event": "shutdown"
     });
 
@@ -163,11 +176,30 @@ class PluginHandler {
       pm.killAll();
     });
   }
+
+  Future disable(String name) {
+    if (!_disabled.contains(name)) {
+      _disabled.add(name);
+    }
+    return reloadPlugins();
+  }
   
+  Future enable(String name) {
+    if (!_disabled.contains(name)) {
+      return new Future.value();
+    }
+    
+    _disabled.remove(name);
+    
+    return reloadPlugins();
+  }
+
+  List<String> _disabled = [];
+
   Future reloadPlugins() {
     return killPlugins().then((_) => init());
   }
-  
+
   bool isPluginElevated(String plugin) {
     return _elevatedPlugins.contains(plugin);
   }
@@ -181,9 +213,9 @@ class BotPluginLoader extends PluginLoader {
   @override
   Future<Isolate> load(SendPort port, List<String> args) {
     args = args == null ? [] : args;
-    
+
     var loc = path.joinAll([directory.absolute.path, main]);
-    
+
     return Isolate.spawnUri(new Uri.file(loc), args, new Polymorphic.Plugin(args[0], args[1], port), packageRoot: new Uri.file(new Directory(directory.path + "/" + "packages").path)).then((isolate) {
       return isolate;
     });
