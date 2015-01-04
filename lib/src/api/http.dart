@@ -10,7 +10,7 @@ class HttpRouter {
     });
   }
   
-  void addRoute(dynamic pattern, HttpRequestHandler handler, {String method, bool matchSubPaths: false}) {
+  void addRoute(dynamic pattern, HttpRequestHandler handler, {String method}) {
     if (pattern is! String && pattern is! RegExp) {
       throw new Exception("pattern must be a string or regexp");
     }
