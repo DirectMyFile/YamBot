@@ -31,6 +31,44 @@ class BotConnector {
     });
   }
 
+  void onReady(ReadyHandler handler, {String network}) {
+    var sub = plugin.on("ready").where((data) {
+      if (network != null) {
+        return data["network"] == network;
+      }
+      return true;
+    }).map((it) {
+      var network = it["network"];
+
+      return new ReadyEvent(this, network);
+    }).listen((event) {
+      handler(event);
+    });
+
+    plugin.registerSubscription(sub);
+  }
+
+  void onNotice(NoticeHandler handler, {Pattern pattern}) {
+    var sub = plugin.on("notice").where((data) {
+      if (pattern != null) {
+        return data['message'].allMatches(pattern).isNotEmpty;
+      }
+      return true;
+    }).map((it) {
+      var network = it["network"];
+      var target = it["target"];
+      var from = it["from"];
+      var private = it["private"];
+      var message = it["message"];
+
+      return new NoticeEvent(this, network, target, from, private, message);
+    }).listen((event) {
+      handler(event);
+    });
+
+    plugin.registerSubscription(sub);
+  }
+
   void sendMessage(String network, String target, String message) {
     plugin.callMethod("sendMessage", {
       "network": network,
@@ -231,6 +269,94 @@ class BotConnector {
 
       handler(event);
     });
+
+    plugin.registerSubscription(sub);
+  }
+
+  void onInvite(InviteHandler handler, {String network, String user, String channel}) {
+    var sub = plugin.on("invite").where((data) {
+      bool matches = true;
+
+      if (network != null && network != data["network"]) matches = false;
+      if (user != null && user != data["user"]) matches = false;
+      if (channel != null && channel != data["channel"]) matches = false;
+
+      return matches;
+    }).listen((data) {
+      var event = new InviteEvent(this, data["network"], data["user"], data["channel"]);
+
+      handler(event);
+    });
+
+    plugin.registerSubscription(sub);
+  }
+
+  void onConnect(ConnectHandler handler, {String network}) {
+    var sub = plugin.on("connect").where((data) {
+      bool matches = true;
+
+      if (network != null && network != data["network"]) matches = false;
+
+      return matches;
+    }).listen((data) {
+      var event = new ConnectEvent(this, data["network"]);
+
+      handler(event);
+    });
+
+    plugin.registerSubscription(sub);
+  }
+
+  void onDisconnect(DisconnectHandler handler, {String network}) {
+    var sub = plugin.on("disconnect").where((data) {
+      bool matches = true;
+
+      if (network != null && network != data["network"]) matches = false;
+
+      return matches;
+    }).listen((data) {
+      var event = new DisconnectEvent(this, data["network"]);
+
+      handler(event);
+    });
+
+    plugin.registerSubscription(sub);
+  }
+
+  void onChannelTopic(TopicHandler handler, {String network, String channel}) {
+    var sub = plugin.on("topic").where((data) {
+      bool matches = true;
+
+      if (network != null && network != data["network"]) matches = false;
+      if (channel != null && channel != data["channel"]) matches = false;
+
+      return matches;
+    }).listen((data) {
+      var event = new TopicEvent(this, data["network"], data["user"], data["channel"]);
+
+      handler(event);
+    });
+
+    plugin.registerSubscription(sub);
+  }
+
+  void onMode(ModeHandler handler, {String network, String channel, String user, String mode}) {
+    var sub = plugin.on("mode").where((data) {
+      bool matches = true;
+
+      if (network != null && network != data["network"]) matches = false;
+      if (user != null && user != data["user"]) matches = false;
+      if (channel != null && channel != data["channel"]) matches = false;
+      if (mode != null && mode != data["mode"]) matches = false;
+
+      return matches;
+    }).listen((data) {
+      var event = new ModeEvent(this, data["network"], data["channel"], data["user"], data["mode"]);
+
+      handler(event);
+    });
+
+    plugin.registerSubscription(sub);
   }
 
   void onBotPart(BotPartHandler handler, {String network, String channel}) {
@@ -370,7 +496,7 @@ class Plugin {
 
   List<ReadyAction> _readyActions = [];
 
-  void onReady(ReadyAction action) {
+  void onPluginReady(ReadyAction action) {
     _init();
     _readyActions.add(action);
   }

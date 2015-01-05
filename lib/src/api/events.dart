@@ -7,8 +7,79 @@ typedef void PartHandler(PartEvent event);
 typedef void BotJoinHandler(BotJoinEvent event);
 typedef void BotPartHandler(BotPartEvent event);
 typedef void CTCPHandler(CTCPEvent event);
+typedef void ReadyHandler(ReadyEvent event);
+typedef void NoticeHandler(NoticeEvent event);
+typedef void InviteHandler(InviteEvent event);
+typedef void ConnectHandler(ConnectEvent event);
+typedef void DisconnectHandler(DisconnectEvent event);
+typedef void TopicHandler(TopicEvent event);
+typedef void ModeHandler(ModeEvent event);
 
 typedef void ShutdownAction();
+
+class ConnectEvent {
+  final BotConnector bot;
+  final String network;
+
+  ConnectEvent(this.bot, this.network);
+}
+
+class ModeEvent {
+  final BotConnector bot;
+  final String network;
+  final String channel;
+  final String user;
+  final String mode;
+
+  ModeEvent(this.bot, this.network, this.channel, this.user, this.mode);
+}
+
+class TopicEvent {
+  final BotConnector bot;
+  final String network;
+  final String channel;
+  final String topic;
+
+  TopicEvent(this.bot, this.network, this.channel, this.topic);
+}
+
+class DisconnectEvent {
+  final BotConnector bot;
+  final String network;
+
+  DisconnectEvent(this.bot, this.network);
+}
+
+class ReadyEvent {
+  final BotConnector bot;
+  final String network;
+
+  ReadyEvent(this.bot, this.network);
+}
+
+class InviteEvent {
+  final BotConnector bot;
+  final String network;
+  final String user;
+  final String channel;
+
+  InviteEvent(this.bot, this.network, this.user, this.channel);
+}
+
+class NoticeEvent {
+  final BotConnector bot;
+  final String network;
+  final String target;
+  final String from;
+  final bool isPrivate;
+  final String message;
+
+  NoticeEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.message);
+
+  void reply(String msg) {
+    bot.sendNotice(network, isPrivate ? from : target, msg);
+  }
+}
 
 class MessageEvent {
   final BotConnector bot;

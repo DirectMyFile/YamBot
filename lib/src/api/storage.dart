@@ -32,6 +32,10 @@ class Storage {
     file.writeAsStringSync(encoder.convert(json));
   }
 
+  void forceSave() {
+    _save();
+  }
+
   dynamic get(String key, [dynamic defaultValue]) => json.containsKey(key) ? json[key] : defaultValue;
 
   void set(String key, dynamic value) {
@@ -41,6 +45,7 @@ class Storage {
 
   void destroy() {
     _saveTimer.cancel();
+    forceSave();
   }
 
   Map<String, dynamic> get map => new Map.from(json);
