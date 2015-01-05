@@ -137,6 +137,8 @@ class Auth {
   }
 
   bool _hasMatch(String plugin, permParts, nodeParts) {
+    if (permParts.length == 1 && permParts[0] == "*") return true;
+
     if (permParts[0] != plugin) return false;
     var success = false;
 
