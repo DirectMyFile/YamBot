@@ -29,6 +29,6 @@ class CommandInfo {
   final String name;
   final String usage;
   final String description;
-  
+
   CommandInfo(this.plugin, this.name, this.usage, this.description);
 }

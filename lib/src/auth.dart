@@ -4,8 +4,7 @@ class Auth {
 
   static const String LOGGED = "You are already logged into NickServ";
   static const String UNLOGGED = "You are not logged into NickServ";
-  static const String CHANNEL =
-      "You must be in at least 1 channel that the bot is in to authenticate.";
+  static const String CHANNEL = "You must be in at least 1 channel that the bot is in to authenticate.";
 
   /**
    * The auth system this is good for
@@ -164,9 +163,7 @@ class Auth {
         var regular = event.member_in;
         var voice = event.voicedChannels;
         var op = event.operatorChannels;
-        if (regular.contains(c.name)
-            || voice.contains(c.name)
-            || op.contains(c.name)) {
+        if (regular.contains(c.name) || voice.contains(c.name) || op.contains(c.name)) {
           _authenticated.putIfAbsent(event.nickname, () => event.username);
           _rejected.remove(event.nickname);
           _done(event.username);

@@ -13,31 +13,33 @@ class DefaultConfig {
   /**
    * A default workable configuration.
    */
-  static final Map defaultConfig =
-  {
+  static final Map defaultConfig = {
     "server": [{
-      "name": "Esper",
-      "nickname": "PolymorphicBot",
-      "realname": "PolymorphicBot",
-      "host": "irc.esper.net",
-      "port": 6667,
-      "owner": "<nickserv name>",
-      "password": "<nickserv password>"
-    }],
+        "name": "Esper",
+        "nickname": "PolymorphicBot",
+        "realname": "PolymorphicBot",
+        "host": "irc.esper.net",
+        "port": 6667,
+        "owner": "<nickserv name>",
+        "password": "<nickserv password>"
+      }],
     "channel": {
       "Esper": ["#directcode"]
     },
     "prefix": {
-      "Esper": {"default": "\$", "#directcode": "\$"}
+      "Esper": {
+        "default": "\$",
+        "#directcode": "\$"
+      }
     },
     "permissions": {
       "groups": {
-        "public": [ "core.auth" ]
+        "public": ["core.auth"]
       },
       "server": {
         "Esper": {
           "groups": {
-            "*": [ "public" ]
+            "*": ["public"]
           },
           "nodes": {
             "*": []

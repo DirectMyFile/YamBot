@@ -44,9 +44,7 @@ class Bot {
   Auth get authManager => _authManager;
   Auth _authManager;
 
-  Bot(this.server, this.serverConfig,
-      this.channelConfig, this.prefixConfig,
-      this.permsConfig, this.groupsConfig) {
+  Bot(this.server, this.serverConfig, this.channelConfig, this.prefixConfig, this.permsConfig, this.groupsConfig) {
     var botConfig = new IRC.IrcConfig();
     botConfig.nickname = serverConfig['nickname'];
     botConfig.realname = serverConfig['realname'];
@@ -58,13 +56,13 @@ class Bot {
     _registerReadyHandler();
     _registerMessageHandler();
     _registerCommandHandler();
-    
+
     client.register((IRC.CTCPEvent event) {
       if (event.message.trim().toUpperCase() == "ARE YOU A BOT") {
         client.sendCTCP(event.user, "I AM A BOT");
       }
     });
-    
+
     client.register((IRC.NickChangeEvent event) {
       if (_botMemory.containsKey(event.original)) {
         _botMemory[event.now] = _botMemory[event.original];
@@ -77,27 +75,27 @@ class Bot {
     print("[$server] Connecting");
     client.connect();
   }
-  
+
   Map<String, bool> _botMemory = {};
-  
+
   void clearBotMemory() => _botMemory.clear();
-  
+
   Future<bool> isUserBot(String user) {
     if (user == client.nickname) {
       return new Future.value(true);
     }
-    
+
     var isBot = false;
-    
+
     if (_botMemory.containsKey(user)) {
       return new Future.value(_botMemory[user]);
     }
-    
+
     client.register((IRC.CTCPEvent event) {
       isBot = event.message.trim().toUpperCase() == "I AM A BOT";
     }, filter: (IRC.CTCPEvent event) => event.user != user && event.target != client.nickname, once: true);
     client.sendCTCP(user, "ARE YOU A BOT");
-    
+
     return new Future.delayed(new Duration(seconds: 2), () {
       _botMemory[user] = isBot;
       return isBot;
@@ -119,8 +117,7 @@ class Bot {
   void _registerReadyHandler() {
     client.register((IRC.ReadyEvent event) {
       if (serverConfig['owner'] != null) {
-        client.identify(username: serverConfig['owner'],
-                        password: serverConfig['password'], nickserv: serverConfig['nickserv'] != null ? serverConfig['nickserv'] : "NickServ");
+        client.identify(username: serverConfig['owner'], password: serverConfig['password'], nickserv: serverConfig['nickserv'] != null ? serverConfig['nickserv'] : "NickServ");
       }
       print("[$server] Bot is Ready");
       for (var chan in channelConfig) {
@@ -141,12 +138,9 @@ class Bot {
       }
 
       String prefix;
-      if (!event.isPrivate)
-        prefix = prefixConfig[event.channel.name];
-      if (prefix == null)
-        prefix = prefixConfig['default'];
-      if (prefix == null)
-        throw new Exception("[$server] No prefix set");
+      if (!event.isPrivate) prefix = prefixConfig[event.channel.name];
+      if (prefix == null) prefix = prefixConfig['default'];
+      if (prefix == null) throw new Exception("[$server] No prefix set");
       if (event.message.startsWith(prefix)) {
         List<String> args = event.message.split(' ');
         String command = args[0].substring(1);
@@ -166,7 +160,7 @@ class Bot {
           event.reply("${event.from}> You are not authorized to perform this action (missing core.$node)");
           return;
         }
-        
+
         if (event.args.length == 0) {
           _authManager.registeredAs(event.from).then((List<String> s) {
             if (s[0] == null) {
@@ -189,78 +183,79 @@ class Bot {
         }
       });
     }, filter: (IRC.CommandEvent e) => e.command != "auth");
-    
+
     client.register((IRC.CommandEvent event) {
       String node = "enable";
-      
+
       _authManager.hasPermission("core", event.from, node).then((bool has) {
         if (!has) {
           event.reply("${event.from}> You are not authorized to perform this action (missing core.$node)");
           return;
         }
-        
+
         if (event.args.length != 1) {
           event.reply("> Usage: enable <plugin>");
           return;
         }
-        
+
         if (!Globals.pluginHandler._candidates.contains(event.args[0])) {
           event.reply("> ${event.args[0]} is not a valid plugin.");
           return;
         }
-        
+
         if (!Globals.pluginHandler._disabled.contains(event.args[0])) {
           event.reply("> ${event.args[0]} is not disabled.");
           return;
         }
-        
+
         Globals.pluginHandler.enable(event.args[0]).then((_) {
           event.reply("> ${event.args[0]} is now enabled.");
         }).catchError((e) {
           if (e is PluginDependencyException) {
             var plugin = e.plugin;
             var deps = e.dependencies;
-            
+
             event.reply("Failed to enable ${plugin}: ${deps.map((it) => "'${it}'").join(", ")} ${deps.length > 1 ? "" : "depends"} ${deps.length > 1 ? "are" : "is"} required, but ${deps.length > 1 ? "they are" : "it is"} not enabled.");
             return;
           } else {
             throw e;
           }
-        });;
+        });
+        ;
       });
     }, filter: (IRC.CommandEvent e) => e.command != "enable");
-    
+
     client.register((IRC.CommandEvent event) {
       String node = "disable";
-      
+
       _authManager.hasPermission("core", event.from, node).then((bool has) {
         if (!has) {
           event.reply("${event.from}> You are not authorized to perform this action (missing core.$node)");
           return;
         }
-        
+
         if (event.args.length != 1) {
           event.reply("> Usage: disable <plugin>");
           return;
         }
-        
+
         if (!Globals.pluginHandler._candidates.contains(event.args[0])) {
           event.reply("> ${event.args[0]} is not a valid plugin.");
           return;
         }
-        
+
         if (Globals.pluginHandler._disabled.contains(event.args[0])) {
           event.reply("> ${event.args[0]} is not enabled.");
           return;
         }
-        
+
         Globals.pluginHandler.disable(event.args[0]).then((_) {
           event.reply("> ${event.args[0]} is now disabled.");
         }).catchError((e) {
           if (e is PluginDependencyException) {
             var plugin = e.plugin;
             var deps = e.dependencies;
-            
+
             event.reply("Failed to disable ${plugin}: ${deps.map((it) => "'${it}'").join(", ")} ${deps.length > 1 ? "all depend" : "depends"} on it, but ${deps.length > 1 ? "are" : "is"} not disabled.");
             return;
           } else {

@@ -53,7 +53,7 @@ class HttpHelper {
   static Future proxyWebSocket(HttpRequest request, HttpClientResponse response) {
     WebSocket requestSocket;
     WebSocket responseSocket;
-    
+
     return WebSocketTransformer.upgrade(request).then((socket) {
       requestSocket = socket;
       return response.detachSocket();
@@ -61,11 +61,11 @@ class HttpHelper {
       return new WebSocket.fromUpgradedSocket(socket, serverSide: false);
     }).then((socket) {
       responseSocket = socket;
-      
+
       requestSocket.listen((data) {
         responseSocket.add(data);
       });
-      
+
       responseSocket.listen((data) {
         requestSocket.add(data);
       });
@@ -79,18 +79,18 @@ class WebSocketHelper {
       socket.add(data);
     }).asFuture();
   }
-  
+
   static Future proxy(WebSocket client, WebSocket target) {
     var completer = new Completer();
-    
+
     client.listen((data) {
       target.add(data);
     });
-    
+
     target.listen((data) {
       client.add(data);
     });
-    
+
     target.done.then((_) {
       return client.close(target.closeCode, target.closeReason);
     }).then((_) {
@@ -98,7 +98,7 @@ class WebSocketHelper {
         completer.complete();
       }
     });
-    
+
     client.done.then((_) {
       return target.close(client.closeCode, client.closeReason);
     }).then((_) {
@@ -106,7 +106,7 @@ class WebSocketHelper {
         completer.complete();
       }
     });
-    
+
     return completer.future;
   }
 }

@@ -23,7 +23,7 @@ class BotConnector {
       "target": target,
       "notify": notify
     };
-    
+
     plugin.callMethod("checkPermission", params).then((has) {
       if (has) {
         callback(has);
@@ -38,7 +38,7 @@ class BotConnector {
       "target": target
     });
   }
-  
+
   void sendAction(String network, String target, String message) {
     plugin.callMethod("sendAction", {
       "network": network,
@@ -46,21 +46,21 @@ class BotConnector {
       "target": target
     });
   }
-  
+
   void joinChannel(String network, String channel) {
     plugin.callMethod("joinChannel", {
       "network": network,
       "channel": channel
     });
   }
-  
+
   void partChannel(String network, String channel) {
     plugin.callMethod("partChannel", {
       "network": network,
       "channel": channel
     });
   }
-  
+
   void sendRawLine(String network, String line) {
     plugin.callMethod("sendRawLine", {
       "network": network,
@@ -104,160 +104,160 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
-  
+
   Future<bool> isUserABot(String network, String user) {
     return plugin.callMethod("isUserABot", {
       "network": network,
       "user": user
     });
   }
-  
+
   void onJoin(JoinHandler handler, {String channel, String user, String network}) {
     var sub = plugin.on("join").where((data) {
       bool matches = true;
       if (channel != null && channel != data["channel"]) {
         matches = false;
       }
-      
+
       if (network != null && network != data["network"]) {
         matches = false;
       }
-      
+
       if (user != null && user != data["user"]) {
         matches = false;
       }
-      
+
       return matches;
     }).listen((data) {
       String network = data['network'];
       String user = data['user'];
       String channel = data['channel'];
-      
+
       var event = new JoinEvent(this, network, channel, user);
-      
+
       handler(event);
     });
-    
+
     plugin.registerSubscription(sub);
   }
-  
+
   void onPart(PartHandler handler, {String channel, String user, String network}) {
     var sub = plugin.on("part").where((data) {
       bool matches = true;
       if (channel != null && channel != data["channel"]) {
         matches = false;
       }
-      
+
       if (network != null && network != data["network"]) {
         matches = false;
       }
-      
+
       if (user != null && user != data["user"]) {
         matches = false;
       }
-      
+
       return matches;
     }).listen((data) {
       String network = data['network'];
       String user = data['user'];
       String channel = data['channel'];
-      
+
       var event = new PartEvent(this, network, channel, user);
-      
+
       handler(event);
     });
-    
+
     plugin.registerSubscription(sub);
   }
-  
+
   void reloadPlugins() {
     plugin.callMethod("reloadPlugins");
   }
-  
+
   void stop() {
     plugin.callMethod("stop");
   }
-  
+
   void clearBotMemory(String network) {
     plugin.callMethod("clearBotMemory", {
       "network": network
     });
   }
-  
+
   void quit(String network, [String reason]) {
     plugin.callMethod("quit", {
       "network": network,
       "reason": reason
     });
   }
-  
+
   void onBotJoin(BotJoinHandler handler, {String network, String channel}) {
     var sub = plugin.on("bot-join").where((data) {
       bool matches = true;
-      
+
       if (channel != null && channel != data["channel"]) {
         matches = false;
       }
-      
+
       if (network != null && network != data["network"]) {
         matches = false;
       }
-      
+
       return matches;
     }).listen((data) {
       String network = data['network'];
       String channel = data['channel'];
-      
+
       var event = new BotJoinEvent(this, network, channel);
-      
+
       handler(event);
     });
-    
+
     plugin.registerSubscription(sub);
   }
-  
+
   void onCTCP(CTCPHandler handler, {String network, String target, String message, String user}) {
     var sub = plugin.on("ctcp").where((data) {
       bool matches = true;
-      
+
       if (network != null && network != data["network"]) matches = false;
       if (target != null && target != data["target"]) matches = false;
       if (message != null && message != data["message"]) matches = false;
       if (user != null && user != data["user"]) matches = false;
-      
+
       return matches;
     }).listen((data) {
       var event = new CTCPEvent(this, data["network"], data["target"], data["user"], data["message"]);
-      
+
       handler(event);
     });
   }
-  
+
   void onBotPart(BotPartHandler handler, {String network, String channel}) {
     var sub = plugin.on("bot-part").where((data) {
       bool matches = true;
-      
+
       if (channel != null && channel != data["channel"]) {
         matches = false;
       }
-      
+
       if (network != null && network != data["network"]) {
         matches = false;
       }
-      
+
       return matches;
     }).listen((data) {
       String network = data['network'];
       String channel = data['channel'];
-      
+
       var event = new BotPartEvent(this, network, channel);
-      
+
       handler(event);
     });
-    
+
     plugin.registerSubscription(sub);
   }
-  
+
   Future<List<CommandInfo>> getCommands([String pluginName]) {
     return plugin.callMethod("getCommandInfo", pluginName != null ? {
       "plugin": pluginName
@@ -265,20 +265,20 @@ class BotConnector {
       if (response == null) {
         return null;
       }
-      
+
       var infos = [];
-      
+
       for (var key in response.keys) {
         var i = response[key];
         infos.add(new CommandInfo(i["plugin"], key, i["usage"], i["description"]));
       }
-      
+
       return infos;
     });
   }
-  
+
   List<CommandInfo> _myCommands = [];
-  
+
   Future<bool> doesCommandExist(String name) {
     return plugin.callMethod("doesCommandExist", name);
   }
@@ -290,17 +290,17 @@ class BotConnector {
       if (response == null) {
         return null;
       }
-      
+
       var i = response;
       return new CommandInfo(i["plugin"], name, i["usage"], i["description"]);
     });
   }
-  
+
   void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided", String permission}) {
     var info = new CommandInfo(plugin.name, name, usage, description);
-    
+
     _myCommands.add(info);
-    
+
     var sub = plugin.on("command").where((data) => data['command'] == name).listen((data) {
       var command = data['command'];
       var args = data['args'];
@@ -310,7 +310,7 @@ class BotConnector {
       var message = data['message'];
 
       var event = new CommandEvent(this, network, command, message, user, channel, args);
-      
+
       if (permission != null) {
         event.require(permission, () {
           handler(event);
@@ -322,7 +322,7 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
-  
+
   void sendCTCP(String network, String target, String msg) {
     plugin.callMethod("sendCTCP", {
       "network": network,
@@ -338,7 +338,7 @@ class Plugin {
   final String name;
   final String displayName;
   final SendPort _port;
-  
+
   http.Client httpClient;
 
   Plugin(this.name, this.displayName, this._port);
@@ -360,36 +360,36 @@ class Plugin {
 
   Stream<Map<String, dynamic>> on(String name) {
     _init();
-    
+
     if (!_controllers.containsKey(name)) {
       _controllers[name] = new StreamController.broadcast();
     }
 
     return _controllers[name].stream;
   }
-  
+
   List<ReadyAction> _readyActions = [];
-  
+
   void onReady(ReadyAction action) {
     _init();
     _readyActions.add(action);
   }
-  
+
   void onShutdown(ShutdownAction action) {
     _init();
-    
+
     _shutdown.add(action);
   }
-  
+
   void registerSubscription(StreamSubscription sub) {
     _init();
-    
+
     _subs.add(sub);
   }
-  
+
   void _handleEvent(Map<String, dynamic> data) {
     _init();
-    
+
     if (_isShutdown) {
       return;
     }
@@ -398,30 +398,39 @@ class Plugin {
 
     if (_controllers.containsKey(name)) _controllers[name].add(data);
   }
-  
+
+  PluginInterface getPluginInterface(String plugin) {
+    if (!_interfaces.containsKey(plugin)) {
+      _interfaces[plugin] = new PluginInterface(this, plugin);
+    }
+    return _interfaces[plugin];
+  }
+
+  Map<String, PluginInterface> _interfaces = {};
+
   HttpServer httpServer;
-  
+
   List<PluginExceptionHandler> _exceptionHandlers = [];
-  
+
   void onException(PluginExceptionHandler handler) {
     _exceptionHandlers.add(handler);
   }
-  
+
   void _init() {
     if (_initCalled) {
       return;
     }
-    
+
     _initCalled = true;
     _initTime = new DateTime.now().millisecondsSinceEpoch;
-    
+
     if (httpClient == null) {
       httpClient = new http.Client();
     }
-    
+
     if (_conn == null) {
       _conn = new Receiver(_port);
-      
+
       _eventSub = _conn.listen((it) {
         if (it["exception"] != null) {
           var e = new PluginException(it["exception"]["message"]);
@@ -433,12 +442,12 @@ class Plugin {
             throw e;
           }
         }
-        
+
         if (it["event"] != null) {
-          _handleEvent(it);          
+          _handleEvent(it);
         }
       });
-      
+
       var sub;
       sub = on("shutdown").listen((_) {
         httpClient.close();
@@ -460,21 +469,21 @@ class Plugin {
 
         _isShutdown = true;
       });
-      
+
       _conn.listenIntercom((plugin, data) {
         for (var handler in _pluginEventHandlers) {
           handler(plugin, data);
         }
       });
-      
+
       _conn.listenRequest((request) {
         if (!request.command.startsWith("__") && _methods.containsKey(request.command)) {
           _methods[request.command](new RemoteCall(request));
         }
-        
+
         if (request.command.startsWith("__")) {
           var name = request.command.substring(2);
-          
+
           if (name == "getRemoteMethods") {
             request.reply({
               "value": _myMethods.values
@@ -487,25 +496,25 @@ class Plugin {
         }
       });
     }
-    
+
     if (_bot == null) {
       _bot = new BotConnector(this);
     }
-    
+
     for (var action in _readyActions) {
       action();
     }
-    
+
     callMethod("__initialized", true);
   }
-  
+
   bool _initCalled = false;
-  
+
   Storage getStorage(String storageName, {String group}) {
     _init();
-    
+
     if (group == null) group = name;
-    
+
     var file = new File("data/${group}/${storageName}.json");
     file.parent.createSync(recursive: true);
 
@@ -513,117 +522,117 @@ class Plugin {
     _storages.add(storage);
     return storage;
   }
-  
+
   void addRemoteMethod(String name, RemoteCallHandler handler, {Map<String, dynamic> metadata: const {}}) {
     _init();
-    
+
     if (name.startsWith("__")) {
       log("WARNING: Remote methods starting with '__' are reserved for internal use. Not adding remote method.");
       return;
     }
-    
+
     _methods[name] = handler;
     _myMethods[name] = new RemoteMethod(name, metadata: metadata);
   }
-  
+
   Future<List<RemoteMethod>> getRemoteMethods(String plugin) {
     return callRemoteMethod(plugin, "__getRemoteMethods");
   }
-  
+
   Future<dynamic> callRemoteMethod(String plugin, String method, [dynamic arguments]) {
     var data = arguments is Map ? arguments : {
       "value": arguments
     };
-    
+
     return callMethod("makePluginRequest", {
       "plugin": plugin,
       "command": method,
       "data": data
     });
   }
-  
+
   void onPluginEvent(PluginEventHandler handler, {String plugin}) {
     _init();
-    
+
     _pluginEventHandlers.add((name, data) {
       if (plugin == null || name == plugin) {
         handler(name, data);
       }
     });
   }
-  
+
   Future<Map<String, dynamic>> _get(String command, [Map<String, dynamic> data]) {
     _init();
-    
+
     if (data == null) data = {};
     return _conn.get(command, data);
   }
-  
+
   Future<dynamic> callMethod(String name, [dynamic arguments]) {
     var data = arguments is Map ? arguments : {
       "value": arguments
     };
-    
+
     return _get(name, data).then((value) {
       return (value.keys.length == 1 && value.keys.single == "value") ? value["value"] : value;
     });
   }
-  
+
   void log(String message) {
     _init();
-    
+
     print("[${displayName}] ${message}");
   }
-  
+
   int _initTime;
-  
+
   bool _isServerListening = false;
-  
+
   Future<HttpRouter> createHttpRouter() {
     return startHttpServer().then((server) {
       return new HttpRouter(server);
     });
   }
-  
+
   Future<HttpServer> startHttpServer() {
     if (_isServerListening) {
       throw new Exception("Server is already listening.");
     }
-    
+
     _isServerListening = true;
-    
+
     return HttpServer.bind("0.0.0.0", 0).then((server) {
       httpServer = server;
-      
+
       var startTime = new DateTime.now();
       if (startTime.millisecondsSinceEpoch - _initTime >= 5000) {
         callMethod("forwardHttpPort", server.port);
       } else {
         new Future.delayed(new Duration(seconds: 5), () {
           callMethod("forwardHttpPort", server.port);
-        }); 
+        });
       }
-      
+
       onShutdown(() {
         callMethod("unforwardHttpPort", {});
         server.close();
       });
-      
+
       return server;
     });
   }
-  
+
   Future<bool> isPluginInstalled(String name) => getPlugins().then((plugins) {
     return plugins.contains(name);
   });
-  
+
   Future<List<String>> getPlugins() {
     return callMethod("getPlugins");
   }
-  
+
   void send(String command, Map<String, dynamic> data, {String plugin}) {
     _init();
-    
+
     var request = {
       "command": command
     };
@@ -641,7 +650,7 @@ class Plugin {
     _init();
     return _bot;
   }
-  
+
   Map<String, RemoteMethod> _myMethods = {};
 }
 
@@ -649,9 +658,9 @@ typedef void PluginExceptionHandler(PluginException e);
 
 class PluginException {
   final String message;
-  
+
   PluginException(this.message);
-  
+
   @override
   String toString() => message;
 }

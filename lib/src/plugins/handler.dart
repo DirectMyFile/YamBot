@@ -29,16 +29,16 @@ class PluginHandler {
       return plugins;
     });
   }
-  
+
   List<String> _candidates = [];
   Map<String, List<String>> _requirements = <String, List<String>>{};
   Map<String, List<String>> _conflicts = <String, List<String>>{};
-  
+
   Future load() {
     _elevatedPlugins.clear();
     _requirements.clear();
     _conflicts.clear();
-    
+
     var pluginNames = <String>[];
     var pluginsDirectory = new Directory("plugins");
     if (!pluginsDirectory.existsSync()) pluginsDirectory.createSync();
@@ -67,11 +67,11 @@ class PluginHandler {
 
         String pluginName = pubspec["name"];
         _candidates.add(pluginName);
-        
+
         if (_disabled.contains(pluginName)) {
           return;
         }
-        
+
         String displayName = pluginName;
 
         if (info.containsKey("display_name")) {
@@ -185,31 +185,31 @@ class PluginHandler {
     var requiredBy = _requirements.keys.where((it) {
       return _requirements[it].contains(name) && !_disabled.contains(it);
     }).toList();
-    
+
     if (requiredBy.isNotEmpty) {
       throw new PluginDependencyException(name, requiredBy);
     }
-    
+
     if (!_disabled.contains(name)) {
       _disabled.add(name);
     }
-    
+
     return reloadPlugins();
   }
-  
+
   Future enable(String name) {
     if (!_disabled.contains(name)) {
       return new Future.value();
     }
-    
+
     var needed = _requirements[name].where((it) => _disabled.contains(it)).toList();
-    
+
     if (needed.isNotEmpty) {
       throw new PluginDependencyException(name, needed);
     }
-    
+
     _disabled.remove(name);
-    
+
     return reloadPlugins();
   }
 
@@ -233,9 +233,11 @@ class BotPluginLoader extends PluginLoader {
   Future<Isolate> load(SendPort port, List<String> args) {
     args = args == null ? [] : args;
 
-    var loc = path.joinAll([directory.absolute.path, main]);
+    var loc = path.joinAll([directory.absolute.resolveSymbolicLinksSync(), main]);
 
-    return Isolate.spawnUri(new Uri.file(loc), args, new Polymorphic.Plugin(args[0], args[1], port), packageRoot: new Uri.file(new Directory(directory.path + "/" + "packages").path)).then((isolate) {
+    print(loc);
+
+    return Isolate.spawnUri(new Uri.file(loc), args, new Polymorphic.Plugin(args[0], args[1], port)).then((isolate) {
       return isolate;
     });
   }
@@ -244,7 +246,7 @@ class BotPluginLoader extends PluginLoader {
 class PluginDependencyException {
   final String plugin;
   final List<String> dependencies;
-  
+
   PluginDependencyException(this.plugin, this.dependencies);
 }
 

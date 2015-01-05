@@ -77,7 +77,7 @@ class PluginCommunicator {
 
     _addBotMethods();
     _handleRequests();
-    
+
     pm.listenAll((plugin, data) {
       /* We don't use this anymore, everything is a method call */
     });
@@ -184,15 +184,15 @@ class PluginCommunicator {
       } else {
         if (call.getArgument("plugin") != null) {
           var pc = {};
-          
+
           for (var key in allCommands.keys) {
             var info = allCommands[key];
-            
+
             if (info["plugin"] == call.getArgument("plugin")) {
               pc[key] = info;
             }
           }
-          
+
           call.reply(pc);
         } else {
           call.reply(allCommands);
@@ -241,7 +241,7 @@ class PluginCommunicator {
           list.addAll(event.builder.channels.where((i) => !event.builder.opIn.contains(i) && !event.builder.voiceIn.contains(i) && !event.builder.halfOpIn.contains(i) && !event.builder.ownerIn.contains(i)));
           return list;
         }();
-        
+
         call.reply({
           "away": event.away,
           "awayMessage": event.awayMessage,
@@ -261,77 +261,77 @@ class PluginCommunicator {
         });
       });
     });
-    
+
     addBotMethod("sendMessage", (call) {
       var network = call.getArgument("network");
       var target = call.getArgument("target");
       var message = call.getArgument("message");
-      
+
       bot[network].client.sendMessage(target, message);
     }, isVoid: true);
-    
+
     addBotMethod("sendNotice", (call) {
       var network = call.getArgument("network");
       var target = call.getArgument("target");
       var message = call.getArgument("message");
-      
+
       bot[network].client.sendNotice(target, message);
     }, isVoid: true);
-    
+
     addBotMethod("sendAction", (call) {
       var network = call.getArgument("network");
       var target = call.getArgument("target");
       var message = call.getArgument("message");
-      
+
       bot[network].client.sendAction(target, message);
     }, isVoid: true);
-    
+
     addBotMethod("sendCTCP", (call) {
       var network = call.getArgument("network");
       var target = call.getArgument("target");
       var message = call.getArgument("message");
-      
+
       bot[network].client.sendCTCP(target, message);
     }, isVoid: true);
-    
+
     addBotMethod("joinChannel", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       bot[network].client.join(channel);
     }, isVoid: true);
-    
+
     addBotMethod("partChannel", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       bot[network].client.part(channel);
     }, isVoid: true);
-    
+
     addBotMethod("clearBotMemory", (call) {
       var network = call.getArgument("network");
-      
+
       bot[network].clearBotMemory();
     }, isVoid: true);
-    
+
     addBotMethod("sendRawLine", (call) {
       var network = call.getArgument("network");
       var line = call.getArgument("line");
-      
+
       bot[network].client.send(line);
     }, isVoid: true);
-    
+
     addBotMethod("reloadPlugins", (call) {
       handler.reloadPlugins();
     }, isVoid: true);
-    
+
     addBotMethod("quit", (call) {
       var network = call.getArgument("network");
       var reason = call.getArgument("reason", defaultValue: "Bot Quitting");
-      
+
       bot[network].client.disconnect(reason: reason);
     }, isVoid: true);
-    
+
     addBotMethod("stop", (call) {
       var futures = [];
 
@@ -354,7 +354,7 @@ class PluginCommunicator {
         exit(0);
       });
     }, isVoid: true);
-    
+
     addBotMethod("__initialized", (call) {
       /* Plugin was initialized */
     }, isVoid: true);
@@ -376,7 +376,7 @@ class PluginCommunicator {
         }).run(() {
           try {
             handler(call);
-            
+
             if (_methodInfo[request.command].isVoid) {
               call.reply(null);
             }
