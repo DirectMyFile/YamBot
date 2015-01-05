@@ -1,11 +1,10 @@
 part of polymorphic.utils;
 
 class HttpHelper {
-  static HttpClient client = new HttpClient();
-
-  static void forward(HttpRequest request, Uri target) {
+  static Future forward(HttpRequest request, Uri target) {
     var response = request.response;
-    client.openUrl(request.method, target).then((req) {
+    var client = new HttpClient();
+    return client.openUrl(request.method, target).then((req) {
       var completer = new Completer();
 
       request.cookies.addAll(req.cookies);
@@ -47,6 +46,8 @@ class HttpHelper {
       });
 
       return completer.future;
+    }).then((_) {
+      client.close();
     });
   }
 
