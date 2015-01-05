@@ -31,6 +31,81 @@ class BotConnector {
     });
   }
 
+  void mode(String network, String mode, {String user, String channel}) {
+    plugin.callMethod("mode", {
+      "network": network,
+      "mode": mode,
+      "user": user,
+      "channel": channel
+    });
+  }
+
+  void op(String network, String channel, String user) {
+    mode(network, "+o", channel: channel, user: user);
+  }
+
+  void deop(String network, String channel, String user) {
+    mode(network, "-o", channel: channel, user: user);
+  }
+
+  void voice(String network, String channel, String user) {
+    mode(network, "+v", channel: channel, user: user);
+  }
+
+  void devoice(String network, String channel, String user) {
+    mode(network, "-v", channel: channel, user: user);
+  }
+
+  void halfOp(String network, String channel, String user) {
+    mode(network, "+h", channel: channel, user: user);
+  }
+
+  void dehalfOp(String network, String channel, String user) {
+    mode(network, "-h", channel: channel, user: user);
+  }
+
+  void owner(String network, String channel, String user) {
+    mode(network, "+q", channel: channel, user: user);
+  }
+
+  void deowner(String network, String channel, String user) {
+    mode(network, "-q", channel: channel, user: user);
+  }
+
+  void quiet(String network, String channel, String user) {
+    mode(network, "+q", channel: channel, user: user);
+  }
+
+  void unquiet(String network, String channel, String user) {
+    mode(network, "-q", channel: channel, user: user);
+  }
+
+  void setTopic(String network, String channel, String topic) {
+    getChannel(network, channel).then((channel) => channel.topic = topic);
+  }
+
+  void kick(String network, String channel, String user, {String reason}) {
+    plugin.callMethod("kick", {
+      "network": network,
+      "channel": channel,
+      "user": user,
+      "reason": reason
+    });
+  }
+
+  void ban(String network, String channel, String user) {
+    mode(network, "+b", channel: channel, user: user);
+  }
+
+  void kickBan(String network, String channel, String user, {String reason}) {
+    ban(network, channel, user);
+    kick(network, channel, user, reason: reason);
+  }
+
+  void unban(String network, String channel, String user) {
+    mode(network, "-b", channel: channel, user: user);
+  }
+
   Future<UserInfo> getUserInfo(String network, String user) {
     return plugin.callMethod("whois", {
       "network": network,

@@ -268,6 +268,36 @@ class PluginCommunicator {
       });
     });
 
+    addBotMethod("kick", (call) {
+      var user = call.getArgument("user");
+      var channel = call.getArgument("channel");
+      var network = call.getArgument("network");
+      var reason = call.getArgument("reason");
+
+      bot[network].client.kick(bot[network].client.getChannel(channel), user, reason);
+    });
+
+    addBotMethod("mode", (call) {
+      var user = call.getArgument("user");
+      var channel = call.getArgument("channel");
+      var network = call.getArgument("network");
+      var mode = call.getArgument("mode");
+
+      if (channel == null) {
+        if (user != null) {
+          bot[network].client.mode(mode, user: user);
+        } else {
+          bot[network].client.mode(mode);
+        }
+      } else {
+        if (user != null) {
+          bot[network].client.getChannel(channel).mode(mode, user);
+        } else {
+          bot[network].client.getChannel(channel).mode(mode);
+        }
+      }
+    }, isVoid: true);
+
     addBotMethod("sendMessage", (call) {
       var network = call.getArgument("network");
       var target = call.getArgument("target");
