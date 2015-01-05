@@ -38,3 +38,44 @@ class PluginInterface {
     return myPlugin.getRemoteMethods(pluginName);
   }
 }
+
+class BotInterface {
+  final BotConnector bot;
+  final String network;
+  final String user;
+
+  StreamController<String> _ctcpController = new StreamController<String>.broadcast();
+  Stream<String> get _ctcp => _ctcpController.stream;
+
+  BotInterface(this.bot, this.network, this.user) {
+    bot.onCTCP((CTCPEvent event) {
+      _ctcpController.add(event.message);
+    }, network: network, user: user);
+  }
+
+  Future<PrefixNegotiation> negotiatePrefix(String channel) {
+    var completer = new Completer();
+
+    String mine;
+    _ctcp.single.then((msg) {
+      if (msg.startsWith("MY PREFIX FOR ${channel} IS ")) {
+        completer.complete(new PrefixNegotiation(bot, mine, msg.substring("MY PREFIX FOR ${channel} IS ".length)));
+      }
+    });
+
+    bot.getPrefix(network, channel).then((prefix) {
+      mine = prefix;
+      bot.sendCTCP(network, user, "MY PREFIX FOR ${channel} IS ${prefix}");
+    });
+
+    return completer.future;
+  }
+}
+
+class PrefixNegotiation {
+  final BotConnector bot;
+  final String mine;
+  final String theirs;
+
+  PrefixNegotiation(this.bot, this.mine, this.theirs);
+}

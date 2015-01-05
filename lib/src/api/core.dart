@@ -31,6 +31,17 @@ class BotConnector {
     });
   }
 
+  void onBotDetected(BotDetectionHandler handler, {String network}) {
+    var sub = plugin.on("bot-detected").where((data) {
+      if (network != null && network != data["network"]) return false;
+      return true;
+    }).listen((data) {
+      var event = new BotDetectionEvent(this, data["network"], data["user"]);
+    });
+
+    plugin.registerSubscription(sub);
+  }
+
   void mode(String network, String mode, {String user, String channel}) {
     plugin.callMethod("mode", {
       "network": network,
@@ -245,6 +256,17 @@ class BotConnector {
       "network": network,
       "user": user
     });
+  }
+
+  Future<String> getPrefix(String network, String channel) {
+    return plugin.callMethod("getPrefix", {
+      "network": network,
+      "channel": channel
+    });
+  }
+
+  BotInterface getBotInterface(String network, String user) {
+    return new BotInterface(this, network, user);
   }
 
   void onJoin(JoinHandler handler, {String channel, String user, String network}) {

@@ -15,19 +15,20 @@ class DefaultConfig {
    */
   static final Map defaultConfig = {
     "server": [{
-        "name": "Esper",
+        "name": "EsperNet",
         "nickname": "PolymorphicBot",
         "realname": "PolymorphicBot",
         "host": "irc.esper.net",
         "port": 6667,
         "owner": "<nickserv name>",
-        "password": "<nickserv password>"
+        "password": "<nickserv password>",
+        "broadcast": true
       }],
     "channel": {
-      "Esper": ["#directcode"]
+      "EsperNet": ["#directcode"]
     },
     "prefix": {
-      "Esper": {
+      "EsperNet": {
         "default": "\$",
         "#directcode": "\$"
       }
@@ -37,7 +38,7 @@ class DefaultConfig {
         "public": ["core.auth"]
       },
       "server": {
-        "Esper": {
+        "EsperNet": {
           "groups": {
             "*": ["public"]
           },

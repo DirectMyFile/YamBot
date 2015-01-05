@@ -14,6 +14,7 @@ typedef void ConnectHandler(ConnectEvent event);
 typedef void DisconnectHandler(DisconnectEvent event);
 typedef void TopicHandler(TopicEvent event);
 typedef void ModeHandler(ModeEvent event);
+typedef void BotDetectionHandler(BotDetectionEvent event);
 
 typedef void ShutdownAction();
 
@@ -142,6 +143,14 @@ class BotPartEvent {
   final String channel;
 
   BotPartEvent(this.bot, this.network, this.channel);
+}
+
+class BotDetectionEvent {
+  final BotConnector bot;
+  final String network;
+  final String user;
+
+  BotDetectionEvent(this.bot, this.network, this.user);
 }
 
 class UserInfo {

@@ -149,6 +149,13 @@ class PluginCommunicator {
       _httpPorts[getPluginName()] = port;
     }, isVoid: true);
 
+    addBotMethod("getPrefix", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+
+      call.reply(bot[network].getPrefix(channel));
+    });
+
     addBotMethod("unforwardHttpPort", (call) {
       _httpPorts.remove(getPluginName());
     }, isVoid: true);
@@ -451,12 +458,20 @@ class NetworkEventListener {
   void handle() {
     Bot b = com.bot[network];
     b.client.register((IRC.MessageEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("message");
       commonSendable(data, e);
       com.pm.sendAll(data);
     });
 
     b.client.register((IRC.CTCPEvent event) {
+      if (event.target == "#bot-communication") {
+        return;
+      }
+
       var data = common("ctcp");
       data["target"] = event.target;
       data["user"] = event.user;
@@ -465,6 +480,10 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.CommandEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("command");
       commonSendable(data, e);
 
@@ -474,12 +493,20 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.NoticeEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("notice");
       commonSendable(data, e);
       com.pm.sendAll(data);
     });
 
     b.client.register((IRC.JoinEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("join");
       data['channel'] = e.channel.name;
       data['user'] = e.user;
@@ -487,6 +514,10 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.PartEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("part");
       data['channel'] = e.channel.name;
       data['user'] = e.user;
@@ -494,12 +525,20 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.BotJoinEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("bot-join");
       data['channel'] = e.channel.name;
       com.pm.sendAll(data);
     });
 
     b.client.register((IRC.BotPartEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("bot-part");
       data['channel'] = e.channel.name;
       com.pm.sendAll(data);
@@ -511,6 +550,10 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.InviteEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("invite");
       data['user'] = e.user;
       data['channel'] = e.channel;
@@ -518,6 +561,10 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.TopicEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("topic");
       data['channel'] = e.channel.name;
       data['topic'] = e.topic;
@@ -535,6 +582,10 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.ModeEvent e) {
+      if (e.channel == "#bot-communication") {
+        return;
+      }
+
       var data = common("mode");
       if (e.channel != null) {
         data['channel'] = e.channel.name;

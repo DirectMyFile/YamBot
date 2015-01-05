@@ -60,6 +60,11 @@ class Bot {
     client.register((IRC.CTCPEvent event) {
       if (event.message.trim().toUpperCase() == "ARE YOU A BOT") {
         client.sendCTCP(event.user, "I AM A BOT");
+      } else if (event.message.startsWith("MY PREFIX FOR ")) {
+        var m = event.message.substring("MY PREFIX FOR ".length);
+        var chan = m.split(" IS ")[0];
+        var theirs = m.split(" IS ")[1];
+        client.sendCTCP(event.user, "MY PREFIX FOR ${chan} IS ${getPrefix(chan)}");
       }
     });
 
@@ -91,10 +96,16 @@ class Bot {
       return new Future.value(_botMemory[user]);
     }
 
-    client.register((IRC.CTCPEvent event) {
-      isBot = event.message.trim().toUpperCase() == "I AM A BOT";
-    }, filter: (IRC.CTCPEvent event) => event.user != user && event.target != client.nickname, once: true);
-    client.sendCTCP(user, "ARE YOU A BOT");
+    if (client.getChannel("#bot-communication") == null) {
+      return new Future.value(false);
+    } else if (!client.getChannel("#bot-communication").allUsers.contains(user)) {
+      return new Future.value(false);
+    }
+
+    client.register((IRC.MessageEvent event) {
+      isBot = true;
+    }, filter: (IRC.MessageEvent e) => e.from != user || e.channel != "#bot-communication" || e.message != "${client.nickname}: I AM A BOT.", once: true);
+    client.sendMessage("#bot-communication", "${user}: ARE YOU A BOT?");
 
     return new Future.delayed(new Duration(seconds: 2), () {
       _botMemory[user] = isBot;
@@ -124,6 +135,10 @@ class Bot {
         print("[$server] Joining $chan");
         event.join(chan);
       }
+
+      if (serverConfig['broadcast'] != null && serverConfig['broadcast']) {
+        event.join("#bot-communication");
+      }
     });
   }
 
@@ -131,6 +146,24 @@ class Bot {
     client.register((IRC.MessageEvent event) {
       var from = event.from;
       var msg = event.message;
+
+      if (event.channel == "#bot-communication") {
+        if (msg.trim() == "${client.nickname.toUpperCase()}: ARE YOU A BOT?") {
+          event.reply("${event.from}: I AM A BOT.");
+        } else if (msg.trim().endsWith(": I AM A BOT.")) {
+          var nick = msg.split(":")[0].trim();
+          if (_botMemory[nick] != true) {
+            _botMemory[nick] = true;
+            Globals.pluginHandler.pm.sendAll({
+              "type": "event",
+              "event": "bot-detected",
+              "network": server,
+              "user": nick
+            });
+          }
+        }
+      }
+
       if (event.isPrivate) {
         print("[$server] <$from> $msg");
       } else {
@@ -150,10 +183,22 @@ class Bot {
     });
   }
 
+  String getPrefix(String channel) {
+    if (prefixConfig[channel] != null) {
+      return prefixConfig[channel];
+    } else {
+      return prefixConfig["default"];
+    }
+  }
+
   void _registerCommandHandler() {
     _authManager = new Auth(server, this);
 
     client.register((IRC.CommandEvent event) {
+      if (event.channel == "#bot-communication") {
+        return;
+      }
+
       String node = "auth";
       _authManager.hasPermission("core", event.from, node).then((bool has) {
         if (!has) {
@@ -185,6 +230,10 @@ class Bot {
     }, filter: (IRC.CommandEvent e) => e.command != "auth");
 
     client.register((IRC.CommandEvent event) {
+      if (event.channel == "#bot-communication") {
+        return;
+      }
+
       String node = "enable";
 
       _authManager.hasPermission("core", event.from, node).then((bool has) {
@@ -226,6 +275,10 @@ class Bot {
     }, filter: (IRC.CommandEvent e) => e.command != "enable");
 
     client.register((IRC.CommandEvent event) {
+      if (event.channel == "#bot-communication") {
+        return;
+      }
+
       String node = "disable";
 
       _authManager.hasPermission("core", event.from, node).then((bool has) {
@@ -266,3 +319,4 @@ class Bot {
     }, filter: (IRC.CommandEvent e) => e.command != "disable");
   }
 }
+
