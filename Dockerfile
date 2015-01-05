@@ -1,11 +1,10 @@
-FROM google/dart
+FROM google/dart:1.8.3
+MAINTAINER Kenneth Endfinger <kaendfinger@gmail.com>
 
 WORKDIR /app
 
-ADD pubspec.* /app/
-RUN pub get
-ADD . /app
-RUN pub get --offline
+ENV PATH $PATH:$HOME/.pub-cache/bin
+RUN pub global activate -sgit git://github.com/PolymorphicBot/PolymorphicBot.git
 
 CMD []
-ENTRYPOINT ["/usr/bin/dart", "bin/polymorphic.dart start"]
+ENTRYPOINT ["polymorphic"]
