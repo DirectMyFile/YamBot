@@ -31,6 +31,28 @@ class BotConnector {
     });
   }
 
+  Future<UserInfo> getUserInfo(String network, String user) {
+    return plugin.callMethod("whois", {
+      "network": network,
+      "user": user
+    }).then((data) {
+      return new UserInfo(this, network, data["nickname"],
+                          data["username"], data["realname"], data["away"],
+                          data["awayMessage"], data["isServerOperator"], data["hostname"],
+                          data["idle"], data["idleTime"], data["memberIn"], data["operatorIn"],
+                          data["voiceIn"], data["halfOpIn"], data["ownerIn"], data["channels"]);
+    });
+  }
+
+  Future<Channel> getChannel(String network, String name) {
+    return plugin.callMethod("getChannel", {
+      "network": network,
+      "channel": name
+    }).then((data) {
+      return new Channel(this, network, name, data["topic"], data["members"], data["ops"], data["voices"], data["halfops"], data["owners"]);
+    });
+  }
+
   void onReady(ReadyHandler handler, {String network}) {
     var sub = plugin.on("ready").where((data) {
       if (network != null) {

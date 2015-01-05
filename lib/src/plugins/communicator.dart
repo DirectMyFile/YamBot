@@ -221,6 +221,12 @@ class PluginCommunicator {
       var net = call.getArgument('network');
       var chan = call.getArgument('channel');
       var channel = bot._clients[net].client.getChannel(chan);
+
+      if (channel == null) {
+        call.reply(null);
+        return;
+      }
+
       call.reply({
         "name": channel.name,
         "ops": channel.ops,

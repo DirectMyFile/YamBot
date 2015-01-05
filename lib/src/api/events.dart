@@ -143,3 +143,30 @@ class BotPartEvent {
 
   BotPartEvent(this.bot, this.network, this.channel);
 }
+
+class UserInfo {
+  final BotConnector bot;
+  final String network;
+  final String nickname;
+  final String username;
+  final String realname;
+  final bool isAway;
+  final String awayMessage;
+  final bool isServerOperator;
+  final String hostname;
+  final bool isIdle;
+  final int idleTime;
+  final List<String> memberChannels;
+  final List<String> opChannels;
+  final List<String> voiceChannels;
+  final List<String> channels;
+  final List<String> halfOpChannels;
+  final List<String> ownerChannels;
+
+  UserInfo(this.bot, this.network, this.nickname,
+           this.username, this.realname, this.isAway,
+           this.awayMessage, this.isServerOperator,
+           this.hostname, this.isIdle, this.idleTime,
+           this.memberChannels, this.opChannels, this.voiceChannels,
+           this.halfOpChannels, this.ownerChannels, this.channels);
+}

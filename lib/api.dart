@@ -16,3 +16,4 @@ part "src/api/commands.dart";
 part "src/api/storage.dart";
 part "src/api/http.dart";
 part "src/api/rpc.dart";
+part "src/api/channel.dart";
