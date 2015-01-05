@@ -458,7 +458,7 @@ class NetworkEventListener {
   void handle() {
     Bot b = com.bot[network];
     b.client.register((IRC.MessageEvent e) {
-      if (e.channel == "#bot-communication") {
+      if (e.channel != null && e.channel.name == "#bot-communication") {
         return;
       }
 
@@ -480,7 +480,7 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.CommandEvent e) {
-      if (e.channel == "#bot-communication") {
+      if (e.channel != null && e.channel.name == "#bot-communication") {
         return;
       }
 
@@ -493,7 +493,7 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.NoticeEvent e) {
-      if (e.channel == "#bot-communication") {
+      if (e.channel != null && e.channel.name == "#bot-communication") {
         return;
       }
 
@@ -503,7 +503,7 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.JoinEvent e) {
-      if (e.channel == "#bot-communication") {
+      if (e.channel.name == "#bot-communication") {
         return;
       }
 
@@ -514,7 +514,7 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.PartEvent e) {
-      if (e.channel == "#bot-communication") {
+      if (e.channel.name == "#bot-communication") {
         return;
       }
 
@@ -525,7 +525,7 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.BotJoinEvent e) {
-      if (e.channel == "#bot-communication") {
+      if (e.channel.name == "#bot-communication") {
         return;
       }
 
@@ -535,7 +535,7 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.BotPartEvent e) {
-      if (e.channel == "#bot-communication") {
+      if (e.channel.name == "#bot-communication") {
         return;
       }
 
@@ -561,7 +561,7 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.TopicEvent e) {
-      if (e.channel == "#bot-communication") {
+      if (e.channel.name == "#bot-communication") {
         return;
       }
 
@@ -582,7 +582,7 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.ModeEvent e) {
-      if (e.channel == "#bot-communication") {
+      if (e.channel != null && e.channel.name == "#bot-communication") {
         return;
       }
 

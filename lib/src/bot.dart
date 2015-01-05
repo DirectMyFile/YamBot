@@ -147,8 +147,8 @@ class Bot {
       var from = event.from;
       var msg = event.message;
 
-      if (event.channel == "#bot-communication") {
-        if (msg.trim() == "${client.nickname.toUpperCase()}: ARE YOU A BOT?") {
+      if (event.channel.name == "#bot-communication") {
+        if (msg.trim() == "${client.nickname}: ARE YOU A BOT?") {
           event.reply("${event.from}: I AM A BOT.");
         } else if (msg.trim().endsWith(": I AM A BOT.")) {
           var nick = msg.split(":")[0].trim();
@@ -162,6 +162,7 @@ class Bot {
             });
           }
         }
+        return;
       }
 
       if (event.isPrivate) {
@@ -195,7 +196,7 @@ class Bot {
     _authManager = new Auth(server, this);
 
     client.register((IRC.CommandEvent event) {
-      if (event.channel == "#bot-communication") {
+      if (event.channel.name == "#bot-communication") {
         return;
       }
 
@@ -230,7 +231,7 @@ class Bot {
     }, filter: (IRC.CommandEvent e) => e.command != "auth");
 
     client.register((IRC.CommandEvent event) {
-      if (event.channel == "#bot-communication") {
+      if (event.channel.name == "#bot-communication") {
         return;
       }
 
@@ -275,7 +276,7 @@ class Bot {
     }, filter: (IRC.CommandEvent e) => e.command != "enable");
 
     client.register((IRC.CommandEvent event) {
-      if (event.channel == "#bot-communication") {
+      if (event.channel.name == "#bot-communication") {
         return;
       }
 

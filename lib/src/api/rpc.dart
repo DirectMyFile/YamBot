@@ -49,7 +49,9 @@ class BotInterface {
 
   BotInterface(this.bot, this.network, this.user) {
     bot.onCTCP((CTCPEvent event) {
-      _ctcpController.add(event.message);
+      if (!_ctcpController.isClosed) {
+        _ctcpController.add(event.message);
+      }
     }, network: network, user: user);
   }
 
@@ -69,6 +71,10 @@ class BotInterface {
     });
 
     return completer.future;
+  }
+
+  void destroy() {
+    _ctcpController.close();
   }
 }
 
