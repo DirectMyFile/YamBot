@@ -235,8 +235,6 @@ class BotPluginLoader extends PluginLoader {
 
     var loc = path.joinAll([directory.absolute.resolveSymbolicLinksSync(), main]);
 
-    print(loc);
-
     return Isolate.spawnUri(new Uri.file(loc), args, new Polymorphic.Plugin(args[0], args[1], port)).then((isolate) {
       return isolate;
     });
