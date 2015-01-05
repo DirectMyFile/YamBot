@@ -7,4 +7,4 @@ ENV PATH $PATH:$HOME/.pub-cache/bin
 RUN pub global activate -sgit git://github.com/PolymorphicBot/PolymorphicBot.git
 
 CMD []
-ENTRYPOINT ["polymorphic"]
+ENTRYPOINT ["polymorphic", "start"]
