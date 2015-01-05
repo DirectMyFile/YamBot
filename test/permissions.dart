@@ -51,27 +51,27 @@ void _guestTest(Auth auth) {
 
   group("$nick node:", () {
     test("pub.command", () {
-      auth.hasPermission("pub", nick, "command").then((bool val) {
+      wrapFuture(auth.hasPermission("pub", nick, "command").then((bool val) {
         expect(val, isTrue, reason: "$nick should have permission");
-      });
+      }));
     });
 
     test("core.test", () {
-      auth.hasPermission("core", nick, "test").then((bool val) {
+      wrapFuture(auth.hasPermission("core", nick, "test").then((bool val) {
         expect(val, isTrue, reason: "$nick should have permission");
-      });
+      }));
     });
 
     test("something.test", () {
-      auth.hasPermission("something", nick, "test").then((bool val) {
+      wrapFuture(auth.hasPermission("something", nick, "test").then((bool val) {
         expect(val, isFalse, reason: "$nick should not have permission");
-      });
+      }));
     });
 
     test("reg.command", () {
-      auth.hasPermission("reg", nick, "command").then((bool val) {
+      wrapFuture(auth.hasPermission("reg", nick, "command").then((bool val) {
         expect(val, isFalse, reason: "$nick should not have permission");
-      });
+      }));
     });
   });
 }
@@ -87,33 +87,33 @@ void _userTest(Auth auth) {
 
   group("$nick node:", () {
     test("pub.command", () {
-      auth.hasPermission("pub", nick, "command").then((bool val) {
+      wrapFuture(auth.hasPermission("pub", nick, "command").then((bool val) {
         expect(val, isTrue, reason: "$nick should have permission");
-      });
+      }));
     });
 
     test("something.test", () {
-      auth.hasPermission("something", "user", "test").then((bool val) {
+      wrapFuture(auth.hasPermission("something", "user", "test").then((bool val) {
         expect(val, isTrue, reason: "$nick should have permission");
-      });
+      }));
     });
 
     test("something.test.node", () {
-      auth.hasPermission("something", "user", "test.node").then((bool val) {
+      wrapFuture(auth.hasPermission("something", "user", "test.node").then((bool val) {
         expect(val, isTrue, reason: "$nick should have permission");
-      });
+      }));
     });
 
     test("reg.command", () {
-      auth.hasPermission("reg", "user", "command").then((bool val) {
+      wrapFuture(auth.hasPermission("reg", "user", "command").then((bool val) {
         expect(val, isTrue, reason: "$nick should have permission");
-      });
+      }));
     });
 
     test("-core.test", () {
-      auth.hasPermission("core", "user", "test").then((bool val) {
+      wrapFuture(auth.hasPermission("core", "user", "test").then((bool val) {
         expect(val, isFalse, reason: "$nick should not have permission");
-      });
+      }));
     });
   });
 }
