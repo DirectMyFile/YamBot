@@ -516,9 +516,9 @@ class Plugin {
     if (group == null) group = name;
 
     var file = new File("data/${group}/${storageName}.json");
-    file.parent.createSync(recursive: true);
 
     var storage = new Storage(file);
+    storage.load();
     _storages.add(storage);
     return storage;
   }
