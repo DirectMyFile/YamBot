@@ -60,11 +60,6 @@ class Bot {
     client.register((IRC.CTCPEvent event) {
       if (event.message.trim().toUpperCase() == "ARE YOU A BOT") {
         client.sendCTCP(event.user, "I AM A BOT");
-      } else if (event.message.startsWith("MY PREFIX FOR ")) {
-        var m = event.message.substring("MY PREFIX FOR ".length);
-        var chan = m.split(" IS ")[0];
-        var theirs = m.split(" IS ")[1];
-        client.sendCTCP(event.user, "MY PREFIX FOR ${chan} IS ${getPrefix(chan)}");
       }
     });
 

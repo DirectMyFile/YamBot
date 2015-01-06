@@ -814,12 +814,17 @@ class Plugin {
   }
 
   Future<dynamic> callMethod(String name, [dynamic arguments]) {
-    var data = arguments is Map ? arguments : {
+    var data = {
       "value": arguments
     };
 
-    return _get(name, data).then((value) {
-      return (value.keys.length == 1 && value.keys.single == "value") ? value["value"] : value;
+    return _get(name, data).then((response) {
+      if (!response.containsKey("exception")) {
+        return response["value"];
+      } else {
+        var e = new Exception(response["exception"]["message"]);
+        throw e;
+      }
     });
   }
 

@@ -100,7 +100,7 @@ class PluginCommunicator {
       var data = call.getArgument("data");
 
       pm.get(plugin, command, data).then((response) {
-        call.replyMap(response);
+        call.request.reply(response);
       });
     });
 
@@ -130,7 +130,6 @@ class PluginCommunicator {
           call.reply(null);
         } else {
           Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
-          Map<String, Map<String, dynamic>> converted = {};
 
           for (var name in commands.keys) {
             cmdNames.add(name);
@@ -424,19 +423,12 @@ class PluginCommunicator {
               call.reply(null);
             }
           } catch (e) {
-            pm.send(plugin, {
-              "exception": {
-                "message": "Error while calling method '${request.command}' for '${plugin}' \n\n${e}"
-              }
-            });
+            call.error("Error while calling method '${request.command}' for '${plugin}'\n\n${e}");
           }
         });
       } else {
-        pm.send(plugin, {
-          "exception": {
-            "message": "The plugin '${plugin}' tried to call the method '${request.command}', however it does not exist."
-          }
-        });
+        var call = new Polymorphic.RemoteCall(request);
+        call.error("The plugin '${plugin}' tried to call the method '${request.command}', however it does not exist.");
       }
     });
   }
@@ -614,6 +606,7 @@ class NetworkEventListener {
 
   Map common(String event) {
     return {
+      'type': "event",
       'network': network,
       'event': event
     };

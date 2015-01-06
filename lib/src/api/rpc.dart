@@ -12,8 +12,12 @@ class RemoteCall {
   void reply(dynamic value) => request.reply({
     "value": value
   });
-
-  void replyMap(Map<String, dynamic> map) => request.reply(map);
+  
+  void error(String message) => request.reply({
+    "exception": {
+      "message": message
+    }
+  });
 }
 
 class RemoteMethod {
