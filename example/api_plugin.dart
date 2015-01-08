@@ -21,8 +21,8 @@ void main(_, Plugin plugin) {
   
   // Add an advanced remote method.
   plugin.addRemoteMethod("doStuff", (call) {
-    call.replyMap({
-      "test": call.getArgument("something")
+    call.reply({
+      "test": "Hello World"
     });
   });
   

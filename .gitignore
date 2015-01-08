@@ -22,3 +22,4 @@ pubspec.lock
 # IDEA
 .idea
 *.iml
+out
