@@ -7,7 +7,17 @@ class RemoteCall {
 
   RemoteCall(this.request);
 
-  dynamic getArgument(String name, {dynamic defaultValue}) => request.data.containsKey(name) ? request.data[name] : defaultValue;
+  dynamic getArgument(String name, {dynamic defaultValue}) {
+    if (request.data == null || (!request.data.containsKey(name) && request.data["value"] is! Map)) {
+      return defaultValue;
+    }
+    
+    if (request.data.containsKey(name)) {
+      return request.data[name];
+    } else {
+      return request.data["value"].containsKey(name) ? request.data["value"][name] : defaultValue;
+    }
+  }
 
   void reply(dynamic value) => request.reply({
     "value": value

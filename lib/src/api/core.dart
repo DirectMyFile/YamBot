@@ -785,7 +785,7 @@ class Plugin {
   }
 
   Future<dynamic> callRemoteMethod(String plugin, String method, [dynamic arguments]) {
-    var data = arguments is Map ? arguments : {
+    var data = {
       "value": arguments
     };
 
