@@ -23,6 +23,7 @@ part 'src/auth.dart';
 part 'src/bot.dart';
 
 class Globals {
+  static List<String> EXTENSIONS = ["core"];
   static PluginHandler pluginHandler;
 }
 
