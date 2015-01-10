@@ -143,9 +143,9 @@ class Bot {
       var msg = event.message;
 
       if (event.channel.name == "#bot-communication") {
-        if (msg.trim() == "${client.nickname}: ARE YOU A BOT?") {
-          event.reply("${event.from}: I AM A BOT.");
-        } else if (msg.trim().endsWith(": I AM A BOT.")) {
+        if (msg.trim() == "${client.nickname}: ARE YOU A BOT") {
+          event.reply("${event.from}: I AM A BOT");
+        } else if (msg.trim().endsWith(": I AM A BOT")) {
           var nick = msg.split(":")[0].trim();
           if (_botMemory[nick] != true) {
             _botMemory[nick] = true;
@@ -157,15 +157,15 @@ class Bot {
             });
           }
         } else if (msg.trim() == "FIND BOTS") {
-          event.reply("${event.from}: I AM A BOT.");
+          event.reply("${event.from}: I AM A BOT");
         } else if (msg.trim() == "PREFIXES") {
           event.reply("MY PREFIX FOR ${event.channel.name} IS ${getPrefix(event.channel.name)}");
-        } else if (msg.trim().startsWith("${client.nickname}: WHAT IS YOUR PREFIX FOR ") && msg.trim().endsWith("?")) {
-          var channel = msg.trim().substring("${client.nickname}: WHAT IS YOUR PREFIX FOR ".length, msg.trim().length - 1);
+        } else if (msg.trim().startsWith("${client.nickname}: WHAT IS YOUR PREFIX FOR ")) {
+          var channel = msg.trim().substring("${client.nickname}: WHAT IS YOUR PREFIX FOR ".length);
           event.reply("${event.from}: MY PREFIX FOR ${channel} IS ${getPrefix(channel)}");
-        } else if (msg.trim() == "${client.nickname}: WHAT EXTENSIONS DO YOU SUPPORT?") {
+        } else if (msg.trim() == "${client.nickname}: WHAT EXTENSIONS DO YOU SUPPORT") {
           event.reply("${event.from}: I SUPPORT " + Globals.EXTENSIONS.join(" "));
-        } else if (msg.trim() == "${client.nickname}: WHAT POLYMORPHIC PLUGINS DO YOU HAVE?") {
+        } else if (msg.trim() == "${client.nickname}: WHAT POLYMORPHIC PLUGINS DO YOU HAVE") {
           event.reply("${event.from}: I HAVE THE POLYMORPHIC PLUGINS ${Globals.pluginHandler.pm.plugins.join(" ")}");
         }
         return;
