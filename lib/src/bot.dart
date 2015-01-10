@@ -161,7 +161,7 @@ class Bot {
         } else if (msg.trim() == "PREFIXES") {
           event.reply("MY PREFIX FOR ${event.channel.name} IS ${getPrefix(event.channel.name)}");
         } else if (msg.trim().startsWith("${client.nickname}: WHAT IS YOUR PREFIX FOR ") && msg.trim().endsWith("?")) {
-          var channel = msg.trim().substring("${client.nickname}: WHAT IS YOUR PREFIX FOR ".length);
+          var channel = msg.trim().substring("${client.nickname}: WHAT IS YOUR PREFIX FOR ".length, msg.trim().length - 1);
           event.reply("${event.from}: MY PREFIX FOR ${channel} IS ${getPrefix(channel)}");
         } else if (msg.trim() == "${client.nickname}: WHAT EXTENSIONS DO YOU SUPPORT?") {
           event.reply("${event.from}: I SUPPORT " + Globals.EXTENSIONS.join(":"));
