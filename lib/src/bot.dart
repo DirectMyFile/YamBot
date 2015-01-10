@@ -156,6 +156,8 @@ class Bot {
               "user": nick
             });
           }
+        } else if (msg.trim() == "FIND BOTS") {
+          event.reply("${event.from}: I AM A BOT.");
         }
         return;
       }
