@@ -23,7 +23,7 @@ part 'src/auth.dart';
 part 'src/bot.dart';
 
 class Globals {
-  static List<String> EXTENSIONS = ["core"];
+  static List<String> EXTENSIONS = ["core", "polymorphic"];
   static PluginHandler pluginHandler;
 }
 
