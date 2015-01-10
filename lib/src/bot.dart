@@ -164,7 +164,9 @@ class Bot {
           var channel = msg.trim().substring("${client.nickname}: WHAT IS YOUR PREFIX FOR ".length, msg.trim().length - 1);
           event.reply("${event.from}: MY PREFIX FOR ${channel} IS ${getPrefix(channel)}");
         } else if (msg.trim() == "${client.nickname}: WHAT EXTENSIONS DO YOU SUPPORT?") {
-          event.reply("${event.from}: I SUPPORT " + Globals.EXTENSIONS.join(":"));
+          event.reply("${event.from}: I SUPPORT " + Globals.EXTENSIONS.join(" "));
+        } else if (msg.trim() == "${client.nickname}: WHAT POLYMORPHIC PLUGINS DO YOU HAVE?") {
+          event.reply("${event.from}: I HAVE THE POLYMORPHIC PLUGINS ${Globals.pluginHandler.pm.plugins.join(" ")}");
         }
         return;
       }
