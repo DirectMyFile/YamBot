@@ -9,6 +9,10 @@ void debug(Action action) {
 }
 
 final bool DEBUG = (() {
+  if (Zone.current["debug"] == true) {
+    return true;
+  }
+  
   try {
     assert(false);
   } on AssertionError catch (e) {
