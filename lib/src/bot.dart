@@ -112,12 +112,15 @@ class Bot {
     void _rawHandler(IRC.LineReceiveEvent event) {
       print("[$server] ${event.line}");
     }
+    
     client.register(_rawHandler);
-    client.register((IRC.ReadyEvent event) {
-      new Future.delayed(new Duration(milliseconds: 20), () {
-        client.unregister(_rawHandler);
+    if (!DEBUG) {
+      client.register((IRC.ReadyEvent event) {
+        new Future.delayed(new Duration(milliseconds: 20), () {
+          client.unregister(_rawHandler);
+        });
       });
-    });
+    }
   }
 
   void _registerReadyHandler() {
