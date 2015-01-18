@@ -30,12 +30,12 @@ class RemoteCall {
   });
 }
 
-class RemoteMethod {
+class RemoteMethodInfo {
   final String name;
   final bool isVoid;
   final Map<String, dynamic> metadata;
 
-  RemoteMethod(this.name, {this.metadata: const {}, this.isVoid: false});
+  RemoteMethodInfo(this.name, {this.metadata: const {}, this.isVoid: false});
 }
 
 class PluginInterface {
@@ -48,7 +48,7 @@ class PluginInterface {
     return myPlugin.callRemoteMethod(pluginName, method, arguments);
   }
 
-  Future<List<RemoteMethod>> listMethods() {
+  Future<List<RemoteMethodInfo>> listMethods() {
     return myPlugin.getRemoteMethods(pluginName);
   }
 }

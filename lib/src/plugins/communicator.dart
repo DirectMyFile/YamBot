@@ -54,11 +54,11 @@ class PluginCommunicator {
   }
 
   Map<String, Polymorphic.RemoteCallHandler> _methods = {};
-  Map<String, Polymorphic.RemoteMethod> _methodInfo = {};
+  Map<String, Polymorphic.RemoteMethodInfo> _methodInfo = {};
 
   void addBotMethod(String name, Polymorphic.RemoteCallHandler handler, {Map<String, dynamic> metadata: const {}, bool isVoid: false}) {
     _methods[name] = handler;
-    _methodInfo[name] = new Polymorphic.RemoteMethod(name, metadata: metadata, isVoid: isVoid);
+    _methodInfo[name] = new Polymorphic.RemoteMethodInfo(name, metadata: metadata, isVoid: isVoid);
   }
 
   JsonEncoder _jsonEncoder = new JsonEncoder.withIndent("  ");

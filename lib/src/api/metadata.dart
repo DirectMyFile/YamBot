@@ -29,6 +29,13 @@ class OnPart {
   const OnPart({this.network, this.user, this.channel});
 }
 
+class RemoteMethod {
+  final String name;
+  final bool isVoid;
+  
+  const RemoteMethod({this.name, this.isVoid});
+}
+
 class OnBotJoin {
   final String network;
   final String channel;
@@ -47,4 +54,12 @@ class OnMessage {
   final Pattern pattern;
   
   const OnMessage({this.pattern});
+}
+
+class BotInstance {
+  const BotInstance();
+}
+
+class PluginInstance {
+  const PluginInstance();
 }

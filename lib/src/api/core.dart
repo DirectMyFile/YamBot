@@ -789,6 +789,18 @@ class Plugin {
         Function.apply(events[type], [x.function], map);
       }
     }
+    
+    for (FunctionAnnotation<RemoteMethod> a in findFunctionAnnotations(RemoteMethod)) {
+      addRemoteMethod(a.metadata.name != null ? a.metadata.name : MirrorSystem.getName(a.mirror.simpleName), a.function);
+    }
+    
+    for (var variable in findVariablesAnnotation(PluginInstance)) {
+      currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, this);
+    }
+    
+    for (var variable in findVariablesAnnotation(BotInstance)) {
+      currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getBot());
+    }
 
     callMethod("__initialized", true);
   }
@@ -817,10 +829,10 @@ class Plugin {
     }
 
     _methods[name] = handler;
-    _myMethods[name] = new RemoteMethod(name, metadata: metadata);
+    _myMethods[name] = new RemoteMethodInfo(name, metadata: metadata);
   }
 
-  Future<List<RemoteMethod>> getRemoteMethods(String plugin) {
+  Future<List<RemoteMethodInfo>> getRemoteMethods(String plugin) {
     return callRemoteMethod(plugin, "__getRemoteMethods");
   }
 
@@ -941,7 +953,7 @@ class Plugin {
     return _bot;
   }
 
-  Map<String, RemoteMethod> _myMethods = {};
+  Map<String, RemoteMethodInfo> _myMethods = {};
 }
 
 typedef void PluginExceptionHandler(PluginException e);

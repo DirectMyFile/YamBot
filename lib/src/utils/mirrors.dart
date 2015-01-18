@@ -2,6 +2,7 @@ part of polymorphic.utils;
 
 class FunctionAnnotation<T> {
   T metadata;
+  MethodMirror mirror;
   Function function;
 }
 
@@ -25,6 +26,7 @@ List<FunctionAnnotation> findFunctionAnnotations(Type type,
     var a = new FunctionAnnotation();
     a.metadata =
         m.metadata.firstWhere((it) => t.isAssignableTo(it.type)).reflectee;
+    a.mirror = m;
     a.function = ([input]) {
       var args = [];
       if (input != null) args.add(input);
@@ -37,6 +39,14 @@ List<FunctionAnnotation> findFunctionAnnotations(Type type,
     result.add(a);
   }
   return result;
+}
+
+List<VariableMirror> findVariablesAnnotation(Type type) {
+  var name = reflectType(type).simpleName;
+  LibraryMirror lib = currentMirrorSystem().isolate.rootLibrary;
+  
+  return lib.declarations.values.where((it) =>
+      it is VariableMirror && !it.isConst && !it.isFinal && !it.isPrivate && it.isTopLevel && it.metadata.any((it) => name == it.type.simpleName)).toList();
 }
 
 List<ClassAnnotation> findClassesAnnotation(Type type, {LibraryMirror lib}) =>
