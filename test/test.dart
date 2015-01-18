@@ -1,6 +1,9 @@
 import "common.dart";
 export "common.dart";
 
+@ExternalGroup("external")
+import "test_external.dart";
+
 @Configure()
 configure() => useVMConfiguration();
 
@@ -19,5 +22,11 @@ class TestGroupB {
 @SubGroup("Group C")
 class TestGroupC {
   @Test("Test C")
-  b() => print("TEST C");
+  c() => print("TEST C");
+  
+  @Test("Test D")
+  d() => print(mockOf(String));
 }
+
+@Mocker(String)
+mockString() => "Hello World";
