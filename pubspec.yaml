@@ -16,6 +16,6 @@ dependencies:
   plugins:
     git: git://github.com/kaendfinger/plugins.dart.git
 dev_dependencies:
-  scheduled_test: '>=0.11.1 <0.12.0'
+  unittest: ">=0.11.5 <0.12.0"
 executables:
   polymorphic:
