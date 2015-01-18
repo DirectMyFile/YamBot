@@ -612,6 +612,10 @@ class Plugin {
 
     return _controllers[name].stream;
   }
+  
+  void load() {
+    _init();
+  }
 
   List<ReadyAction> _readyActions = [];
 
@@ -748,6 +752,42 @@ class Plugin {
 
     for (var action in _readyActions) {
       action();
+    }
+    
+    /* Discover Annotations */
+    List<FunctionAnnotation<Command>> cmds = findFunctionAnnotations(Command);
+    List<FunctionAnnotation<EventHandler>> handlers = findFunctionAnnotations(EventHandler);
+    Map<Type, Function> events = {
+      OnJoin: getBot().onJoin,
+      OnPart: getBot().onPart,
+      OnBotJoin: getBot().onBotJoin,
+      OnBotPart: getBot().onBotPart,
+      OnMessage: getBot().onMessage
+    };
+    
+    for (var c in cmds) {
+      getBot().command(c.metadata.name, c.function, permission: c.metadata.permission);
+    }
+    
+    for (var handler in handlers) {
+      EventHandler h = handler.metadata;
+      on(h.event).listen(handler.function);
+    }
+    
+    for (var type in events.keys) {
+      var functions = findFunctionAnnotations(type);
+      var vars = reflectClass(type).declarations.values.where((it) => it is VariableMirror && it.isFinal && !it.isStatic).toList();
+      var map = <Symbol, dynamic>{};
+      
+      for (var x in functions) {
+        var instance = reflect(x.metadata);
+        for (var v in vars) {
+          var i = instance.getField(v.simpleName);
+          map[v.simpleName] = i.reflectee;
+        }
+        
+        Function.apply(events[type], [x.function], map);
+      }
     }
 
     callMethod("__initialized", true);

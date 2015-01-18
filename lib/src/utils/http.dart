@@ -2,6 +2,8 @@ part of polymorphic.utils;
 
 class HttpHelper {
   static Future forward(HttpRequest request, Uri target) {
+    debug(() => print("Forwarding ${request.uri} to ${target}"));
+    
     var response = request.response;
     var client = new HttpClient();
     return client.openUrl(request.method, target).then((req) {
@@ -78,6 +80,12 @@ class WebSocketHelper {
   static Future echo(WebSocket socket) {
     return socket.listen((data) {
       socket.add(data);
+    }).asFuture();
+  }
+  
+  static Future transform(WebSocket client, StreamTransformer transformer) {
+    return transformer.bind(client).listen((out) {
+      client.add(out);
     }).asFuture();
   }
 
