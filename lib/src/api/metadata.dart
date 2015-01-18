@@ -21,6 +21,16 @@ class OnJoin {
   const OnJoin({this.network, this.user, this.channel});
 }
 
+class Start {
+  const Start();
+}
+
+class FromConfig {
+  final String name;
+  
+  FromConfig(this.name);
+}
+
 class OnPart {
   final String network;
   final String user;

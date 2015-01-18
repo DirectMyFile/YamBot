@@ -798,6 +798,10 @@ class Plugin {
       currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, this);
     }
     
+    for (var s in findFunctionAnnotations(Start)) {
+      s.function();
+    }
+    
     for (var variable in findVariablesAnnotation(BotInstance)) {
       currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getBot());
     }
