@@ -6,6 +6,7 @@ class HttpHelper {
     
     var response = request.response;
     var client = new HttpClient();
+    
     return client.openUrl(request.method, target).then((req) {
       var completer = new Completer();
 
@@ -50,6 +51,13 @@ class HttpHelper {
       return completer.future;
     }).then((_) {
       client.close();
+    }).catchError((e, stack) {
+      print(e);
+      print(stack);
+      
+      response.statusCode = 500;
+      response.writeln("Internal Server Error");
+      return response.close();
     });
   }
 
