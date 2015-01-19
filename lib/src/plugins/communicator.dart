@@ -19,6 +19,7 @@ class PluginCommunicator {
     HttpServer.bind(host, port).then((server) {
       server.listen((request) {
         var segments = request.uri.pathSegments;
+        
         if (segments.length >= 2 && segments[0] == "plugin" && _httpPorts.containsKey(segments[1])) {
           var name = segments[1];
           var segs = []
@@ -27,6 +28,7 @@ class PluginCommunicator {
               ..removeAt(0);
           var path = "/" + segs.join("/");
           HttpHelper.forward(request, Uri.parse("http://${InternetAddress.ANY_IP_V4.address}:${_httpPorts[name]}${path}"));
+          return;
         }
 
         var response = request.response;
