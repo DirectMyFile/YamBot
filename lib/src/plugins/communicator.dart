@@ -25,10 +25,7 @@ class PluginCommunicator {
               ..addAll(segments)
               ..removeAt(0)
               ..removeAt(0);
-          var path = segs.join("/");
-          if (path.trim().isEmpty) {
-            path = "/";
-          }
+          var path = "/" + segs.join("/");
           HttpHelper.forward(request, Uri.parse("http://${InternetAddress.ANY_IP_V4.address}:${_httpPorts[name]}${path}"));
         }
 
