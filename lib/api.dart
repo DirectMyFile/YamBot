@@ -1,3 +1,37 @@
+/**
+ * # PolymorphicBot API
+ * 
+ * This is the API for PolymorphicBot.
+ * 
+ * ## Plugin Structure
+ * 
+ * Plugins are loaded from the directory `plugins/`. Each directory is a plugin which has a pubspec.yaml and a main file.
+ * 
+ * ### pubspec.yaml
+ * 
+ * ```yaml
+ * name: MyPlugin
+ * dependencies:
+ *   polymorphic_bot: any
+ * ```
+ * 
+ * ### main.dart
+ * 
+ * ```dart
+ * import "package:polymorphic_bot/api.dart";
+ * 
+ * @PluginInstance()
+ * Plugin plugin;
+ *
+ * @BotInstance()
+ * BotConnector bot;
+ *
+ * void main(_, Plugin plugin) => plugin.load();
+ *
+ * @Command("hello")
+ * hello(CommandEvent event) => event.reply("> Hello World");
+ * ```
+ */
 library polymorphic.api;
 
 import "dart:async";
