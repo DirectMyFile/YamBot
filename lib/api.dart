@@ -9,6 +9,9 @@ import "package:plugins/plugin.dart";
 import "package:http/http.dart" as http;
 import "package:polymorphic_bot/utils.dart";
 
+import "package:irc/client.dart" show Color;
+
+export "package:irc/client.dart" show Color;
 export "package:polymorphic_bot/utils.dart";
 
 part "src/api/core.dart";

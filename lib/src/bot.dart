@@ -171,16 +171,18 @@ class Bot {
         return;
       }
 
+      var cleanMsg = Polymorphic.DisplayHelpers.clean(msg);
+      
       if (event.isPrivate) {
-        print("[$server] <$from> $msg");
+        print("[$server] <$from> ${cleanMsg}");
       } else {
-        print("[$server] <${event.channel.name}><$from> $msg");
+        print("[$server] <${event.channel.name}><$from> ${cleanMsg}");
       }
 
       String prefix;
       if (!event.isPrivate) prefix = prefixConfig[event.channel.name];
       if (prefix == null) prefix = prefixConfig['default'];
-      if (prefix == null) throw new Exception("[$server] No prefix set");
+      if (prefix == null) throw new Exception("[$server] No Prefix Set");
       if (event.message.startsWith(prefix)) {
         List<String> args = event.message.split(' ');
         String command = args[0].substring(1);

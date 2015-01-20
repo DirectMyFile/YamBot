@@ -19,4 +19,13 @@ class DisplayHelpers {
   
   static bool fitsInSingleMessage(String input) =>
       input.length <= 400;
+  
+  static List<String> _escapedColors = Color.allColors().values.toList();
+  
+  static String clean(String msg) {
+    for (var m in _escapedColors) {
+      msg = msg.replaceAll(m, "");
+    }
+    return msg;
+  }
 }
