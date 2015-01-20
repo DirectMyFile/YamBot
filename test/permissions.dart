@@ -34,22 +34,13 @@ String network = "TestNet";
 BotMock bot = new BotMock(network, perms, groups);
 Auth auth = new Auth(network, bot);
 
-@Group("permissions")
-class PermissionTests {
-  @Test("guest authenticated")
-  guestAuthenticated() => auth.registeredAs("guest").then((info) {
-    expect(info[0], equals("guest"));
-  });
-}
+@Test("guest authenticated")
+guestAuthenticated() => auth.registeredAs("guest").then((info) {
+  expect(info[0], equals("guest"));
+});
 
-void main() {
-  group("permissions", () {
-    _guestTest(auth);
-    _userTest(auth);
-  });
-}
-
-void _guestTest(Auth auth) {
+@Start()
+void _guestTest() {
   String nick = "guest";
 
   test("$nick authenticated", () {
@@ -85,7 +76,8 @@ void _guestTest(Auth auth) {
   });
 }
 
-void _userTest(Auth auth) {
+@Start()
+void _userTest() {
   String nick = "user";
 
   test("$nick authenticated", () {
@@ -138,7 +130,6 @@ class BotMock extends Bot {
     // Order sensitive in order to avoid an NPE
     _mockClient = new ClientMock(new IRC.IrcConfig());
   }
-
 }
 
 class ClientMock extends IRC.Client {
