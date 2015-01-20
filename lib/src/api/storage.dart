@@ -1,11 +1,11 @@
 part of polymorphic.api;
 
-typedef void ConfigurationChecker(Map<String, dynamic> content);
+typedef void StorageChecker(Map<String, dynamic> content);
 
 class Storage {
   final File file;
   
-  List<ConfigurationChecker> _checkers = [];
+  List<StorageChecker> _checkers = [];
 
   Map<String, dynamic> _entries;
   Timer _timer;
@@ -109,7 +109,7 @@ class Storage {
     save();
   }
 
-  void addChecker(ConfigurationChecker checker) {
+  void addChecker(StorageChecker checker) {
     _checkers.add(checker);
   }
   
