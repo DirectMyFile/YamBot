@@ -200,7 +200,7 @@ abstract class StorageContainer {
     }
 
     if (!mirror.isAssignableTo(reflectType(value != null ? value.runtimeType : Null))) {
-      throw new Exception("ERROR: value is not the correct type.");
+      throw new Exception("ERROR: value of '${key}' is not the correct type.");
     }
 
     return value;
