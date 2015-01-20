@@ -18,7 +18,31 @@ class Storage {
   bool getBoolean(String key, {bool defaultValue}) => get(key, bool, defaultValue);
   List<dynamic> getList(String key, {List<dynamic> defaultValue}) => get(key, List, defaultValue);
   Map<dynamic, dynamic> getMap(String key, {Map<dynamic, dynamic> defaultValue}) => get(key, Map, defaultValue);
-
+  
+  dynamic getFromMap(String key, dynamic mapKey) => getMap(key)[mapKey];
+  bool isInMap(String key, dynamic mapKey) => getMap(key).containsKey(mapKey);
+  
+  int incrementInteger(String key, {int defaultValue: 0}) {
+    var v = getInteger(key, defaultValue: defaultValue);
+    v++;
+    setInteger(key, v);
+    return v;
+  }
+  
+  int decrementInteger(String key, {int defaultValue: 0}) {
+    var v = getInteger(key, defaultValue: defaultValue);
+    v--;
+    setInteger(key, v);
+    return v;
+  }
+  
+  dynamic remove(String key) {
+    var value = _entries[key];
+    _entries.remove(key);
+    _changed = true;
+    return value;
+  }
+  
   void setString(String key, String value) => set(key, String, value);
   void setInteger(String key, int value) => set(key, int, value);
   void setBoolean(String key, bool value) => set(key, bool, value);
