@@ -2,6 +2,13 @@ part of polymorphic.bot;
 
 typedef PluginLoader PluginLoaderCreator();
 
+const String PUBSPEC_TEMPLATE = """
+name: {plugin}
+dependencies:
+  polymorphic_bot:
+    git: git://github.com/PolymorphicBot/PolymorphicBot.git
+""";
+
 class PluginLoadHelper {
   String name;
   String displayName;
@@ -33,6 +40,7 @@ class PluginHandler {
   List<String> _candidates = [];
   Map<String, List<String>> _requirements = <String, List<String>>{};
   Map<String, List<String>> _conflicts = <String, List<String>>{};
+  List<Directory> _tempDirs = [];
 
   Future load() {
     _elevatedPlugins.clear();
@@ -49,7 +57,22 @@ class PluginHandler {
       var loaders = <PluginLoadHelper>[];
 
       directory.listSync(followLinks: true).forEach((entity) {
-        if (entity is! Directory) return;
+        if (entity is File) {
+          var name = entity.path.split("/").last;
+          if (!name.endsWith(".dart")) {
+            return;
+          }
+          
+          var pluginName = name.substring(0, name.length - ".dart".length);
+          Directory dir = Directory.systemTemp.createTempSync();
+          var scriptFile = new File("${dir.path}/main.dart");
+          scriptFile.writeAsStringSync(entity.readAsStringSync());
+          var pubspecFile = new File("${dir.path}/pubspec.yaml");
+          pubspecFile.writeAsStringSync(PUBSPEC_TEMPLATE.replaceAll("{plugin}", pluginName));
+          _tempDirs.add(dir);
+          entity = dir;
+        }
+        
         var packagesDirectory = new Directory("${entity.path}/packages");
         var pubspecFile = new File("${entity.path}/pubspec.yaml");
         Map<String, dynamic> pubspec = yaml.loadYaml(pubspecFile.readAsStringSync());
@@ -178,6 +201,11 @@ class PluginHandler {
 
     return new Future.delayed(new Duration(milliseconds: 100)).then((_) {
       pm.killAll();
+      
+      for (var tmp in _tempDirs) {
+        tmp.deleteSync(recursive: true);
+      }
+      _tempDirs.clear();
     });
   }
 
