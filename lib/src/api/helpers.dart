@@ -73,5 +73,27 @@ class DisplayHelpers {
   }
 }
 
+class StatisticHelpers {
+  static num average(List<num> inputs) {
+    return inputs.reduce((a, b) => a + b) / inputs.length;
+  }
+  
+  static int count(List<dynamic> inputs, dynamic element) {
+    return inputs.where((it) => it == element).length;
+  }
+  
+  static dynamic mostCommon(List<dynamic> inputs) {
+    var list = new List.from(inputs);
+    list.sort((a, b) => count(list, b).compareTo(count(list, a)));
+    return list.first;
+  }
+  
+  static dynamic leastCommon(List<dynamic> inputs) {
+    var list = new List.from(inputs);
+    list.sort((a, b) => count(list, a).compareTo(count(list, b)));
+    return list.first;
+  }
+}
+
 bool _isDigit(String it) =>
     ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].contains(it);
