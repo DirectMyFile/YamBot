@@ -83,6 +83,14 @@ class Storage extends StorageContainer {
     _changed = true;
   }
   
+  void delete() {
+    destroy();
+    var file = new File(path);
+    if (file.existsSync()) {
+      file.deleteSync();
+    }
+  }
+  
   bool get hasChangePending => _changed;
 }
 
@@ -116,6 +124,8 @@ abstract class StorageContainer {
   
   dynamic getFromMap(String key, dynamic mapKey) => getMap(key)[mapKey];
   bool isInMap(String key, dynamic mapKey) => getMap(key).containsKey(mapKey);
+  bool isInList(String key, dynamic value) => getList(key, defaultValue: []).contains(value);
+  int getListLength(String key) => getList(key, defaultValue: []).length;
   
   int incrementInteger(String key, {int defaultValue: 0}) {
     var v = getInteger(key, defaultValue: defaultValue);
