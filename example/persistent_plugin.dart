@@ -5,7 +5,9 @@ Storage userStorage;
 
 // Main Entry Point
 // A Plugin instance is passed in. Plugin Communication is handled with your plugin instance.
-void main(_, Plugin plugin) {
+void main(args, port) {
+  var plugin = polymorphic(args, port);
+  
   // Gets the Bot Connector for your plugin.
   // The Bot Connector is what you use to communicate with the bot.
   bot = plugin.getBot();

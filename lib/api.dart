@@ -26,7 +26,7 @@
  * @BotInstance()
  * BotConnector bot;
  *
- * void main(_, Plugin plugin) => plugin.load();
+ * main(args, port) => polymorphic(args, port);
  *
  * @Command("hello")
  * hello(CommandEvent event) => event.reply("> Hello World");

@@ -1,12 +1,11 @@
-import "package:polymorphic_bot/api.dart";
+import "package:polymorphic_bot/plugin.dart";
+export "package:polymorphic_bot/plugin.dart";
 
 @PluginInstance()
 Plugin plugin;
 
 @BotInstance()
 BotConnector bot;
-
-void main(_, Plugin plugin) => plugin.load();
 
 @Command("hello")
 hello(CommandEvent event) => event.reply("> Hello World");
