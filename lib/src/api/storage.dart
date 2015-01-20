@@ -82,6 +82,8 @@ class Storage extends StorageContainer {
   void onChange() {
     _changed = true;
   }
+  
+  bool get hasChangePending => _changed;
 }
 
 class SubStorage extends StorageContainer {
