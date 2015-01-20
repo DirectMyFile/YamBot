@@ -806,6 +806,16 @@ class BotConnector {
 
 typedef void PluginEventHandler(String plugin, Map<String, dynamic> data);
 
+Plugin polymorphic(List<String> args, SendPort port, {bool load: true}) {
+  var plugin = new Plugin(args[0], args[1], port);
+  
+  if (load) {
+    plugin.load();
+  }
+  
+  return plugin;
+}
+
 class Plugin {
   /**
    * Plugin Name
