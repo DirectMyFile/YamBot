@@ -3,14 +3,14 @@ part of polymorphic.api;
 typedef void StorageChecker(Map<String, dynamic> content);
 
 class Storage {
-  final File file;
+  final String path;
   
   List<StorageChecker> _checkers = [];
 
   Map<String, dynamic> _entries;
   Timer _timer;
   
-  Storage(this.file);
+  Storage(this.path);
 
   String getString(String key, {String defaultValue}) => get(key, String, defaultValue);
   int getInteger(String key, {int defaultValue}) => get(key, int, defaultValue);
@@ -87,6 +87,8 @@ class Storage {
   bool _changed = false;
 
   void load() {
+    var file = new File(path);
+    
     if (!file.existsSync()) {
       _entries = {};
     } else {
@@ -106,6 +108,8 @@ class Storage {
   }
 
   void save() {
+    var file = new File(path);
+    
     if (!file.parent.existsSync()) {
       file.parent.createSync(recursive: true);
     }

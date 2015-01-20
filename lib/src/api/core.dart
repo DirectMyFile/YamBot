@@ -815,14 +815,14 @@ class Plugin {
     _init();
     if (group == null) group = name;
 
-    var file = new File("data/${group}/${storageName}.json");
-    var existing = _storages.firstWhere((it) => it.file.path == file.path, orElse: () => null);
+    var file = new File("data/${group}/${storageName}.json").absolute;
+    var existing = _storages.firstWhere((it) => it.path == file.path, orElse: () => null);
     
     if (existing != null) {
       return existing;
     }
 
-    var storage = new Storage(file);
+    var storage = new Storage(file.path);
     storage.load();
     storage.startSaveTimer();
     _storages.add(storage);
