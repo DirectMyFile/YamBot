@@ -41,7 +41,7 @@ class Storage extends StorageContainer {
       file.parent.createSync(recursive: true);
     }
 
-    file.writeAsStringSync(new JsonEncoder.withIndent("  ").convert(_entries));
+    file.writeAsStringSync(new JsonEncoder.withIndent("  ").convert(_entries) + "\n");
   }
   
   void startSaveTimer({Duration interval: const Duration(seconds: 2)}) {
