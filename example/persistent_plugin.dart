@@ -16,12 +16,13 @@ void main(_, Plugin plugin) {
 
   // Persist Me Command
   bot.command("persist-me", (event) {
-    userStorage.set(event.user, true);
+    userStorage.setBoolean(event.user, true);
     event.reply("> I have persisted ${event.user}!");
   });
   
   bot.command("persisted", (event) {
-    var users = userStorage.map.keys;
+    var users = userStorage.keys;
+    
     event.replyNotice("I have persisted ${users.length} users.");
     event.replyNotice(users.join(", "));
   });
