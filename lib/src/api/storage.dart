@@ -149,16 +149,22 @@ abstract class StorageContainer {
   bool isInList(String key, dynamic value) => getList(key, defaultValue: []).contains(value);
   int getListLength(String key) => getList(key, defaultValue: []).length;
   
-  int incrementInteger(String key, {int defaultValue: 0}) {
+  int incrementInteger(String key, {int defaultValue: 0}) =>
+      addToInteger(key, 1);
+  
+  int decrementInteger(String key, {int defaultValue: 0}) =>
+      subtractFromInteger(key, 1);
+  
+  int addToInteger(String key, int n, {int defaultValue: 0}) {
     var v = getInteger(key, defaultValue: defaultValue);
-    v++;
+    v += n;
     setInteger(key, v);
     return v;
   }
   
-  int decrementInteger(String key, {int defaultValue: 0}) {
+  int subtractFromInteger(String key, int n, {int defaultValue: 0}) {
     var v = getInteger(key, defaultValue: defaultValue);
-    v--;
+    v -= n;
     setInteger(key, v);
     return v;
   }
