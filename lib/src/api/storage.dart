@@ -115,4 +115,5 @@ class Storage {
   
   List<String> get keys => _entries.keys.toList();
   Map<String, dynamic> asMap() => new Map.from(_entries);
+  bool get isSaveTimerOn => _timer != null;
 }

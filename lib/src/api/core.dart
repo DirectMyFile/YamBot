@@ -813,13 +813,18 @@ class Plugin {
 
   Storage getStorage(String storageName, {String group}) {
     _init();
-
     if (group == null) group = name;
 
     var file = new File("data/${group}/${storageName}.json");
+    var existing = _storages.firstWhere((it) => it.file.path == file.path, orElse: () => null);
+    
+    if (existing != null) {
+      return existing;
+    }
 
     var storage = new Storage(file);
     storage.load();
+    storage.startSaveTimer();
     _storages.add(storage);
     return storage;
   }
