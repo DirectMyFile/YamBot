@@ -2,87 +2,14 @@ part of polymorphic.api;
 
 typedef void StorageChecker(Map<String, dynamic> content);
 
-class Storage {
+class Storage extends StorageContainer {
   final String path;
   
   List<StorageChecker> _checkers = [];
-
   Map<String, dynamic> _entries;
   Timer _timer;
   
   Storage(this.path);
-
-  String getString(String key, {String defaultValue}) => get(key, String, defaultValue);
-  int getInteger(String key, {int defaultValue}) => get(key, int, defaultValue);
-  double getDouble(String key, {double defaultValue}) => get(key, double, defaultValue);
-  bool getBoolean(String key, {bool defaultValue}) => get(key, bool, defaultValue);
-  List<dynamic> getList(String key, {List<dynamic> defaultValue}) => get(key, List, defaultValue);
-  Map<dynamic, dynamic> getMap(String key, {Map<dynamic, dynamic> defaultValue}) => get(key, Map, defaultValue);
-  
-  dynamic getFromMap(String key, dynamic mapKey) => getMap(key)[mapKey];
-  bool isInMap(String key, dynamic mapKey) => getMap(key).containsKey(mapKey);
-  
-  int incrementInteger(String key, {int defaultValue: 0}) {
-    var v = getInteger(key, defaultValue: defaultValue);
-    v++;
-    setInteger(key, v);
-    return v;
-  }
-  
-  int decrementInteger(String key, {int defaultValue: 0}) {
-    var v = getInteger(key, defaultValue: defaultValue);
-    v--;
-    setInteger(key, v);
-    return v;
-  }
-  
-  dynamic remove(String key) {
-    var value = _entries[key];
-    _entries.remove(key);
-    _changed = true;
-    return value;
-  }
-  
-  void setString(String key, String value) => set(key, String, value);
-  void setInteger(String key, int value) => set(key, int, value);
-  void setBoolean(String key, bool value) => set(key, bool, value);
-  void setDouble(String key, double value) => set(key, double, value);
-  void setList(String key, List<dynamic> value) => set(key, List, value);
-  void setMap(String key, Map<dynamic, dynamic> value) => set(key, Map, value);
-  
-  void addToList(String key, dynamic value) => setList(key, new List.from(getList(key))..add(value));
-  void removeFromList(String key, dynamic value) => setList(key, new List.from(getList(key)..remove(value)));
-  void putInMap(String key, dynamic mapKey, dynamic value) => setMap(key, new Map.from(get(key, Map, {}))..[mapKey] = value);
-  void removeFromMap(String key, dynamic mapKey) => setMap(key, new Map.from(get(key, Map, {})..remove(mapKey)));
-  
-  List<String> getMapKeys(String key) => get(key, Map, {}).keys.toList();
-
-  dynamic get(String key, Type type, dynamic defaultValue) {
-    var mirror = reflectType(type);
-
-    dynamic value = defaultValue;
-
-    if (_entries.containsKey(key)) {
-      value = _entries[key];
-    }
-
-    if (!mirror.isAssignableTo(reflectType(value != null ? value.runtimeType : Null))) {
-      throw new Exception("ERROR: value is not the correct type.");
-    }
-
-    return value;
-  }
-
-  void set(String key, Type type, value) {
-    var mirror = reflectType(type);
-
-    if (!mirror.isAssignableTo(reflectType(value != null ? value.runtimeType : Null))) {
-      throw new Exception("ERROR: value is not the correct type.");
-    }
-
-    _changed = true;
-    _entries[key] = value;
-  }
   
   bool _changed = false;
 
@@ -145,7 +72,117 @@ class Storage {
     _checkers.add(checker);
   }
   
-  List<String> get keys => _entries.keys.toList();
   Map<String, dynamic> asMap() => new Map.from(_entries);
   bool get isSaveTimerOn => _timer != null;
+
+  @override
+  Map<String, dynamic> get entries => _entries;
+
+  @override
+  void onChange() {
+    _changed = true;
+  }
+}
+
+class SubStorage extends StorageContainer {
+  final StorageContainer parent;
+  final String key;
+  
+  SubStorage(this.parent, this.key) {
+    if (!parent.entries.containsKey(key)) {
+      parent.entries[key] = {};
+      parent.onChange();
+    }
+  }
+  
+  @override
+  Map<String, dynamic> get entries => parent.entries[key];
+
+  @override
+  void onChange() {
+    parent.onChange();
+  }
+}
+
+abstract class StorageContainer {
+  String getString(String key, {String defaultValue}) => get(key, String, defaultValue);
+  int getInteger(String key, {int defaultValue}) => get(key, int, defaultValue);
+  double getDouble(String key, {double defaultValue}) => get(key, double, defaultValue);
+  bool getBoolean(String key, {bool defaultValue}) => get(key, bool, defaultValue);
+  List<dynamic> getList(String key, {List<dynamic> defaultValue}) => get(key, List, defaultValue);
+  Map<dynamic, dynamic> getMap(String key, {Map<dynamic, dynamic> defaultValue}) => get(key, Map, defaultValue);
+  
+  dynamic getFromMap(String key, dynamic mapKey) => getMap(key)[mapKey];
+  bool isInMap(String key, dynamic mapKey) => getMap(key).containsKey(mapKey);
+  
+  int incrementInteger(String key, {int defaultValue: 0}) {
+    var v = getInteger(key, defaultValue: defaultValue);
+    v++;
+    setInteger(key, v);
+    return v;
+  }
+  
+  int decrementInteger(String key, {int defaultValue: 0}) {
+    var v = getInteger(key, defaultValue: defaultValue);
+    v--;
+    setInteger(key, v);
+    return v;
+  }
+  
+  dynamic remove(String key) {
+    var value = entries[key];
+    entries.remove(key);
+    onChange();
+    return value;
+  }
+  
+  void setString(String key, String value) => set(key, String, value);
+  void setInteger(String key, int value) => set(key, int, value);
+  void setBoolean(String key, bool value) => set(key, bool, value);
+  void setDouble(String key, double value) => set(key, double, value);
+  void setList(String key, List<dynamic> value) => set(key, List, value);
+  void setMap(String key, Map<dynamic, dynamic> value) => set(key, Map, value);
+  
+  void addToList(String key, dynamic value) => setList(key, new List.from(getList(key))..add(value));
+  void removeFromList(String key, dynamic value) => setList(key, new List.from(getList(key)..remove(value)));
+  void putInMap(String key, dynamic mapKey, dynamic value) => setMap(key, new Map.from(get(key, Map, {}))..[mapKey] = value);
+  void removeFromMap(String key, dynamic mapKey) => setMap(key, new Map.from(get(key, Map, {})..remove(mapKey)));
+  
+  List<String> getMapKeys(String key) => get(key, Map, {}).keys.toList();
+
+  dynamic get(String key, Type type, dynamic defaultValue) {
+    var mirror = reflectType(type);
+
+    dynamic value = defaultValue;
+
+    if (entries.containsKey(key)) {
+      value = entries[key];
+    }
+
+    if (!mirror.isAssignableTo(reflectType(value != null ? value.runtimeType : Null))) {
+      throw new Exception("ERROR: value is not the correct type.");
+    }
+
+    return value;
+  }
+  
+  SubStorage getSubStorage(String key) {
+    return new SubStorage(this, key);
+  }
+
+  void set(String key, Type type, value) {
+    var mirror = reflectType(type);
+
+    if (!mirror.isAssignableTo(reflectType(value != null ? value.runtimeType : Null))) {
+      throw new Exception("ERROR: value is not the correct type.");
+    }
+
+    onChange();
+    entries[key] = value;
+  }
+  
+  List<String> get keys => entries.keys.toList();
+  
+  void onChange();
+  Map<String, dynamic> get entries;
 }
