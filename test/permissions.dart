@@ -1,3 +1,5 @@
+library polymorphic.test.permissions;
+
 import 'package:polymorphic_bot/bot.dart';
 import 'package:irc/client.dart' as IRC;
 
