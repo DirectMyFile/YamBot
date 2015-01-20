@@ -68,6 +68,10 @@ class Storage {
     } else {
       var content = file.readAsStringSync();
       var json = JSON.decode(content);
+      
+      if (json is! Map) {
+        throw new Exception("JSON was not a map!");
+      }
 
       for (var checker in _checkers) {
         checker(json);
