@@ -1,6 +1,12 @@
 part of polymorphic.api;
 
+/**
+ * Helpers to display things.
+ */
 class DisplayHelpers {
+  /**
+   * Calls [handler] with the page number and items with the given amount [per] items.
+   */
   static void paginate(List<dynamic> allItems, int per, void handler(int page, List<dynamic> items)) {
     var x = 0;
     var buff = [];
@@ -17,8 +23,20 @@ class DisplayHelpers {
     }
   }
 
+  /**
+   * Returns true if [input] fits in a single message.
+   * 
+   * Equivalent to:
+   * 
+   * ```dart
+   * return input.length <= 40;
+   * ```
+   */
   static bool fitsInSingleMessage(String input) => input.length <= 400;
 
+  /**
+   * Removes formatting from [input].
+   */
   static String clean(String input) {
     StringBuffer buff = new StringBuffer();
     int length = input.length;
@@ -71,21 +89,36 @@ class DisplayHelpers {
   }
 }
 
+/**
+ * Helpers for statistics.
+ */
 class StatisticHelpers {
+  /**
+   * Calculates the average of the given [inputs].
+   */
   static num average(List<num> inputs) {
     return inputs.reduce((a, b) => a + b) / inputs.length;
   }
 
+  /**
+   * Counts the amount of times [element] appears in [inputs].
+   */
   static int count(List<dynamic> inputs, dynamic element) {
     return inputs.where((it) => it == element).length;
   }
 
+  /**
+   * Gets the most common element in [inputs].
+   */
   static dynamic mostCommon(List<dynamic> inputs) {
     var list = new List.from(inputs);
     list.sort((a, b) => count(list, b).compareTo(count(list, a)));
     return list.first;
   }
 
+  /**
+   * Gets the least common element in [inputs].
+   */
   static dynamic leastCommon(List<dynamic> inputs) {
     var list = new List.from(inputs);
     list.sort((a, b) => count(list, a).compareTo(count(list, b)));

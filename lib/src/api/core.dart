@@ -1,17 +1,36 @@
 part of polymorphic.api;
 
+/**
+ * Action that runs when the plugin is ready.
+ */
 typedef void ReadyAction();
 
+/**
+ * PolymorphicBot IRC-specific interface.
+ */
 class BotConnector {
+  /**
+   * Plugin Instance.
+   */
   final Plugin plugin;
 
   BotConnector(this.plugin);
 
+  /**
+   * Gets the bot configuration.
+   */
   Future<Map<String, dynamic>> getConfig() => plugin.callMethod("getConfig");
 
+  /**
+   * Gets the bot configuration.
+   * 
+   * NOTICE: Prefer [getConfig].
+   */
   Future<Map<String, dynamic>> get config => getConfig();
 
   /**
+   * Checks a permission on a user.
+   * 
    * [target] is where to send the message if the node is not matched.
    * [callback] is not called if the [user] has no permissions.
    */
@@ -31,6 +50,11 @@ class BotConnector {
     });
   }
 
+  /**
+   * Calls [handler] when a bot is detected.
+   * 
+   * If [network] is provided then the handler will be called only if the event came from the given network.
+   */
   void onBotDetected(BotDetectionHandler handler, {String network}) {
     var sub = plugin.on("bot-detected").where((data) {
       if (network != null && network != data["network"]) return false;
@@ -42,6 +66,13 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Changes Modes
+   * 
+   * [mode] is the mode to change.
+   * [user] is the user to change it on.
+   * [channel] is the channel to change it on.
+   */
   void mode(String network, String mode, {String user, String channel}) {
     plugin.callMethod("mode", {
       "network": network,
@@ -51,50 +82,86 @@ class BotConnector {
     });
   }
 
+  /**
+   * Ops [user] in [channel] on [network].
+   */
   void op(String network, String channel, String user) {
     mode(network, "+o", channel: channel, user: user);
   }
 
+  /**
+   * Deops [user] in [channel] on [network].
+   */
   void deop(String network, String channel, String user) {
     mode(network, "-o", channel: channel, user: user);
   }
 
+  /**
+   * Voices [user] in [channel] on [network].
+   */
   void voice(String network, String channel, String user) {
     mode(network, "+v", channel: channel, user: user);
   }
 
+  /**
+   * Devoices [user] in [channel] on [network].
+   */
   void devoice(String network, String channel, String user) {
     mode(network, "-v", channel: channel, user: user);
   }
 
+  /**
+   * HalfOps [user] in [channel] on [network].
+   */
   void halfOp(String network, String channel, String user) {
     mode(network, "+h", channel: channel, user: user);
   }
 
+  /**
+   * DeHalfOps [user] in [channel] on [network].
+   */
   void dehalfOp(String network, String channel, String user) {
     mode(network, "-h", channel: channel, user: user);
   }
 
+  /**
+   * Owners [user] in [channel] on [network].
+   */
   void owner(String network, String channel, String user) {
     mode(network, "+q", channel: channel, user: user);
   }
 
+  /**
+   * Deowners [user] in [channel] on [network].
+   */
   void deowner(String network, String channel, String user) {
     mode(network, "-q", channel: channel, user: user);
   }
 
+  /**
+   * Quiets [user] in [channel] on [network].
+   */
   void quiet(String network, String channel, String user) {
     mode(network, "+q", channel: channel, user: user);
   }
 
+  /**
+   * Unquiets [user] in [channel] on [network].
+   */
   void unquiet(String network, String channel, String user) {
     mode(network, "-q", channel: channel, user: user);
   }
 
+  /**
+   * Set the topic for [channel] on [network] to [topic].
+   */
   void setTopic(String network, String channel, String topic) {
     getChannel(network, channel).then((channel) => channel.topic = topic);
   }
 
+  /**
+   * Kicks [user] in [channel] on [network].
+   */
   void kick(String network, String channel, String user, {String reason}) {
     plugin.callMethod("kick", {
       "network": network,
@@ -104,19 +171,31 @@ class BotConnector {
     });
   }
 
+  /**
+   * Bans [user] in [channel] on [network].
+   */
   void ban(String network, String channel, String user) {
     mode(network, "+b", channel: channel, user: user);
   }
 
+  /**
+   * Kickbans [user] in [channel] on [network].
+   */
   void kickBan(String network, String channel, String user, {String reason}) {
     ban(network, channel, user);
     kick(network, channel, user, reason: reason);
   }
 
+  /**
+   * Unbans [user] in [channel] on [network].
+   */
   void unban(String network, String channel, String user) {
     mode(network, "-b", channel: channel, user: user);
   }
 
+  /**
+   * Gets User Information for the given [user] on [network].
+   */
   Future<UserInfo> getUserInfo(String network, String user) {
     return plugin.callMethod("whois", {
       "network": network,
@@ -130,6 +209,9 @@ class BotConnector {
     });
   }
 
+  /**
+   * Gets Channel Information for the given channel [name] on [network].
+   */
   Future<Channel> getChannel(String network, String name) {
     return plugin.callMethod("getChannel", {
       "network": network,
@@ -139,6 +221,11 @@ class BotConnector {
     });
   }
 
+  /**
+   * Calls [handler] when the bot is ready on a network.
+   * 
+   * If [network] is provided then the handler is only called if the network is the given network.
+   */
   void onReady(ReadyHandler handler, {String network}) {
     var sub = plugin.on("ready").where((data) {
       if (network != null) {
@@ -156,6 +243,11 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Calls [handler] when a notice is received.
+   * 
+   * If [pattern] is provided then the handler is called only if the notice matches the given pattern.
+   */
   void onNotice(NoticeHandler handler, {Pattern pattern}) {
     var sub = plugin.on("notice").where((data) {
       if (pattern != null) {
@@ -177,6 +269,9 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Sends [message] to [target] on [network] as a message.
+   */
   void sendMessage(String network, String target, String message) {
     plugin.callMethod("sendMessage", {
       "network": network,
@@ -185,6 +280,9 @@ class BotConnector {
     });
   }
 
+  /**
+   * Sends [message] to [target] on [network] as an action.
+   */
   void sendAction(String network, String target, String message) {
     plugin.callMethod("sendAction", {
       "network": network,
@@ -193,6 +291,9 @@ class BotConnector {
     });
   }
 
+  /**
+   * Joins [channel] on [network].
+   */
   void joinChannel(String network, String channel) {
     plugin.callMethod("joinChannel", {
       "network": network,
@@ -200,6 +301,9 @@ class BotConnector {
     });
   }
 
+  /**
+   * Leaves [channel] on [network].
+   */
   void partChannel(String network, String channel) {
     plugin.callMethod("partChannel", {
       "network": network,
@@ -207,6 +311,9 @@ class BotConnector {
     });
   }
 
+  /**
+   * Sends the raw IRC [line] to [network].
+   */
   void sendRawLine(String network, String line) {
     plugin.callMethod("sendRawLine", {
       "network": network,
@@ -214,14 +321,23 @@ class BotConnector {
     });
   }
 
+  /**
+   * Gets the plugins that are loaded.
+   */
   Future<List<String>> getPlugins() {
     return plugin.getPlugins();
   }
 
+  /**
+   * Gets the networks this bot is configured for.
+   */
   Future<List<String>> getNetworks() {
     return plugin.callMethod("getNetworks");
   }
 
+  /**
+   * Sends [message] to [target] on [network] as a notice.
+   */
   void sendNotice(String network, String target, String message) {
     plugin.callMethod("sendNotice", {
       "network": network,
@@ -230,6 +346,11 @@ class BotConnector {
     });
   }
 
+  /**
+   * Calls [handler] when a message is received.
+   * 
+   * If [pattern] is provided then the handler is called only if the message matches the given pattern.
+   */
   void onMessage(MessageHandler handler, {Pattern pattern}) {
     var sub = plugin.on("message").where((data) {
       if (pattern != null) {
@@ -251,6 +372,9 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Checks if the given [user] on [network] is a bot.
+   */
   Future<bool> isUserABot(String network, String user) {
     return plugin.callMethod("isUserABot", {
       "network": network,
@@ -258,6 +382,9 @@ class BotConnector {
     });
   }
 
+  /**
+   * Gets the prefix for the given [channel] on [network].
+   */
   Future<String> getPrefix(String network, String channel) {
     return plugin.callMethod("getPrefix", {
       "network": network,
@@ -265,10 +392,20 @@ class BotConnector {
     });
   }
 
+  /**
+   * Gets a Bot Interface for an external bot on [network] with the nickname given in [user].
+   */
   BotInterface getBotInterface(String network, String user) {
     return new BotInterface(this, network, user);
   }
 
+  /**
+   * Calls [handler] when a user joins a channel.
+   * 
+   * If [network] is provided the handler will be called only if the channel was on the given network.
+   * If [channel] is provided the handler will be called only if the channel was the given channel.
+   * If [user] is provided the handler will be called only if the user is the given user.
+   */
   void onJoin(JoinHandler handler, {String channel, String user, String network}) {
     var sub = plugin.on("join").where((data) {
       bool matches = true;
@@ -298,6 +435,13 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Calls [handler] when a user leaves a channel.
+   * 
+   * If [network] is provided the handler will be called only if the channel was on the given network.
+   * If [channel] is provided the handler will be called only if the channel was the given channel.
+   * If [user] is provided the handler will be called only if the user is the given user.
+   */
   void onPart(PartHandler handler, {String channel, String user, String network}) {
     var sub = plugin.on("part").where((data) {
       bool matches = true;
@@ -327,20 +471,32 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Reloads Plugins.
+   */
   void reloadPlugins() {
     plugin.callMethod("reloadPlugins");
   }
 
+  /**
+   * Stops the Bot.
+   */
   void stop() {
     plugin.callMethod("stop");
   }
 
+  /**
+   * Clears the Bot Detection Memory.
+   */
   void clearBotMemory(String network) {
     plugin.callMethod("clearBotMemory", {
       "network": network
     });
   }
 
+  /**
+   * Quits the given [network] with an optional [reason].
+   */
   void quit(String network, [String reason]) {
     plugin.callMethod("quit", {
       "network": network,
@@ -348,6 +504,12 @@ class BotConnector {
     });
   }
 
+  /**
+   * Calls [handler] when the bot joins a channel.
+   * 
+   * If [network] is provided the handler will be called only if the channel was on the given network.
+   * If [channel] is provided the handler will be called only if the channel was the given channel.
+   */
   void onBotJoin(BotJoinHandler handler, {String network, String channel}) {
     var sub = plugin.on("bot-join").where((data) {
       bool matches = true;
@@ -373,6 +535,14 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Calls [handler] when a CTCP message is received.
+   * 
+   * If [network] is provided the handler will be called only if the channel was on the given network.
+   * If [target] is provided the handler will be called only if the target was the given target.
+   * If [message] is provided the handler will be called only if the message was the given message.
+   * If [user] is provided the handler will be called only if the user was the given user.
+   */
   void onCTCP(CTCPHandler handler, {String network, String target, String message, String user}) {
     var sub = plugin.on("ctcp").where((data) {
       bool matches = true;
@@ -392,6 +562,13 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Calls [handler] when the bot is invited to a channel.
+   * 
+   * If [network] is provided the handler will be called only if the event is from the given network.
+   * If [user] is provided the handler will be called only if the event is from the given user.
+   * If [channel] is provided the handler will be called only if the event is from the given channel.
+   */
   void onInvite(InviteHandler handler, {String network, String user, String channel}) {
     var sub = plugin.on("invite").where((data) {
       bool matches = true;
@@ -410,6 +587,11 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Calls [handler] when the bot connects to a network.
+   * 
+   * If [network] is provided the handler will be called only if the event is from the given network.
+   */
   void onConnect(ConnectHandler handler, {String network}) {
     var sub = plugin.on("connect").where((data) {
       bool matches = true;
@@ -426,6 +608,11 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Calls [handler] when the bot disconnects from a network.
+   * 
+   * If [network] is provided the handler will be called only if the event is from the given network.
+   */
   void onDisconnect(DisconnectHandler handler, {String network}) {
     var sub = plugin.on("disconnect").where((data) {
       bool matches = true;
@@ -442,6 +629,12 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Calls [handler] when a channel's topic is changed or received.
+   * 
+   * If [network] is provided the handler will be called only if the event is from the given network.
+   * If [channel] is provided the handler will be called only if the event is from the given channel.
+   */
   void onChannelTopic(TopicHandler handler, {String network, String channel}) {
     var sub = plugin.on("topic").where((data) {
       bool matches = true;
@@ -459,6 +652,14 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Calls [handler] when a user's mode is changed.
+   * 
+   * If [network] is provided the handler will be called only if the channel was on the given network.
+   * If [channel] is provided the handler will be called only if the channel was the given channel.
+   * If [user] is provided the handler will be called only if the user was the given user.
+   * If [mode] is provided the handler will be called only if the mode is the given mode.
+   */
   void onMode(ModeHandler handler, {String network, String channel, String user, String mode}) {
     var sub = plugin.on("mode").where((data) {
       bool matches = true;
@@ -478,6 +679,12 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Calls [handler] when the bot leaves a channel.
+   * 
+   * If [network] is provided the handler will be called only if the channel was on the given network.
+   * If [channel] is provided the handler will be called only if the channel was the given channel.
+   */
   void onBotPart(BotPartHandler handler, {String network, String channel}) {
     var sub = plugin.on("bot-part").where((data) {
       bool matches = true;
@@ -503,6 +710,11 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Gets Command Info.
+   * 
+   * If [pluginName] is provided it gets it from only that plugin, otherwise it gets all commands.
+   */
   Future<List<CommandInfo>> getCommands([String pluginName]) {
     return plugin.callMethod("getCommandInfo", pluginName != null ? {
       "plugin": pluginName
@@ -524,10 +736,16 @@ class BotConnector {
 
   List<CommandInfo> _myCommands = [];
 
+  /**
+   * Checks if a given command [name] exists.
+   */
   Future<bool> doesCommandExist(String name) {
     return plugin.callMethod("doesCommandExist", name);
   }
 
+  /**
+   * Gets command information for the given command by [name].
+   */
   Future<CommandInfo> getCommand(String name) {
     return plugin.callMethod("getCommandInfo", {
       "command": name
@@ -541,6 +759,12 @@ class BotConnector {
     });
   }
 
+  /**
+   * Registers a command with the name given by [name] to the given [handler].
+   * 
+   * If [usage] or [description] is provided it is provided to other plugins.
+   * If [permission] is given the command will require that permission to use it.
+   */
   void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided", String permission}) {
     var info = new CommandInfo(plugin.name, name, usage, description);
 
@@ -568,6 +792,9 @@ class BotConnector {
     plugin.registerSubscription(sub);
   }
 
+  /**
+   * Sends [msg] to [target] on [network] as a Client to Client Protocol Message.
+   */
   void sendCTCP(String network, String target, String msg) {
     plugin.callMethod("sendCTCP", {
       "network": network,
