@@ -807,10 +807,20 @@ class BotConnector {
 typedef void PluginEventHandler(String plugin, Map<String, dynamic> data);
 
 class Plugin {
+  /**
+   * Plugin Name
+   */
   final String name;
+  
+  /**
+   * Plugin Display Name
+   */
   final String displayName;
   final SendPort _port;
 
+  /**
+   * HTTP Client to use for your plugin.
+   */
   http.Client httpClient;
 
   Plugin(this.name, this.displayName, this._port);
@@ -827,9 +837,19 @@ class Plugin {
 
   bool _isShutdown = false;
 
+  /**
+   * Pauses Plugin.
+   */
   void disable() => _eventSub.pause();
+  
+  /**
+   * Resumes Plugin.
+   */
   void enable() => _eventSub.resume();
 
+  /**
+   * Gets an event stream for the event with the given [name].
+   */
   Stream<Map<String, dynamic>> on(String name) {
     _init();
 
@@ -840,29 +860,44 @@ class Plugin {
     return _controllers[name].stream;
   }
   
+  /**
+   * Initializes the Plugin.
+   */
   void load() {
     _init();
   }
 
   List<ReadyAction> _readyActions = [];
 
+  /**
+   * Calls [action] when the plugin is ready.
+   */
   void onPluginReady(ReadyAction action) {
     _init();
     _readyActions.add(action);
   }
 
+  /**
+   * Calls [action] when the plugin is shutting down.
+   */
   void onShutdown(ShutdownAction action) {
     _init();
 
     _shutdown.add(action);
   }
 
+  /**
+   * Registers a subscription specified by [sub] to be canceled when the plugin is shutting down.
+   */
   void registerSubscription(StreamSubscription sub) {
     _init();
 
     _subs.add(sub);
   }
 
+  /**
+   * Pipes the event given with [data] into event handlers as if it came from the bot.
+   */
   void _handleEvent(Map<String, dynamic> data) {
     _init();
 
@@ -875,6 +910,9 @@ class Plugin {
     if (_controllers.containsKey(name)) _controllers[name].add(data);
   }
 
+  /**
+   * Gets a Plugin Interface for the given [plugin].
+   */
   PluginInterface getPluginInterface(String plugin) {
     if (!_interfaces.containsKey(plugin)) {
       _interfaces[plugin] = new PluginInterface(this, plugin);
@@ -884,14 +922,25 @@ class Plugin {
 
   Map<String, PluginInterface> _interfaces = {};
 
+  /**
+   * Plugin HTTP Server.
+   * 
+   * This will be null until [startHttpServer] is called.
+   */
   HttpServer httpServer;
 
   List<PluginExceptionHandler> _exceptionHandlers = [];
 
+  /**
+   * Handles Exceptions.
+   */
   void onException(PluginExceptionHandler handler) {
     _exceptionHandlers.add(handler);
   }
 
+  /**
+   * Initializes the Bot.
+   */
   void _init() {
     if (_initCalled) {
       return;
@@ -1042,6 +1091,11 @@ class Plugin {
 
   bool _initCalled = false;
 
+  /**
+   * Gets a Storage instance with the given name provided by [storageName].
+   * 
+   * If [group] is provided it will be stored with that group.
+   */
   Storage getStorage(String storageName, {String group}) {
     _init();
     if (group == null) group = name;
@@ -1060,6 +1114,11 @@ class Plugin {
     return storage;
   }
 
+  /**
+   * Registers a method [name] to [handler].
+   * 
+   * [metadata] is data to carry with the method.
+   */
   void addRemoteMethod(String name, RemoteCallHandler handler, {Map<String, dynamic> metadata: const {}}) {
     _init();
 
@@ -1072,10 +1131,20 @@ class Plugin {
     _myMethods[name] = new RemoteMethodInfo(name, metadata: metadata);
   }
 
+  /**
+   * Fetches Plugin Methods for the given [plugin].
+   */
   Future<List<RemoteMethodInfo>> getRemoteMethods(String plugin) {
     return callRemoteMethod(plugin, "__getRemoteMethods");
   }
 
+  /**
+   * Calls a Plugin Method.
+   * 
+   * [plugin] is the target plugin.
+   * [method] is the method name.
+   * [arguments] are optional arguments.
+   */
   Future<dynamic> callRemoteMethod(String plugin, String method, [dynamic arguments]) {
     var data = {
       "value": arguments
@@ -1088,6 +1157,11 @@ class Plugin {
     });
   }
 
+  /**
+   * Handles Plugin Events.
+   * 
+   * If [plugin] is provided the handler is called only for that plugin.
+   */
   void onPluginEvent(PluginEventHandler handler, {String plugin}) {
     _init();
 
@@ -1105,6 +1179,12 @@ class Plugin {
     return _conn.get(command, data);
   }
 
+  /**
+   * Calls a Bot Method.
+   * 
+   * [name] is the method name.
+   * [arguments] is an optional argument.
+   */
   Future<dynamic> callMethod(String name, [dynamic arguments]) {
     var data = {
       "value": arguments
@@ -1120,6 +1200,9 @@ class Plugin {
     });
   }
 
+  /**
+   * Logs a Message to the Console.
+   */
   void log(String message) {
     _init();
 
@@ -1130,12 +1213,18 @@ class Plugin {
 
   bool _isServerListening = false;
 
+  /**
+   * Starts an HTTP Server then create an HTTP Router.
+   */
   Future<HttpRouter> createHttpRouter() {
     return startHttpServer().then((server) {
       return new HttpRouter(server);
     });
   }
 
+  /**
+   * Starts an HTTP Server that is forwarded through the main bot server.
+   */
   Future<HttpServer> startHttpServer() {
     if (_isServerListening) {
       throw new Exception("Server is already listening.");
@@ -1164,14 +1253,25 @@ class Plugin {
     });
   }
 
+  /**
+   * Checks if the plugin provided by [name] is installed.
+   */
   Future<bool> isPluginInstalled(String name) => getPlugins().then((plugins) {
     return plugins.contains(name);
   });
 
+  /**
+   * Gets the loaded plugins.
+   */
   Future<List<String>> getPlugins() {
     return callMethod("getPlugins");
   }
 
+  /**
+   * Sends [command] and [data] to a target.
+   * 
+   * If [plugin] is provided it is sent to the given plugin otherwise it is sent to the main bot.
+   */
   void send(String command, Map<String, dynamic> data, {String plugin}) {
     _init();
 
@@ -1188,6 +1288,9 @@ class Plugin {
     }
   }
 
+  /**
+   * Gets this plugin's bot instance.
+   */
   BotConnector getBot() {
     _init();
     return _bot;
@@ -1196,8 +1299,14 @@ class Plugin {
   Map<String, RemoteMethodInfo> _myMethods = {};
 }
 
+/**
+ * A Handler for Plugin Exceptions
+ */
 typedef void PluginExceptionHandler(PluginException e);
 
+/**
+ * Wrapper for Plugin Exceptions
+ */
 class PluginException {
   final String message;
 
