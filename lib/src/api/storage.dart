@@ -2,9 +2,31 @@ part of polymorphic.api;
 
 typedef void StorageChecker(Map<String, dynamic> content);
 
+class JsonStorageType extends StorageType {
+  const JsonStorageType();
+  
+  @override
+  Map<String, dynamic> decode(String input) =>
+      JSON.decode(input);
+
+  @override
+  String encode(Map<String, dynamic> input) =>
+      new JsonEncoder.withIndent("  ").convert(input);
+}
+
+abstract class StorageType {
+  static const StorageType JSON = const JsonStorageType();
+  
+  const StorageType();
+  
+  String encode(Map<String, dynamic> input);
+  Map<String, dynamic> decode(String input);
+}
+
 class Storage extends StorageContainer {
   final String path;
   
+  StorageType type = StorageType.JSON;
   List<StorageChecker> _checkers = [];
   Map<String, dynamic> _entries;
   Timer _timer;
@@ -20,17 +42,17 @@ class Storage extends StorageContainer {
       _entries = {};
     } else {
       var content = file.readAsStringSync();
-      var json = JSON.decode(content);
+      var map = type.decode(content);
       
-      if (json is! Map) {
+      if (map is! Map) {
         throw new Exception("JSON was not a map!");
       }
 
       for (var checker in _checkers) {
-        checker(json);
+        checker(map);
       }
 
-      _entries = json;
+      _entries = map;
     }
   }
 
@@ -41,7 +63,7 @@ class Storage extends StorageContainer {
       file.parent.createSync(recursive: true);
     }
 
-    file.writeAsStringSync(new JsonEncoder.withIndent("  ").convert(_entries) + "\n");
+    file.writeAsStringSync(type.encode(_entries) + "\n");
   }
   
   void startSaveTimer({Duration interval: const Duration(seconds: 2)}) {
