@@ -713,6 +713,10 @@ class Plugin {
         for (var s in _subs) {
           s.cancel();
         }
+        
+        for (var storage in _storages) {
+          storage.destroy();
+        }
 
         sub.cancel();
 
