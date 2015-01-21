@@ -46,7 +46,12 @@ List<VariableMirror> findVariablesAnnotation(Type type) {
   LibraryMirror lib = currentMirrorSystem().isolate.rootLibrary;
   
   return lib.declarations.values.where((it) =>
-      it is VariableMirror && !it.isConst && !it.isFinal && !it.isPrivate && it.isTopLevel && it.metadata.any((it) => name == it.type.simpleName)).toList();
+      it is VariableMirror
+      && !it.isConst
+      && !it.isFinal
+      && !it.isPrivate 
+      && it.isTopLevel
+      && it.metadata.any((it) => name == it.type.simpleName)).toList();
 }
 
 List<ClassAnnotation> findClassesAnnotation(Type type, {LibraryMirror lib}) =>
