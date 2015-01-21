@@ -1203,6 +1203,32 @@ class Plugin {
       PluginStorage m = variable.metadata.firstWhere((it) => it.type.isAssignableTo(reflectClass(PluginStorage))).reflectee;
       currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getStorage(m.name, group: m.group));
     }
+    
+    var httpEndpoints = findFunctionAnnotations(HttpEndpoint);
+    var websocketEndpoints = findFunctionAnnotations(WebSocketEndpoint);
+    
+    if (httpEndpoints.isNotEmpty || websocketEndpoints.isNotEmpty) {
+      createHttpRouter().then((router) {
+        for (var e in httpEndpoints) {
+          var path = e.metadata.path;
+          var pc = x.mirror.parameters.length;
+          if (pc == 1) {
+            router.addRoute(path, e.function); 
+          } else if (pc == 2) {
+            router.addRoute(path, (req) {
+              e.function(req, req.response);
+            });
+          } else {
+            throw new Exception("HTTP Endpoint has invalid number of parameters: ${pc}");
+          }
+        }
+        
+        for (var e in websocketEndpoints) {
+          var path = e.metadata.path;
+          router.addWebSocketEndpoint(path, e.function);
+        }
+      });
+    }
 
     callMethod("__initialized", true);
   }

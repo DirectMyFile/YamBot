@@ -129,3 +129,15 @@ class BotInstance {
 class PluginInstance {
   const PluginInstance();
 }
+
+class HttpEndpoint {
+  final String path;
+  
+  const HttpHandler(this.path);
+}
+
+class WebSocketEndpoint {
+  final String path;
+  
+  const HttpHandler(this.path);
+}
