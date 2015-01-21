@@ -56,6 +56,7 @@ class Bot {
     _registerReadyHandler();
     _registerMessageHandler();
     _registerCommandHandler();
+    _registerJoinPartHandlers();
 
     client.register((IRC.CTCPEvent event) {
       if (event.message.trim().toUpperCase() == "ARE YOU A BOT") {
@@ -125,6 +126,7 @@ class Bot {
       if (serverConfig['owner'] != null) {
         client.identify(username: serverConfig['owner'], password: serverConfig['password'], nickserv: serverConfig['nickserv'] != null ? serverConfig['nickserv'] : "NickServ");
       }
+      
       print("[$server] Bot is Ready");
       for (var chan in channelConfig) {
         print("[$server] Joining $chan");
@@ -134,6 +136,24 @@ class Bot {
       if (serverConfig['broadcast'] != null && serverConfig['broadcast']) {
         event.join("#bot-communication");
       }
+    });
+  }
+  
+  void _registerJoinPartHandlers() {
+    client.register((IRC.JoinEvent event) {
+      if (event.channel.name == "#bot-communication") {
+        return;
+      }
+      
+      print("[${server}] <${event.channel.name}> ${event.user}");
+    });
+    
+    client.register((IRC.PartEvent event) {
+      if (event.channel.name == "#bot-communication") {
+        return;
+      }
+      
+      print("[${server}] <${event.channel.name}> ${event.user} left");
     });
   }
 
