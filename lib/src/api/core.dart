@@ -922,7 +922,9 @@ class Plugin {
    */
   http.Client httpClient;
 
-  Plugin(this.name, this.displayName, this._port);
+  Plugin(this.name, this.displayName, this._port) {
+    _createdPlugin = true;
+  }
 
   Receiver _conn;
   BotConnector _bot;

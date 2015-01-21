@@ -42,4 +42,30 @@ class EnvironmentUtils {
     
     return lines.length > uncompiledMaxLines || lines[compiledLineIndex].length >= compiledLineWidth;
   }
+  
+  static bool isLikelyPlugin() {
+    try {
+      currentMirrorSystem().findLibrary(#polymorphic.bot);
+      return false;
+    } catch (e) {
+    }
+    
+    LibraryMirror lib;
+    
+    try {
+      lib = currentMirrorSystem().findLibrary(#polymorphic.api);
+    } catch (e) {
+      return false;
+    }
+    
+    InstanceMirror loadedM;
+    
+    try {
+      loadedM = lib.getField("_createdPlugin");
+    } catch (e) {
+      return false;
+    }
+    
+    return lib != null && loadedM.reflectee == true;
+  }
 }
