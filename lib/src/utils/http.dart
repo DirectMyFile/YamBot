@@ -73,13 +73,7 @@ class HttpHelper {
     }).then((socket) {
       responseSocket = socket;
 
-      requestSocket.listen((data) {
-        responseSocket.add(data);
-      });
-
-      responseSocket.listen((data) {
-        requestSocket.add(data);
-      });
+      return WebSocketHelper.proxy(requestSocket, responseSocket);
     });
   }
 }
