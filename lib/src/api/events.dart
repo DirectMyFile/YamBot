@@ -15,6 +15,7 @@ typedef void DisconnectHandler(DisconnectEvent event);
 typedef void TopicHandler(TopicEvent event);
 typedef void ModeHandler(ModeEvent event);
 typedef void BotDetectionHandler(BotDetectionEvent event);
+typedef void ActionHandler(ActionEvent event);
 
 typedef void ShutdownAction();
 
@@ -23,6 +24,20 @@ class ConnectEvent {
   final String network;
 
   ConnectEvent(this.bot, this.network);
+}
+
+class ActionEvent {
+  final BotConnector bot;
+  final String network;
+  final String target;
+  final String user;
+  final String message;
+
+  ActionEvent(this.bot, this.network, this.target, this.user, this.message);
+
+  void reply(String msg) {
+    bot.sendAction(network, target, msg);
+  }
 }
 
 class ModeEvent {

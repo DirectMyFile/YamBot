@@ -242,6 +242,28 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
+  
+  /**
+   * Calls [handler] when an action is received.
+   * 
+   * If [network] is provided the handler will be called only if the channel was on the given network.
+   * If [target] is provided the handler will be called only if the target was the given target.
+   * If [message] is provided the handler will be called only if the message was the given message.
+   * If [user] is provided the handler will be called only if the user was the given user.
+   */
+  void onAction(ActionHandler handler, {String network, String user, String target, String message}) {
+    onCTCP((event) {
+      if (event.message.startsWith("ACTION ")) {
+        var msg = event.message.substring("ACTION ".length);
+        
+        if (msg != null && msg != message) {
+          return;
+        }
+        
+        handler(new ActionEvent(this, event.network, event.target, event.user, event.message.substring("ACTION ".length)));
+      }
+    }, network: network, user: user, target: target);
+  }
 
   /**
    * Calls [handler] when a notice is received.
@@ -1052,7 +1074,10 @@ class Plugin {
       OnPart: getBot().onPart,
       OnBotJoin: getBot().onBotJoin,
       OnBotPart: getBot().onBotPart,
-      OnMessage: getBot().onMessage
+      OnMessage: getBot().onMessage,
+      OnCTCP: getBot().onCTCP,
+      OnNotice: getBot().onNotice,
+      OnAction: getBot().onAction
     };
     
     for (var c in cmds) {
@@ -1098,6 +1123,15 @@ class Plugin {
     
     for (var s in findFunctionAnnotations(Start)) {
       s.function();
+    }
+    
+    for (var s in findFunctionAnnotations(Shutdown)) {
+      onShutdown(s.function);
+    }
+    
+    for (var variable in findVariablesAnnotation(PluginStorage)) {
+      PluginStorage m = variable.metadata.firstWhere((it) => it.type.isAssignableTo(reflectClass(PluginStorage))).reflectee;
+      currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getStorage(m.name, group: m.group));
     }
 
     callMethod("__initialized", true);

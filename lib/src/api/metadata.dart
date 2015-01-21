@@ -25,6 +25,17 @@ class Start {
   const Start();
 }
 
+class Shutdown {
+  const Shutdown();
+}
+
+class PluginStorage {
+  final String name;
+  final String group;
+  
+  const PluginStorage(this.name, {this.group});
+}
+
 class FromConfig {
   final String name;
   
@@ -46,11 +57,41 @@ class RemoteMethod {
   const RemoteMethod({this.name, this.isVoid});
 }
 
+class OnBotReady {
+  final String network;
+  
+  const OnBotReady({this.network});
+}
+
+class OnAction {
+  final String network;
+  final String target;
+  final String message;
+  final String user;
+  
+  const OnAction({this.network, this.target, this.message, this.user});
+}
+
 class OnBotJoin {
   final String network;
   final String channel;
   
   const OnBotJoin({this.network, this.channel});
+}
+
+class OnCTCP {
+  final String network;
+  final String target;
+  final String message;
+  final String user;
+  
+  const OnCTCP({this.network, this.target, this.message, this.user});
+}
+
+class OnNotice {
+  final String pattern;
+  
+  const OnNotice({this.pattern});
 }
 
 class OnBotPart {
