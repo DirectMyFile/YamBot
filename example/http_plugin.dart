@@ -1,16 +1,14 @@
 import "package:polymorphic_bot/api.dart";
 
+main(args, port) => polymorphic(args, port);
+
+@PluginInstance()
+Plugin plugin;
+@BotInstance()
 BotConnector bot;
 
-// Main Entry Point
-// A Plugin instance is passed in. Plugin Communication is handled with your plugin instance.
-void main(args, port) {
-  var plugin = polymorphic(args, port);
-  
-  // Gets the Bot Connector for your plugin.
-  // The Bot Connector is what you use to communicate with the bot.
-  bot = plugin.getBot();
-  
+@Start()
+start() {
   // Starts an HTTP Server and routes it through Polymorphic's root HTTP Server.
   // This then creates an HTTP Router.
   plugin.createHttpRouter().then((router) {
@@ -24,10 +22,5 @@ void main(args, port) {
     router.addWebSocketEndpoint("/ws", (socket) {
       WebSocketHelper.echo(socket);
     });
-  });
-  
-  // Handles Plugin Shutdowns
-  plugin.onShutdown(() {
-    // Do Something Important
   });
 }

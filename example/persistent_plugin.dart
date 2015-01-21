@@ -1,31 +1,22 @@
 import "package:polymorphic_bot/api.dart";
 
+@PluginInstance()
+Plugin plugin;
+@BotInstance()
 BotConnector bot;
-Storage userStorage;
+@PluginStorage("users")
+Storage users;
 
-// Main Entry Point
-// A Plugin instance is passed in. Plugin Communication is handled with your plugin instance.
-void main(args, port) {
-  var plugin = polymorphic(args, port);
-  
-  // Gets the Bot Connector for your plugin.
-  // The Bot Connector is what you use to communicate with the bot.
-  bot = plugin.getBot();
-  
-  // Creates a Storage Instance for your plugin.
-  // The first argument is the storage name.
-  userStorage = plugin.getStorage("users");
+main(args, port) => polymorphic(args, port);
 
-  // Persist Me Command
-  bot.command("persist-me", (event) {
-    userStorage.setBoolean(event.user, true);
-    event.reply("> I have persisted ${event.user}!");
-  });
-  
-  bot.command("persisted", (event) {
-    var users = userStorage.keys;
-    
-    event.replyNotice("I have persisted ${users.length} users.");
-    event.replyNotice(users.join(", "));
-  });
+@Command("perist-me")
+peristMe(event) {
+  users.setBoolean(event.user, true);
+  event.reply("> I have persisted ${event.user}!");
+}
+
+@Command("persisted")
+persisted(event) {
+  event.replyNotice("I have persisted ${users.keys.length} users.");
+  event.replyNotice(users.keys.join(", "));
 }
