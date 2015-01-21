@@ -131,7 +131,7 @@ class PluginInstance {
 }
 
 class HttpEndpoint {
-  final String path;
+  final dynamic path;
   
   const HttpHandler(this.path);
 }
