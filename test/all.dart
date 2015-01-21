@@ -6,3 +6,6 @@ import "permissions.dart";
 
 @ExternalGroup("storage")
 import "storage.dart";
+
+@ExternalGroup("utils")
+import "utils.dart";

@@ -40,6 +40,6 @@ class EnvironmentUtils {
     var file = new File.fromUri(script);
     var lines = file.readAsLinesSync();
     
-    return lines.length > uncompiledMaxLines || lines[compiledLineIndex].length >= compiledFirstLineWidth;
+    return lines.length > uncompiledMaxLines || lines[compiledLineIndex].length >= compiledLineWidth;
   }
 }
