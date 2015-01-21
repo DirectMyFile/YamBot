@@ -125,6 +125,12 @@ class Storage extends StorageContainer {
     }
   }
 
+  Map<String, dynamic> asPrimitiveMap() {
+    return JSON.decode(StorageType.JSON.encode(entries));
+  }
+  
+  String asJSON() => StorageType.JSON.encode(entries);
+
   bool get hasChangePending => _changed;
 }
 
