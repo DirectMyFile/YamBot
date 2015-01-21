@@ -206,6 +206,8 @@ abstract class StorageContainer {
   void clearList(String key) => setList(key, []);
 
   List<String> getMapKeys(String key) => get(key, Map, {}).keys.toList();
+  
+  bool has(String key) => entries.containsKey(key);
 
   dynamic get(String key, Type type, dynamic defaultValue) {
     var mirror = reflectType(type);
