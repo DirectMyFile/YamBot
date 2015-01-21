@@ -19,12 +19,14 @@ class HttpRouter {
     routes.add(route);
   }
 
-  HttpRequestHandler _defaultHandler = (HttpRequest request) {
+  HttpRequestHandler _defaultHandler = notFound;
+  
+  void notFound(HttpRequest request) {
     var response = request.response;
     response.statusCode = 404;
     response.writeln("ERROR: Not Found.");
     response.close();
-  };
+  }
 
   void defaultRoute(HttpRequestHandler handler) {
     _defaultHandler = handler;
