@@ -1,6 +1,13 @@
 part of polymorphic.utils;
 
 class HttpHelper {
+  static Future notFound(HttpRequest request) {
+    var response = request.response;
+    response.statusCode = 404;
+    response.writeln("ERROR: Not Found.");
+    return response.close();
+  }
+  
   static Future forward(HttpRequest request, Uri target) {
     debug(() => print("Forwarding ${request.uri} to ${target}"));
     

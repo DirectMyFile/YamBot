@@ -22,10 +22,7 @@ class HttpRouter {
   HttpRequestHandler _defaultHandler = notFound;
   
   void notFound(HttpRequest request) {
-    var response = request.response;
-    response.statusCode = 404;
-    response.writeln("ERROR: Not Found.");
-    response.close();
+    HttpHelper.notFound(request);
   }
 
   void defaultRoute(HttpRequestHandler handler) {
