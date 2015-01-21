@@ -145,7 +145,7 @@ class Bot {
         return;
       }
       
-      print("[${server}] <${event.channel.name}> ${event.user}");
+      print("[${server}] <${event.channel.name}> ${event.user} joined");
     });
     
     client.register((IRC.PartEvent event) {
@@ -154,6 +154,14 @@ class Bot {
       }
       
       print("[${server}] <${event.channel.name}> ${event.user} left");
+    });
+    
+    client.register((IRC.QuitPartEvent event) {
+      if (event.channel.name == "#bot-communication") {
+        return;
+      }
+      
+      print("${server} <${event.channel.name}> ${event.user} quit");
     });
   }
 

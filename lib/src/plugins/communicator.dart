@@ -567,6 +567,19 @@ class NetworkEventListener {
       com.pm.sendAll(data);
     });
 
+    b.client.register((IRC.QuitEvent e) {
+      var data = common("quit");
+      data["user"] = e.user;
+      com.pm.sendAll(data);
+    });
+    
+    b.client.register((IRC.QuitPartEvent e) {
+      var data = common("quit-part");
+      data["user"] = e.user;
+      data["channel"] = e.channel.name;
+      com.pm.sendAll(data);
+    });
+    
     b.client.register((IRC.DisconnectEvent e) {
       var data = common("disconnect");
       com.pm.sendAll(data);

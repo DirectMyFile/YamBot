@@ -492,6 +492,73 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
+  
+  /**
+   * Calls [handler] when a user quits the server.
+   * 
+   * If [network] is provided the handler will be called only if the channel was on the given network.
+   * If [user] is provided the handler will be called only if the user is the given user.
+   */
+  void onQuit(QuitHandler handler, {String user, String network}) {
+    var sub = plugin.on("quit").where((data) {
+      bool matches = true;
+
+      if (network != null && network != data["network"]) {
+        matches = false;
+      }
+
+      if (user != null && user != data["user"]) {
+        matches = false;
+      }
+
+      return matches;
+    }).listen((data) {
+      String network = data['network'];
+      String user = data['user'];
+
+      var event = new QuitEvent(this, network, user);
+
+      handler(event);
+    });
+
+    plugin.registerSubscription(sub);
+  }
+  
+  /**
+   * Calls [handler] when a user quits a channel.
+   * 
+   * If [network] is provided the handler will be called only if the channel was on the given network.
+   * If [channel] is provided the handler will be called only if the channel was the given channel.
+   * If [user] is provided the handler will be called only if the user is the given user.
+   */
+  void onQuitPart(QuitPartHandler handler, {String channel, String user, String network}) {
+    var sub = plugin.on("quit-part").where((data) {
+      bool matches = true;
+      if (channel != null && channel != data["channel"]) {
+        matches = false;
+      }
+
+      if (network != null && network != data["network"]) {
+        matches = false;
+      }
+
+      if (user != null && user != data["user"]) {
+        matches = false;
+      }
+
+      return matches;
+    }).listen((data) {
+      String network = data['network'];
+      String user = data['user'];
+      String channel = data['channel'];
+
+      var event = new QuitPartEvent(this, network, channel, user);
+
+      handler(event);
+    });
+
+    plugin.registerSubscription(sub);
+  }
 
   /**
    * Reloads Plugins.
@@ -1077,7 +1144,10 @@ class Plugin {
       OnMessage: getBot().onMessage,
       OnCTCP: getBot().onCTCP,
       OnNotice: getBot().onNotice,
-      OnAction: getBot().onAction
+      OnAction: getBot().onAction,
+      OnQuit: getBot().onQuit,
+      OnQuitPart: getBot().onQuitPart,
+      OnBotReady: getBot().onReady
     };
     
     for (var c in cmds) {

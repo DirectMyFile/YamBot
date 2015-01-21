@@ -50,6 +50,21 @@ class OnPart {
   const OnPart({this.network, this.user, this.channel});
 }
 
+class OnQuit {
+  final String network;
+  final String user;
+  
+  const OnQuit({this.network, this.user});
+}
+
+class OnQuitPart {
+  final String network;
+  final String channel;
+  final String user;
+  
+  const OnQuitPart({this.network, this.channel, this.user});
+}
+
 class RemoteMethod {
   final String name;
   final bool isVoid;
