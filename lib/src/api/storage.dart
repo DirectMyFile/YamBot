@@ -183,10 +183,13 @@ abstract class StorageContainer {
   void setList(String key, List<dynamic> value) => set(key, List, value);
   void setMap(String key, Map<dynamic, dynamic> value) => set(key, Map, value);
   
-  void addToList(String key, dynamic value) => setList(key, new List.from(getList(key))..add(value));
-  void removeFromList(String key, dynamic value) => setList(key, new List.from(getList(key)..remove(value)));
-  void putInMap(String key, dynamic mapKey, dynamic value) => setMap(key, new Map.from(get(key, Map, {}))..[mapKey] = value);
-  void removeFromMap(String key, dynamic mapKey) => setMap(key, new Map.from(get(key, Map, {})..remove(mapKey)));
+  void addToList(String key, dynamic value) => setList(key, new List.from(getList(key, defaultValue: []))..add(value));
+  void removeFromList(String key, dynamic value) => setList(key, new List.from(getList(key, defaultValue: [])..remove(value)));
+  void putInMap(String key, dynamic mapKey, dynamic value) => setMap(key, new Map.from(getMap(key, defaultValue: {}))..[mapKey] = value);
+  void removeFromMap(String key, dynamic mapKey) => setMap(key, new Map.from(getMap(key, defaultValue: {}))..remove(mapKey));
+  
+  void clearMap(String key) => setMap(key, {});
+  void clearList(String key) => setList(key, []);
   
   List<String> getMapKeys(String key) => get(key, Map, {}).keys.toList();
 
