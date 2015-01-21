@@ -1206,12 +1206,17 @@ class Plugin {
     
     var httpEndpoints = findFunctionAnnotations(HttpEndpoint);
     var websocketEndpoints = findFunctionAnnotations(WebSocketEndpoint);
+    var defaultEndpoints = findFunctionAnnotations(DefaultEndpoint);
+    
+    if (defaultEndpoints.isNotEmpty && defaultEndpoints.length != 1) {
+      throw new Exception("A plugin cannot have more than one default HTTP Endpoint.");
+    }
     
     if (httpEndpoints.isNotEmpty || websocketEndpoints.isNotEmpty) {
       createHttpRouter().then((router) {
         for (var e in httpEndpoints) {
           var path = e.metadata.path;
-          var pc = x.mirror.parameters.length;
+          var pc = e.mirror.parameters.length;
           if (pc == 1) {
             router.addRoute(path, e.function); 
           } else if (pc == 2) {
@@ -1219,13 +1224,27 @@ class Plugin {
               e.function(req, req.response);
             });
           } else {
-            throw new Exception("HTTP Endpoint has invalid number of parameters: ${pc}");
+            throw new Exception("HTTP Endpoint has an invalid number of parameters: ${pc}");
           }
         }
         
         for (var e in websocketEndpoints) {
           var path = e.metadata.path;
           router.addWebSocketEndpoint(path, e.function);
+        }
+        
+        if (defaultEndpoints.isNotEmpty) {
+          var de = defaultEndpoints.first;
+          var pc = e.mirror.parameters.length;
+          if (pc == 1) {
+            router.defaultRoute(de.function); 
+          } else if (pc == 2) {
+            router.defaultRoute((req) {
+              de.function(req, req.response);
+            });
+          } else {
+            throw new Exception("Default HTTP Endpoint has an invalid number of parameters: ${pc}");
+          }
         }
       });
     }

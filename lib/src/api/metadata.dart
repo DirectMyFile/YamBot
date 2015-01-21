@@ -139,5 +139,9 @@ class HttpEndpoint {
 class WebSocketEndpoint {
   final String path;
   
-  const HttpHandler(this.path);
+  const WebSocketEndpoint(this.path);
+}
+
+class DefaultEndpoint {
+  const DefaultEndpoint();
 }
