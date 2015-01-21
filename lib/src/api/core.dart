@@ -1061,7 +1061,9 @@ class Plugin {
     
     for (var handler in handlers) {
       EventHandler h = handler.metadata;
-      on(h.event).listen(handler.function);
+      var hasParam = handler.mirror.parameters.isNotEmpty;
+      
+      on(h.event).listen(hasParam ? handler.function : (_) => handler.function());
     }
     
     for (var type in events.keys) {
@@ -1076,7 +1078,9 @@ class Plugin {
           map[v.simpleName] = i.reflectee;
         }
         
-        Function.apply(events[type], [x.function], map);
+        var hasParam = x.mirror.parameters.isNotEmpty;
+        
+        Function.apply(events[type], [(hasParam ? x.function : (_) => x.function())], map);
       }
     }
     
@@ -1088,12 +1092,12 @@ class Plugin {
       currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, this);
     }
     
-    for (var s in findFunctionAnnotations(Start)) {
-      s.function();
-    }
-    
     for (var variable in findVariablesAnnotation(BotInstance)) {
       currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getBot());
+    }
+    
+    for (var s in findFunctionAnnotations(Start)) {
+      s.function();
     }
 
     callMethod("__initialized", true);

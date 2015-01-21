@@ -9,13 +9,16 @@ class Channel {
   final List<String> voices;
   final List<String> halfOps;
   final List<String> owners;
+  
   String _topic;
+  
   String get topic => _topic;
-  bool isInChannel = true;
   set topic(String value) {
     bot.sendRawLine(network, "TOPIC ${name} :${value}");
     refresh();
   }
+  
+  bool isInChannel = true;
 
   Channel(this.bot, this.network, this.name, this._topic, this.members, this.ops, this.voices, this.halfOps, this.owners);
 
