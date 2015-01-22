@@ -11,7 +11,7 @@ Plugin plugin;
 greet(call) => call.reply("Hello World");
 
 @RemoteMethod()
-doStuff() {
+doStuff(call) {
   call.reply({
     "test": "Hello World"
   });
