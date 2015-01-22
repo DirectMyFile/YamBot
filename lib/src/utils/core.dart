@@ -22,6 +22,12 @@ final bool DEBUG = (() {
 })();
 
 class EnvironmentUtils {
+  static const List<String> _compiledHints = const [
+    "class DefaultEquality implements Equality {", // from collection package
+    "abstract class _UnorderedEquality<E, T extends Iterable<E>> implements Equality<T> {", // from collection package
+    "class ScalarEvent extends _ValueEvent {" // from yaml package
+  ];
+  
   /**
    * Attempts to determine if the root script of this isolate
    * is likely compiled with some sort of tool.
@@ -39,6 +45,12 @@ class EnvironmentUtils {
     
     var file = new File.fromUri(script);
     var lines = file.readAsLinesSync();
+    var content = lines.join("\n");
+    
+    // These are almost always present in some way.
+    if (_compiledHints.every((hint) => content.contains(hint))) {
+      return true;
+    }
     
     return lines.length > uncompiledMaxLines || lines[compiledLineIndex].length >= compiledLineWidth;
   }
