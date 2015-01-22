@@ -5,6 +5,9 @@ part of polymorphic.api;
  */
 typedef void ReadyAction();
 
+typedef void _SingleParameterFunction(a);
+typedef void _TwoParameterFunction(a, b);
+
 /**
  * PolymorphicBot IRC-specific interface.
  */
@@ -1219,15 +1222,17 @@ class Plugin {
       createHttpRouter().then((router) {
         for (var e in httpEndpoints) {
           var path = e.metadata.path;
-          var pc = e.mirror.parameters.length;
-          if (pc == 1) {
-            router.addRoute(path, e.function); 
-          } else if (pc == 2) {
+          
+          if (e.function is _SingleParameterFunction) {
+            router.addRoute(path, (req) {
+              e.function(req);
+            });
+          } else if (e.function is _TwoParameterFunction) {
             router.addRoute(path, (req) {
               e.function(req, req.response);
             });
           } else {
-            throw new Exception("HTTP Endpoint has an invalid number of parameters: ${pc}");
+            throw new Exception("HTTP Endpoint has an invalid number of parameters");
           }
         }
         
@@ -1238,15 +1243,17 @@ class Plugin {
         
         if (defaultEndpoints.isNotEmpty) {
           var de = defaultEndpoints.first;
-          var pc = de.mirror.parameters.where((it) => !it.isNamed && !it.isOptional).length;
-          if (pc == 1) {
-            router.defaultRoute(de.function); 
-          } else if (pc == 2) {
+
+          if (de.function is _SingleParameterFunction) {
+            router.defaultRoute((req) {
+              de.function(req);
+            });
+          } else if (de.function is _TwoParameterFunction) {
             router.defaultRoute((req) {
               de.function(req, req.response);
             });
           } else {
-            throw new Exception("Default HTTP Endpoint has an invalid number of parameters: ${pc}");
+            throw new Exception("Default HTTP Endpoint has an invalid number of parameters");
           }
         }
       });
