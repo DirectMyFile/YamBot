@@ -4,6 +4,12 @@ class FunctionAnnotation<T> {
   T metadata;
   MethodMirror mirror;
   Function function;
+  
+  invoke(List<dynamic> args) {
+    return function(args);  
+  }
+  
+  List<ParameterMirror> get parameters => mirror.parameters;
 }
 
 class ClassAnnotation<T> {
@@ -27,25 +33,7 @@ List<FunctionAnnotation> findFunctionAnnotations(Type type,
     a.metadata =
         m.metadata.firstWhere((it) => t.isAssignableTo(it.type)).reflectee;
     a.mirror = m;
-    a.function = ([a, b, c, d, e, f, g, h, i]) {
-      var args = [];
-      
-      void arg(it) {
-        if (it != null) {
-          args.add(it);
-        }
-      }
-      
-      arg(a);
-      arg(b);
-      arg(c);
-      arg(d);
-      arg(e);
-      arg(f);
-      arg(g);
-      arg(h);
-      arg(i);
-      
+    a.function = (List<dynamic> args) {
       if (instance != null) {
         return instance.invoke(m.simpleName, args).reflectee;
       } else {

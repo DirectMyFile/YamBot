@@ -204,11 +204,7 @@ class BotConnector {
       "network": network,
       "user": user
     }).then((data) {
-      return new UserInfo(this, network, data["nickname"],
-                          data["username"], data["realname"], data["away"],
-                          data["awayMessage"], data["isServerOperator"], data["hostname"],
-                          data["idle"], data["idleTime"], data["memberIn"], data["operatorIn"],
-                          data["voiceIn"], data["halfOpIn"], data["ownerIn"], data["channels"]);
+      return new UserInfo(this, network, data["nickname"], data["username"], data["realname"], data["away"], data["awayMessage"], data["isServerOperator"], data["hostname"], data["idle"], data["idleTime"], data["memberIn"], data["operatorIn"], data["voiceIn"], data["halfOpIn"], data["ownerIn"], data["channels"]);
     });
   }
 
@@ -245,7 +241,7 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
-  
+
   /**
    * Calls [handler] when an action is received.
    * 
@@ -258,11 +254,11 @@ class BotConnector {
     onCTCP((event) {
       if (event.message.startsWith("ACTION ")) {
         var msg = event.message.substring("ACTION ".length);
-        
+
         if (msg != null && msg != message) {
           return;
         }
-        
+
         handler(new ActionEvent(this, event.network, event.target, event.user, event.message.substring("ACTION ".length)));
       }
     }, network: network, user: user, target: target);
@@ -470,7 +466,7 @@ class BotConnector {
   void onPart(PartHandler handler, {String channel, String user, String network}) {
     var sub = plugin.on("part").where((data) {
       bool matches = true;
-      
+
       if (channel != null && channel != data["channel"]) {
         matches = false;
       }
@@ -496,7 +492,7 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
-  
+
   /**
    * Calls [handler] when a user quits the server.
    * 
@@ -527,7 +523,7 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
-  
+
   /**
    * Calls [handler] when a user quits a channel.
    * 
@@ -901,11 +897,11 @@ typedef void PluginEventHandler(String plugin, Map<String, dynamic> data);
 
 Plugin polymorphic(List<String> args, SendPort port, {bool load: true}) {
   var plugin = new Plugin(args[0], args[1], port);
-  
+
   if (load) {
     plugin.load();
   }
-  
+
   return plugin;
 }
 
@@ -914,7 +910,7 @@ class Plugin {
    * Plugin Name
    */
   final String name;
-  
+
   /**
    * Plugin Display Name
    */
@@ -946,7 +942,7 @@ class Plugin {
    * Pauses Plugin.
    */
   void disable() => _eventSub.pause();
-  
+
   /**
    * Resumes Plugin.
    */
@@ -964,7 +960,7 @@ class Plugin {
 
     return _controllers[name].stream;
   }
-  
+
   /**
    * Initializes the Plugin.
    */
@@ -1094,7 +1090,7 @@ class Plugin {
         for (var s in _subs) {
           s.cancel();
         }
-        
+
         for (var storage in _storages) {
           storage.destroy();
         }
@@ -1138,7 +1134,7 @@ class Plugin {
     for (var action in _readyActions) {
       action();
     }
-    
+
     /* Discover Annotations */
     List<FunctionAnnotation<Command>> cmds = findFunctionAnnotations(Command);
     List<FunctionAnnotation<EventHandler>> handlers = findFunctionAnnotations(EventHandler);
@@ -1155,102 +1151,116 @@ class Plugin {
       OnQuitPart: getBot().onQuitPart,
       OnBotReady: getBot().onReady
     };
-    
+
     for (var c in cmds) {
-      getBot().command(c.metadata.name, c.function, permission: c.metadata.permission);
+      getBot().command(c.metadata.name, (e) {
+        c.invoke([e]);
+      }, permission: c.metadata.permission);
     }
-    
+
     for (var handler in handlers) {
       EventHandler h = handler.metadata;
       var hasParam = handler.mirror.parameters.isNotEmpty;
-      
-      on(h.event).listen(hasParam ? handler.function : (_) => handler.function());
+
+      on(h.event).listen((e) {
+        if (hasParam) {
+          handler.invoke([e]);
+        } else {
+          handler.invoke([]);
+        }
+      });
     }
-    
+
     for (var type in events.keys) {
       var functions = findFunctionAnnotations(type);
       var vars = reflectClass(type).declarations.values.where((it) => it is VariableMirror && it.isFinal && !it.isStatic).toList();
       var map = <Symbol, dynamic>{};
-      
+
       for (var x in functions) {
         var instance = reflect(x.metadata);
         for (var v in vars) {
           var i = instance.getField(v.simpleName);
           map[v.simpleName] = i.reflectee;
         }
-        
+
         var hasParam = x.mirror.parameters.isNotEmpty;
         
-        Function.apply(events[type], [(hasParam ? x.function : (_) => x.function())], map);
+        Function.apply(events[type], [hasParam ? (e) => x.invoke([e]) : (_) => x.invoke([])], map);
       }
     }
-    
+
     for (FunctionAnnotation<RemoteMethod> a in findFunctionAnnotations(RemoteMethod)) {
-      addRemoteMethod(a.metadata.name != null ? a.metadata.name : MirrorSystem.getName(a.mirror.simpleName), a.function);
+      addRemoteMethod(a.metadata.name != null ? a.metadata.name : MirrorSystem.getName(a.mirror.simpleName), (call) {
+        a.invoke([call]);
+      });
     }
-    
+
     for (var variable in findVariablesAnnotation(PluginInstance)) {
       currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, this);
     }
-    
+
     for (var variable in findVariablesAnnotation(BotInstance)) {
       currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getBot());
     }
-    
+
     for (var s in findFunctionAnnotations(Start)) {
-      s.function();
+      s.invoke([]);
     }
-    
+
     for (var s in findFunctionAnnotations(Shutdown)) {
-      onShutdown(s.function);
+      onShutdown(() {
+        s.invoke([]);
+      });
     }
-    
+
     for (var variable in findVariablesAnnotation(PluginStorage)) {
       PluginStorage m = variable.metadata.firstWhere((it) => it.type.isAssignableTo(reflectClass(PluginStorage))).reflectee;
       currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getStorage(m.name, group: m.group));
     }
-    
+
     var httpEndpoints = findFunctionAnnotations(HttpEndpoint);
     var websocketEndpoints = findFunctionAnnotations(WebSocketEndpoint);
     var defaultEndpoints = findFunctionAnnotations(DefaultEndpoint);
-    
+
     if (defaultEndpoints.isNotEmpty && defaultEndpoints.length != 1) {
       throw new Exception("A plugin cannot have more than one default HTTP Endpoint.");
     }
-    
+
     if (httpEndpoints.isNotEmpty || websocketEndpoints.isNotEmpty) {
       createHttpRouter().then((router) {
         for (var e in httpEndpoints) {
           var path = e.metadata.path;
-          
-          if (e.function is _SingleParameterFunction) {
+
+          if (e.parameters.length == 1) {
             router.addRoute(path, (req) {
-              e.function(req);
+              e.invoke([req]);
             });
-          } else if (e.function is _TwoParameterFunction) {
+          } else if (e.parameters.length == 2) {
             router.addRoute(path, (req) {
-              e.function(req, req.response);
+              e.invoke([req, req.response]);
             });
           } else {
             throw new Exception("HTTP Endpoint has an invalid number of parameters");
           }
         }
-        
+
         for (var e in websocketEndpoints) {
           var path = e.metadata.path;
-          router.addWebSocketEndpoint(path, e.function);
+          router.addWebSocketEndpoint(path, (socket) {
+            e.invoke([socket]);
+          });
         }
-        
+
         if (defaultEndpoints.isNotEmpty) {
           var de = defaultEndpoints.first;
 
-          if (de.function is _SingleParameterFunction) {
+          if (de.parameters.length == 1) {
             router.defaultRoute((req) {
-              de.function(req);
+              de.invoke([req]);
             });
-          } else if (de.function is _TwoParameterFunction) {
+          } else if (de.parameters.length == 2) {
             router.defaultRoute((req) {
-              de.function(req, req.response);
+              de.invoke([req, req.response]);
             });
           } else {
             throw new Exception("Default HTTP Endpoint has an invalid number of parameters");
@@ -1275,7 +1285,7 @@ class Plugin {
 
     var file = new File("data/${group}/${storageName}.json").absolute;
     var existing = _storages.firstWhere((it) => it.path == file.path, orElse: () => null);
-    
+
     if (existing != null) {
       return existing;
     }
