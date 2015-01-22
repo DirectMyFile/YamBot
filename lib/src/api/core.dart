@@ -1237,7 +1237,7 @@ class Plugin {
         
         if (defaultEndpoints.isNotEmpty) {
           var de = defaultEndpoints.first;
-          var pc = e.mirror.parameters.length;
+          var pc = de.mirror.parameters.length;
           if (pc == 1) {
             router.defaultRoute(de.function); 
           } else if (pc == 2) {
