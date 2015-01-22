@@ -133,7 +133,7 @@ class PluginInstance {
 class HttpEndpoint {
   final dynamic path;
   
-  const HttpHandler(this.path);
+  const HttpEndpoint(this.path);
 }
 
 class WebSocketEndpoint {

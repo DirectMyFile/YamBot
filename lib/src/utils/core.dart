@@ -61,7 +61,7 @@ class EnvironmentUtils {
     InstanceMirror loadedM;
     
     try {
-      loadedM = lib.getField("_createdPlugin");
+      loadedM = lib.getField(#_createdPlugin);
     } catch (e) {
       return false;
     }

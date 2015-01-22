@@ -8,6 +8,8 @@ class HttpRouter {
     server.listen((request) {
       handleRequest(request);
     });
+    
+    _defaultHandler = notFound;
   }
 
   void addRoute(dynamic pattern, HttpRequestHandler handler, {String method}) {
@@ -19,7 +21,7 @@ class HttpRouter {
     routes.add(route);
   }
 
-  HttpRequestHandler _defaultHandler = notFound;
+  HttpRequestHandler _defaultHandler;
   
   void notFound(HttpRequest request) {
     HttpHelper.notFound(request);
