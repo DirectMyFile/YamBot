@@ -467,6 +467,7 @@ class BotConnector {
   void onPart(PartHandler handler, {String channel, String user, String network}) {
     var sub = plugin.on("part").where((data) {
       bool matches = true;
+      
       if (channel != null && channel != data["channel"]) {
         matches = false;
       }
@@ -1237,7 +1238,7 @@ class Plugin {
         
         if (defaultEndpoints.isNotEmpty) {
           var de = defaultEndpoints.first;
-          var pc = de.mirror.parameters.length;
+          var pc = de.mirror.parameters.where((it) => !it.isNamed && !it.isOptional).length;
           if (pc == 1) {
             router.defaultRoute(de.function); 
           } else if (pc == 2) {
