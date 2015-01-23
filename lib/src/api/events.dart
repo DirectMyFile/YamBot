@@ -129,6 +129,18 @@ class MessageEvent {
   void reply(String msg) {
     bot.sendMessage(network, target, msg);
   }
+  
+  void kickUser({String reason}) {
+    bot.kick(network, target, from, reason: reason);
+  }
+  
+  void ban() {
+    bot.ban(network, target, from);
+  }
+  
+  void kickBanUser({String reason}) {
+    bot.kickBan(network, target, from, reason: reason);
+  }
 }
 
 class JoinEvent {

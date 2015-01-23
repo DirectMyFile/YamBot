@@ -39,6 +39,8 @@ class CommandEvent {
    */
   final List<String> args;
 
+  CommandEvent(this.bot, this.network, this.command, this.message, this.user, this.channel, this.args);
+  
   /**
    * Sends [message] as a message to [channel] on [network].
    */
@@ -59,8 +61,14 @@ class CommandEvent {
   void replyNotice(String message) {
     bot.sendNotice(network, user, message);
   }
-
-  CommandEvent(this.bot, this.network, this.command, this.message, this.user, this.channel, this.args);
+  
+  Future<UserInfo> whois() {
+    return bot.getUserInfo(network, user);
+  }
+  
+  Future<Channel> getChannel() {
+    return bot.getChannel(network, channel);
+  }
 }
 
 class CommandInfo {
