@@ -134,7 +134,7 @@ class MessageEvent {
     bot.kick(network, target, from, reason: reason);
   }
   
-  void ban() {
+  void banUser() {
     bot.ban(network, target, from);
   }
   
