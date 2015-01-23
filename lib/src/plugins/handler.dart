@@ -157,7 +157,8 @@ class PluginHandler {
 
       /* Resolve Plugin Requirements */
       {
-        print("[Plugin Manager] Resolving plugin requirements");
+        print("[Plugin Manager] Resolving Plugin Dependencies");
+        
         for (var name in pluginNames) {
           List<String> requires = _requirements[name];
           requires.removeWhere((it) => pluginNames.contains(it));
@@ -274,6 +275,9 @@ class PluginDependencyException {
   final List<String> dependencies;
 
   PluginDependencyException(this.plugin, this.dependencies);
+  
+  @override
+  String toString() => "${plugin} requires the plugins ${dependencies.join(', ')}";
 }
 
 class VerificationManager {

@@ -49,7 +49,8 @@ class DefaultConfig {
       }
     },
     "http": {
-      "port": 8050
+      "port": 8050,
+      "url": "http://127.0.0.1:8050"
     }
   };
 
