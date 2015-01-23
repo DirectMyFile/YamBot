@@ -150,6 +150,18 @@ class JoinEvent {
   final String user;
 
   JoinEvent(this.bot, this.network, this.channel, this.user);
+  
+  void kick({String reason}) {
+    bot.kick(network, channel, user, reason: reason);
+  }
+  
+  void kickBan({String reason}) {
+    bot.kickBan(network, channel, user, reason: reason);
+  }
+  
+  void ban() {
+    bot.ban(network, channel, user);
+  }
 }
 
 class PartEvent {
@@ -181,6 +193,10 @@ class BotJoinEvent {
   final String channel;
 
   BotJoinEvent(this.bot, this.network, this.channel);
+  
+  void part() {
+    bot.partChannel(network, channel);
+  }
 }
 
 class BotPartEvent {
@@ -189,6 +205,10 @@ class BotPartEvent {
   final String channel;
 
   BotPartEvent(this.bot, this.network, this.channel);
+  
+  void rejoin() {
+    bot.joinChannel(network, channel);
+  }
 }
 
 class BotDetectionEvent {
