@@ -355,5 +355,11 @@ class Bot {
       });
     }, filter: (IRC.CommandEvent e) => e.command != "disable");
   }
+  
+  void destroy() {
+    if (client != null) {
+      client.disconnect();
+    }
+  }
 }
 

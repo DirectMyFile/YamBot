@@ -195,6 +195,10 @@ class BotConnector {
   void unban(String network, String channel, String user) {
     mode(network, "-b", channel: channel, user: user);
   }
+  
+  void restart() {
+    plugin.callMethod("restart", {});
+  }
 
   /**
    * Gets User Information for the given [user] on [network].

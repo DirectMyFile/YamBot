@@ -53,8 +53,25 @@ class CoreBot {
    * Starts all the clients based on the configuration.
    */
   void start() {
-    _clients.forEach((String net, Bot bot) {
+    _clients.forEach((String network, Bot bot) {
       bot.start();
+    });
+  }
+  
+  void stop() {
+    _clients.forEach((String network, Bot bot) {
+      bot.destroy();
+    });
+    
+    if (Globals.pluginHandler != null) {
+      Globals.pluginHandler.killPlugins();
+    }
+  }
+  
+  void restart() {
+    stop();
+    new Future.delayed(milliseconds: 500, (_) {
+      start();
     });
   }
 }

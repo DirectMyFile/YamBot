@@ -114,6 +114,10 @@ class PluginCommunicator {
         call.reply(isBot);
       });
     });
+    
+    addBotMethod("restart", (call) {
+      bot.restart();
+    });
 
     addBotMethod("doesCommandExist", (call) {
       var name = call.getArgument("value");
