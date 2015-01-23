@@ -15,8 +15,6 @@ class HttpHelper {
     var client = new HttpClient();
     
     return client.openUrl(request.method, target).then((req) {
-      var completer = new Completer();
-
       request.cookies.addAll(req.cookies);
       request.headers.forEach((name, value) {
         for (var v in value) {
@@ -24,20 +22,12 @@ class HttpHelper {
         }
       });
 
-      request.listen((data) {
-        req.add(data);
-      }).onDone(() {
-        completer.complete(req.close());
-      });
-
-      return completer.future;
+      return request.pipe(req);
     }).then((HttpClientResponse res) {
       // Special Handling for WebSockets
       if (res.statusCode == HttpStatus.SWITCHING_PROTOCOLS) {
         return proxyWebSocket(request, res);
       }
-
-      var completer = new Completer();
 
       response.statusCode = res.statusCode;
 
@@ -49,13 +39,7 @@ class HttpHelper {
 
       response.cookies.addAll(res.cookies);
 
-      res.listen((data) {
-        response.add(data);
-      }).onDone(() {
-        completer.complete(response.close());
-      });
-
-      return completer.future;
+      return res.pipe(response);
     }).then((_) {
       client.close();
     }).catchError((e, stack) {
