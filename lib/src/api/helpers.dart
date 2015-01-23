@@ -126,4 +126,39 @@ class StatisticHelpers {
   }
 }
 
+typedef void Task();
+
+class Scheduler {
+  Scheduler();
+  
+  Timer scheduleAt(DateTime time, Task task) {
+    var dnow = new DateTime.now();
+    var now = dnow.millisecondsSinceEpoch;
+    var target = time.millisecondsSinceEpoch;
+    
+    if (target < now) {
+      throw new Exception("Scheduled time was in the past.");
+    }
+    
+    if (target == now) {
+      new Future((_) {
+        task();
+      });
+      return null;
+    }
+    
+    var delay = target - now;
+    
+    return new Timer(new Duration(milliseconds: delay), () {
+      task();
+    });
+  }
+  
+  Timer schedule(Duration delay, Task task) {
+    return new Timer(delay, () {
+      task();
+    });
+  }
+}
+
 bool _isDigit(String it) => ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].contains(it);
