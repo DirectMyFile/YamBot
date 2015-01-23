@@ -1,10 +1,17 @@
 # Polymorphic Bot
 
-An easy to use IRC bot written in Dart. It is designed to be extensible and flexible through plugins.
+Automation Bot that connects to IRC.
+
+## Goals
+
+- Provide Tools for Automation
+- Provide Plugin System
+- Be Simple and Elegant
+- Work for the User
 
 ## Features
 
-- Simple and very powerful plugin system
+- Simple but very powerful plugin system
 - Designed for Multi-Network Bots
 - Very Fast
 
