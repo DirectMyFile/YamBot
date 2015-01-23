@@ -59,18 +59,21 @@ class CoreBot {
   }
   
   void stop() {
-    _clients.forEach((String network, Bot bot) {
-      bot.destroy();
-    });
-    
     if (Globals.pluginHandler != null) {
       Globals.pluginHandler.killPlugins();
     }
+    
+    _clients.forEach((String network, Bot bot) {
+      bot.destroy();
+    });
   }
   
   void restart() {
+    print("[PolymorphicBot] Restarting");
     stop();
-    new Future.delayed(new Duration(milliseconds: 500), () {
+    new Future.delayed(new Duration(seconds: 5), () {
+      return Globals.pluginHandler != null ? Globals.pluginHandler.init() : new Future.value();
+    }).then((_) {
       start();
     });
   }

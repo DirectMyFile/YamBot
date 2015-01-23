@@ -70,6 +70,10 @@ class Bot {
         _botMemory.remove(event.original);
       }
     });
+    
+    client.register((IRC.DisconnectEvent event) {
+      print("[${server}] Disconnected");
+    });
   }
 
   void start() {
