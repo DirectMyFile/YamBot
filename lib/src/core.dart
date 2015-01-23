@@ -70,7 +70,7 @@ class CoreBot {
   
   void restart() {
     stop();
-    new Future.delayed(milliseconds: 500, (_) {
+    new Future.delayed(milliseconds: 500, () {
       start();
     });
   }
