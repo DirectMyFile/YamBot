@@ -141,7 +141,7 @@ class Scheduler {
     }
     
     if (target == now) {
-      new Future((_) {
+      new Future(() {
         task();
       });
       return null;
