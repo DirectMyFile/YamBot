@@ -23,7 +23,7 @@ class Channel {
   Channel(this.bot, this.network, this.name, this._topic, this.members, this.ops, this.voices, this.halfOps, this.owners);
 
   Future refresh() {
-    return bot.getChannel(network, name).then((channel) {
+    return renew().then((channel) {
       if (channel == null) {
         isInChannel = false;
         return;
@@ -42,7 +42,45 @@ class Channel {
       owners.addAll(channel.owners);
     });
   }
+  
+  Future<Channel> renew() => bot.getChannel(network, name);
 
+  void op(String user) {
+    bot.op(network, name, user);
+  }
+  
+  void deop(String user) {
+    bot.deop(network, name, user);
+  }
+  
+  void voice(String user) {
+    bot.voice(network, name, user);
+  }
+  
+  void devoice(String user) {
+    bot.devoice(network, name, user);
+  }
+  
+  void mode(String mode, {String user}) {
+    bot.mode(network, mode, channel: name, user: user);
+  }
+  
+  void owner(String user) {
+    bot.owner(network, name, user);
+  }
+  
+  void deowner(String user) {
+    bot.deowner(network, name, user);
+  }
+  
+  void halfOp(String user) {
+    bot.halfOp(network, name, user);
+  }
+  
+  void dehalfOp(String user) {
+    bot.dehalfOp(network, name, user);
+  }
+  
   void sendMessage(String msg) {
     bot.sendMessage(network, name, msg);
   }
