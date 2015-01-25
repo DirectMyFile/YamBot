@@ -377,9 +377,10 @@ class BotConnector {
    * If [pattern] is provided then the handler is called only if the message matches the given pattern.
    */
   void onMessage(MessageHandler handler, {Pattern pattern}) {
+    var matches = [];
     var sub = plugin.on("message").where((data) {
       if (pattern != null) {
-        return data['message'].allMatches(pattern).isNotEmpty;
+        return (matches = data['message'].allMatches(pattern)).isNotEmpty;
       }
       return true;
     }).map((it) {
@@ -389,7 +390,7 @@ class BotConnector {
       var private = it["private"];
       var message = it["message"];
 
-      return new MessageEvent(this, network, target, from, private, message);
+      return new MessageEvent(this, network, target, from, private, message, match: matches.isNotEmpty ? matches.first : null);
     }).listen((event) {
       handler(event);
     });

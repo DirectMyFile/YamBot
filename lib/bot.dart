@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:profiler';
 
 import 'package:yaml/yaml.dart' as yaml;
 import 'package:irc/client.dart' as IRC;
@@ -33,6 +34,8 @@ class Globals {
  * Returns [CoreBot].
  */
 CoreBot launchBot(String path) {
+  BotMetrics.init();
+  
   var dir = new Directory(path).absolute;
   
   if (!dir.existsSync()) {

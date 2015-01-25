@@ -123,11 +123,17 @@ class MessageEvent {
   final String from;
   final bool isPrivate;
   final String message;
+  final Match match;
 
-  MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.message);
+  MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.message, {this.match});
 
   void reply(String msg) {
     bot.sendMessage(network, target, msg);
+  }
+
+  void random(List<String> messages) {
+    var random = new Random();
+    reply(messages[random.nextInt(messages.length)]);
   }
   
   void kickUser({String reason}) {

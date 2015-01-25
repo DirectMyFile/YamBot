@@ -1,7 +1,19 @@
 part of polymorphic.bot;
 
-class CoreBot {
+class BotMetrics {
+  static final Counter networksMetric = new Counter("polymorphic.networkCount", "Number of Networks");
+  static final Counter messagesMetric = new Counter("polymorphic.messagesCount", "Number of IRC Messages Received");
+  static final Counter pluginsMetric = new Counter("polymorphic.pluginsCount", "Number of Plugins Loaded");
+  
+  static void init() {
+    Metrics.register(networksMetric);
+    Metrics.register(messagesMetric);
+    Metrics.register(pluginsMetric);
+  }
+}
 
+class CoreBot {
+  
   /**
    * The overall configuration for the entire bot.
    */
@@ -35,6 +47,8 @@ class CoreBot {
       }
       _clients[name] = bot;
     }
+    
+    BotMetrics.networksMetric.value = bots.length.toDouble();
   }
 
   /**

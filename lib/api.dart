@@ -39,6 +39,8 @@ import "dart:convert";
 import "dart:isolate";
 import "dart:io";
 import "dart:mirrors";
+import "dart:math";
+
 import "package:plugins/plugin.dart";
 import "package:http/http.dart" as http;
 import "package:polymorphic_bot/utils.dart";

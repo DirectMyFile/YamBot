@@ -171,6 +171,8 @@ class Bot {
 
   void _registerMessageHandler() {
     client.register((IRC.MessageEvent event) {
+      BotMetrics.messagesMetric.value++;
+      
       var from = event.from;
       var msg = event.message;
 

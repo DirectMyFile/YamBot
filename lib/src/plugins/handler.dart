@@ -31,6 +31,7 @@ class PluginHandler {
 
   Future init() {
     return load().then((List<Plugin> plugins) {
+      BotMetrics.pluginsMetric.value = plugins.length.toDouble();
       print("[Plugin Manager] Registered: ${plugins.join(", ")}");
       _communicator.handle();
       return plugins;
