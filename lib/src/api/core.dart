@@ -444,13 +444,6 @@ class BotConnector {
   }
 
   /**
-   * Gets a Bot Interface for an external bot on [network] with the nickname given in [user].
-   */
-  BotInterface getBotInterface(String network, String user) {
-    return new BotInterface(this, network, user);
-  }
-
-  /**
    * Calls [handler] when a user joins a channel.
    * 
    * If [network] is provided the handler will be called only if the channel was on the given network.
