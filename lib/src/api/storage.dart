@@ -45,8 +45,6 @@ class Storage extends StorageContainer {
 
   Storage(this.path);
 
-  bool _changed = false;
-
   void load() {
     var file = new File(path);
 
@@ -78,27 +76,7 @@ class Storage extends StorageContainer {
     file.writeAsStringSync(type.encode(_entries) + "\n");
   }
 
-  void startSaveTimer({Duration interval: const Duration(seconds: 2)}) {
-    if (_timer != null) {
-      throw new StateError("Timer already started.");
-    }
-
-    _timer = new Timer.periodic(interval, (timer) {
-      if (_changed) {
-        save();
-      }
-    });
-  }
-
-  void stopSaveTimer() {
-    if (_timer != null) {
-      _timer.cancel();
-      _timer = null;
-    }
-  }
-
   void destroy() {
-    stopSaveTimer();
     save();
   }
 
@@ -114,7 +92,7 @@ class Storage extends StorageContainer {
 
   @override
   void onChange() {
-    _changed = true;
+    save();
   }
 
   void delete() {
@@ -130,8 +108,6 @@ class Storage extends StorageContainer {
   }
   
   String asJSON() => StorageType.JSON.encode(entries);
-
-  bool get hasChangePending => _changed;
 }
 
 class SubStorage extends StorageContainer {

@@ -1329,7 +1329,6 @@ class Plugin {
 
     var storage = new Storage(file.path);
     storage.load();
-    storage.startSaveTimer();
     _storages.add(storage);
     return storage;
   }
