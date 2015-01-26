@@ -64,7 +64,16 @@ class PluginHandler {
       _candidates.clear();
       var loaders = <PluginLoadHelper>[];
 
-      directory.listSync(followLinks: true).forEach((entity) {
+      var scriptDir = new Directory("scripts");
+
+      if (!scriptDir.existsSync()) {
+        scriptDir.createSync(recursive: true);
+      }
+
+      var entities = new List<FileSystemEntity>.from(directory.listSync(followLinks: true));
+      entities.addAll(scriptDir.listSync(followLinks: true));
+      
+      entities.forEach((entity) {
         if (entity is File) {
           var name = entity.path.split("/").last;
           if (!name.endsWith(".dart")) {

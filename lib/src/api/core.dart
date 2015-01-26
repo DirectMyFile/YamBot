@@ -376,9 +376,9 @@ class BotConnector {
    * 
    * If [pattern] is provided then the handler is called only if the message matches the given pattern.
    */
-  void onMessage(MessageHandler handler, {pattern, bool ping, bool regex: false}) {
+  void onMessage(MessageHandler handler, {pattern, bool ping, bool regex: false, bool caseSensitive: false}) {
     if (regex && pattern is! RegExp) {
-      pattern = new RegExp(pattern.toString());
+      pattern = new RegExp(pattern.toString(), caseSensitive: caseSensitive);
     }
 
     if (pattern is! RegExp) {

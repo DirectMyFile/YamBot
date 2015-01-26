@@ -120,8 +120,9 @@ class OnMessage {
   final String pattern;
   final bool regex;
   final bool ping;
+  final bool caseSensitive;
   
-  const OnMessage({this.pattern, this.regex: false, this.ping});
+  const OnMessage({this.pattern, this.regex: false, this.ping, this.caseSensitive: false});
 }
 
 class BotInstance {
