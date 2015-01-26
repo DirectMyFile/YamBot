@@ -34,14 +34,12 @@ class CoreBot {
    * See [DefaultConfig] for the default configuration.
    */
   CoreBot.conf(this.config) {
-    for (var server in config['server']) {
+    for (var server in config['networks']) {
       if (server['enabled'] == false) continue;
       var name = server['name'];
-      var chan = config['channel'][name];
-      var pref = config['prefix'][name];
-      var perms = config['permissions']['server'][name];
-      var groups = config['permissions']['groups'];
-      var bot = new Bot(name, server, chan, pref, perms, groups);
+      var chan = config['channels'][name];
+      var pref = config['prefixes'][name];
+      var bot = new Bot(name, server, chan, pref);
       if (_clients.containsKey(name)) {
         throw new Exception("Server name '$name' already taken");
       }

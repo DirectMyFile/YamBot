@@ -14,7 +14,7 @@ class DefaultConfig {
    * A default workable configuration.
    */
   static final Map defaultConfig = {
-    "server": [{
+    "networks": [{
         "name": "EsperNet",
         "nickname": "PolymorphicBot",
         "realname": "PolymorphicBot",
@@ -24,28 +24,13 @@ class DefaultConfig {
         "password": "<nickserv password>",
         "broadcast": true
       }],
-    "channel": {
+    "channels": {
       "EsperNet": ["#directcode"]
     },
-    "prefix": {
+    "prefixes": {
       "EsperNet": {
         "default": "\$",
         "#directcode": "\$"
-      }
-    },
-    "permissions": {
-      "groups": {
-        "public": ["core.auth"]
-      },
-      "server": {
-        "EsperNet": {
-          "groups": {
-            "*": ["public"]
-          },
-          "nodes": {
-            "*": []
-          }
-        }
       }
     },
     "http": {

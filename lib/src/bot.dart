@@ -23,16 +23,6 @@ class Bot {
   final prefixConfig;
 
   /**
-   * Holds all the permission nodes the user has permission to.
-   */
-  final permsConfig;
-
-  /**
-   * Holds all the permission nodes for each group.
-   */
-  final groupsConfig;
-
-  /**
    * The client which manages the IRC connections and data.
    */
   IRC.Client get client => _client;
@@ -44,7 +34,7 @@ class Bot {
   Auth get authManager => _authManager;
   Auth _authManager;
 
-  Bot(this.server, this.serverConfig, this.channelConfig, this.prefixConfig, this.permsConfig, this.groupsConfig) {
+  Bot(this.server, this.serverConfig, this.channelConfig, this.prefixConfig) {
     var botConfig = new IRC.IrcConfig();
     botConfig.nickname = serverConfig['nickname'];
     botConfig.realname = serverConfig['realname'];
