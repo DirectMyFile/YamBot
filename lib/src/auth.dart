@@ -185,7 +185,7 @@ class Auth {
     if (success != null && success) return true;
 
     for (var group in (groups == null ? [] : groups)) {
-      var groupPerms = bot.groupsConfig[group];
+      var groupPerms = p["groups"][group];
       if (groupPerms == null) continue;
       for (var perm in groupPerms) {
         var perm_parts = perm.split(".");
