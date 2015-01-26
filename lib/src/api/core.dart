@@ -376,12 +376,18 @@ class BotConnector {
    * 
    * If [pattern] is provided then the handler is called only if the message matches the given pattern.
    */
-  void onMessage(MessageHandler handler, {Pattern pattern, bool ping, bool regex: false}) {
+  void onMessage(MessageHandler handler, {pattern, bool ping, bool regex: false}) {
     if (regex && pattern is! RegExp) {
       pattern = new RegExp(pattern.toString());
     }
 
-    var matches = [];
+    if (pattern is! RegExp) {
+      throw new Exception("We only accept Regular Expressions for the time being.");
+    }
+
+    var r = pattern as RegExp;
+
+    var match;
     var sub = plugin.on("message").where((data) {
       var matched = true;
 
@@ -391,10 +397,16 @@ class BotConnector {
 
       if (pattern != null) {
         var m = data['msgnoping'];
-        matched = matched && (matches = m.allMatches(pattern)).isNotEmpty;
+
+        if (matched && r.hasMatch(data['message'])) {
+          matched = true;
+          match = r.firstMatch(data['message']);
+        } else {
+          matched = false;
+        }
       }
 
-      return true;
+      return matched;
     }).map((it) {
       var network = it["network"];
       var target = it["target"];
@@ -403,7 +415,7 @@ class BotConnector {
       var message = it["message"];
       var isPing = it["ping"];
 
-      return new MessageEvent(this, network, target, from, private, isPing, message, match: matches.isNotEmpty ? matches.first : null);
+      return new MessageEvent(this, network, target, from, private, isPing, message, match: match);
     }).listen((event) {
       handler(event);
     });
