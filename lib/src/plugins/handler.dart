@@ -93,7 +93,7 @@ class PluginHandler {
             pluginName = namerB.firstMatch(content)[1];
           }
 
-          var dir = new Directory("scripts/${pluginName}");
+          var dir = new Directory(".plugins/${pluginName}");
 
           if (!dir.existsSync()) {
             dir.createSync(recursive: true);
