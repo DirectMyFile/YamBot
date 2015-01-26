@@ -1202,7 +1202,7 @@ class Plugin {
     for (var c in cmds) {
       getBot().command(c.metadata.name, (e) {
         c.invoke([e]);
-      }, permission: c.metadata.permission);
+      }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description);
     }
 
     for (var handler in handlers) {

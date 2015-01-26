@@ -3,8 +3,10 @@ part of polymorphic.api;
 class Command {
   final String name;
   final String permission;
+  final String description;
+  final String usage;
   
-  const Command(this.name, {this.permission});
+  const Command(this.name, {this.permission, this.description, this.usage});
 }
 
 class EventHandler {
