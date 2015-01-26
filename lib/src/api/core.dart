@@ -381,7 +381,7 @@ class BotConnector {
       pattern = new RegExp(pattern.toString(), caseSensitive: caseSensitive);
     }
 
-    if (pattern is! RegExp) {
+    if (pattern != null && pattern is! RegExp) {
       throw new Exception("We only accept Regular Expressions for the time being.");
     }
 

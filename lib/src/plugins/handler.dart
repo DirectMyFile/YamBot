@@ -72,7 +72,7 @@ class PluginHandler {
 
       var entities = new List<FileSystemEntity>.from(directory.listSync(followLinks: true));
       entities.addAll(scriptDir.listSync(followLinks: true));
-      
+
       entities.forEach((entity) {
         if (entity is File) {
           var name = entity.path.split("/").last;
