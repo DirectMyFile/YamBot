@@ -126,6 +126,8 @@ class MessageEvent {
   final bool isPing;
   final Match match;
 
+  String get user => from;
+
   MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.isPing, this.message, {this.match});
 
   void reply(String msg) {
