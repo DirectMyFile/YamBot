@@ -123,9 +123,10 @@ class MessageEvent {
   final String from;
   final bool isPrivate;
   final String message;
+  final bool isPing;
   final Match match;
 
-  MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.message, {this.match});
+  MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.isPing, this.message, {this.match});
 
   void reply(String msg) {
     bot.sendMessage(network, target, msg);

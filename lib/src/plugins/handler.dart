@@ -2,11 +2,18 @@ part of polymorphic.bot;
 
 typedef PluginLoader PluginLoaderCreator();
 
-const String PUBSPEC_TEMPLATE = """
+const String PUBSPEC_COMPILED_TEMPLATE = """
 name: {plugin}
 dependencies:
   polymorphic_bot:
     git: git://github.com/PolymorphicBot/PolymorphicBot.git
+""";
+
+const String PUBSPEC_TEMPLATE = """
+name: {plugin}
+dependencies:
+  polymorphic_bot:
+    path: {path}
 """;
 
 class PluginLoadHelper {
@@ -69,7 +76,16 @@ class PluginHandler {
           var scriptFile = new File("${dir.path}/main.dart");
           scriptFile.writeAsStringSync(entity.readAsStringSync());
           var pubspecFile = new File("${dir.path}/pubspec.yaml");
-          pubspecFile.writeAsStringSync(PUBSPEC_TEMPLATE.replaceAll("{plugin}", pluginName));
+          String pubspec;
+
+          if (EnvironmentUtils.isCompiled()) {
+            pubspec = PUBSPEC_COMPILED_TEMPLATE.replaceAll("{plugin}", pluginName);
+          } else {
+            var dir = new File.fromUri(Platform.script).parent.parent;
+            pubspec = PUBSPEC_TEMPLATE.replaceAll("{plugin}", pluginName).replaceAll("{path}", dir.path);
+          }
+
+          pubspecFile.writeAsStringSync(pubspec);
           _tempDirs.add(dir);
           entity = dir;
         }

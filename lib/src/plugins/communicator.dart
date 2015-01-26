@@ -452,12 +452,24 @@ class NetworkEventListener {
 
   void handle() {
     Bot b = com.bot[network];
+
     b.client.register((IRC.MessageEvent e) {
       if (e.channel != null && e.channel.name == "#bot-communication") {
         return;
       }
 
       var data = common("message");
+
+      var pings = <String>["${e.client.nickname}: ", "${e.client.nickname}, "];
+      if (pings.any((it) => e.message.startsWith(it))) {
+        var p = pings.firstWhere((it) => e.message.startsWith(it));
+        data['msgnoping'] = e.message.substring(p.length);
+        data['ping'] = true;
+      } else {
+        data['ping'] = false;
+        data['msgnoping'] = e.message;
+      }
+
       commonSendable(data, e);
       com.pm.sendAll(data);
     });
