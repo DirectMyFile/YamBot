@@ -59,19 +59,19 @@ class Auth {
         p["networks"] = {};
       }
 
-      if (!p["networks"].containsKey(bot.server)) {
-        p["networks"][bot.server] = {
+      if (!p["networks"].containsKey(bot.network)) {
+        p["networks"][bot.network] = {
           "nodes": {},
           "groups": {}
         };
       }
 
-      if (!p["networks"][bot.server].containsKey("nodes")) {
-        p["networks"][bot.server]["nodes"] = {};
+      if (!p["networks"][bot.network].containsKey("nodes")) {
+        p["networks"][bot.network]["nodes"] = {};
       }
 
-      if (!p["networks"][bot.server].containsKey("groups")) {
-        p["networks"][bot.server]["groups"] = {};
+      if (!p["networks"][bot.network].containsKey("groups")) {
+        p["networks"][bot.network]["groups"] = {};
       }
     }
 
@@ -79,6 +79,7 @@ class Auth {
     fillIn();
 
     file.watch(events: FileSystemEvent.MODIFY).listen((e) {
+      print("[Auth] Reloading Permissions");
       try {
         p = JSON.decode(file.readAsStringSync());
       } on FormatException catch (e) {
@@ -169,15 +170,15 @@ class Auth {
   bool _userHasMatch(String user, String plugin, nodeParts) {
     var success;
 
-    var groups = p['groups'][user];
-    var perms = p['networks']['nodes'][user];
+    var groups = p['networks'][bot.network]['groups'][user];
+    var perms = p['networks'][bot.network]['nodes'][user];
 
     for (var perm in (perms == null ? [] : perms)) {
       var permParts = perm.split(".");
       if (_hasMatch("-" + plugin, permParts, nodeParts)) {
-        return false;
+        success = false;
       } else if (_hasMatch(plugin, permParts, nodeParts)) {
-        success = true;
+        return true;
       }
     }
 
@@ -187,12 +188,14 @@ class Auth {
     for (var group in (groups == null ? [] : groups)) {
       var groupPerms = p["groups"][group];
       if (groupPerms == null) continue;
+
       for (var perm in groupPerms) {
-        var perm_parts = perm.split(".");
-        if (_hasMatch("-" + plugin, perm_parts, nodeParts)) {
-          return false;
-        } else if (_hasMatch(plugin, perm_parts, nodeParts)) {
-          success = true;
+        var permParts = perm.split(".");
+
+        if (_hasMatch("-" + plugin, permParts, nodeParts)) {
+          success = false;
+        } else if (_hasMatch(plugin, permParts, nodeParts)) {
+          return true;
         }
       }
     }
@@ -208,9 +211,8 @@ class Auth {
 
     permParts.removeAt(0);
     for (int i = 0; i < permParts.length; i++) {
-      if (i >= nodeParts.length) return false;
       if (permParts[i] == "*") {
-        return true;
+        success = true;
       } else if (nodeParts[i] == permParts[i]) {
         success = true;
       } else {

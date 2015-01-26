@@ -5,7 +5,7 @@ class Bot {
   /**
    * The network name.
    */
-  final String server;
+  final String network;
 
   /**
    * Holds basic information to start a bot.
@@ -34,7 +34,7 @@ class Bot {
   Auth get authManager => _authManager;
   Auth _authManager;
 
-  Bot(this.server, this.serverConfig, this.channelConfig, this.prefixConfig) {
+  Bot(this.network, this.serverConfig, this.channelConfig, this.prefixConfig) {
     var botConfig = new IRC.IrcConfig();
     botConfig.nickname = serverConfig['nickname'];
     botConfig.realname = serverConfig['realname'];
@@ -62,12 +62,12 @@ class Bot {
     });
     
     client.register((IRC.DisconnectEvent event) {
-      print("[${server}] Disconnected");
+      print("[${network}] Disconnected");
     });
   }
 
   void start() {
-    print("[$server] Connecting");
+    print("[$network] Connecting");
     client.connect();
   }
 
@@ -106,11 +106,11 @@ class Bot {
   void _registerRawHandler() {
     if (DEBUG) {
       client.register((IRC.LineSentEvent event) {
-        print("[${server}] << ${event.line}");
+        print("[${network}] << ${event.line}");
       });
       
       client.register((IRC.LineReceiveEvent event) {
-        print("[$server] >> ${event.line}");
+        print("[$network] >> ${event.line}");
       });
     }
   }
@@ -121,9 +121,9 @@ class Bot {
         client.identify(username: serverConfig['owner'], password: serverConfig['password'], nickserv: serverConfig['nickserv'] != null ? serverConfig['nickserv'] : "NickServ");
       }
       
-      print("[$server] Bot is Ready");
+      print("[$network] Bot is Ready");
       for (var chan in channelConfig) {
-        print("[$server] Joining $chan");
+        print("[$network] Joining $chan");
         event.join(chan);
       }
 
@@ -139,7 +139,7 @@ class Bot {
         return;
       }
       
-      print("[${server}] <${event.channel.name}> ${event.user} joined");
+      print("[${network}] <${event.channel.name}> ${event.user} joined");
     });
     
     client.register((IRC.PartEvent event) {
@@ -147,7 +147,7 @@ class Bot {
         return;
       }
       
-      print("[${server}] <${event.channel.name}> ${event.user} left");
+      print("[${network}] <${event.channel.name}> ${event.user} left");
     });
     
     client.register((IRC.QuitPartEvent event) {
@@ -155,7 +155,7 @@ class Bot {
         return;
       }
       
-      print("${server} <${event.channel.name}> ${event.user} quit");
+      print("${network} <${event.channel.name}> ${event.user} quit");
     });
   }
 
@@ -176,7 +176,7 @@ class Bot {
             Globals.pluginHandler.pm.sendAll({
               "type": "event",
               "event": "bot-detected",
-              "network": server,
+              "network": network,
               "user": nick
             });
           }
@@ -198,15 +198,15 @@ class Bot {
       var cleanMsg = Polymorphic.DisplayHelpers.clean(msg);
       
       if (event.isPrivate) {
-        print("[$server] <$from> ${cleanMsg}");
+        print("[$network] <$from> ${cleanMsg}");
       } else {
-        print("[$server] <${event.channel.name}><$from> ${cleanMsg}");
+        print("[$network] <${event.channel.name}><$from> ${cleanMsg}");
       }
 
       String prefix;
       if (!event.isPrivate) prefix = prefixConfig[event.channel.name];
       if (prefix == null) prefix = prefixConfig['default'];
-      if (prefix == null) throw new Exception("[$server] No Prefix Set");
+      if (prefix == null) throw new Exception("[$network] No Prefix Set");
       if (event.message.startsWith(prefix)) {
         List<String> args = event.message.split(' ');
         String command = args[0].substring(1);
@@ -225,7 +225,7 @@ class Bot {
   }
 
   void _registerCommandHandler() {
-    _authManager = new Auth(server, this);
+    _authManager = new Auth(network, this);
 
     client.register((IRC.CommandEvent event) {
       if (event.channel.name == "#bot-communication") {
@@ -350,6 +350,31 @@ class Bot {
         });
       });
     }, filter: (IRC.CommandEvent e) => e.command != "disable");
+
+    client.register((IRC.CommandEvent event) {
+      if (event.channel.name == "#bot-communication") {
+        return;
+      }
+
+      String node = "reload";
+
+      _authManager.hasPermission("core", event.from, node).then((bool has) {
+        if (!has) {
+          event.reply("${event.from}> You are not authorized to perform this action (missing core.$node)");
+          return;
+        }
+
+        if (event.args.isNotEmpty) {
+          event.reply("[${IRC.Color.BLUE}Polymorphic${IRC.Color.RESET}] Usage: reload");
+          return;
+        }
+
+        event.reply("[${IRC.Color.BLUE}Polymorphic${IRC.Color.RESET}] Reloading Plugins...");
+        Globals.pluginHandler.reloadPlugins().then((_) {
+          event.reply("[${IRC.Color.BLUE}Polymorphic${IRC.Color.RESET}] Plugins have been reloaded.");
+        });
+      });
+    }, filter: (e) => e.command != "reload");
   }
   
   void destroy() {
