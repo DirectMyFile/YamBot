@@ -71,7 +71,7 @@ class PluginHandler {
       }
 
       var entities = new List<FileSystemEntity>.from(directory.listSync(followLinks: true));
-      entities.addAll(scriptDir.listSync(followLinks: true));
+      entities.addAll(scriptDir.listSync(followLinks: true).where((it) => it is File));
 
       entities.forEach((entity) {
         if (entity is File) {
@@ -79,11 +79,9 @@ class PluginHandler {
           if (!name.endsWith(".dart")) {
             return;
           }
-          
+
           var pluginName = name.substring(0, name.length - ".dart".length);
-          Directory dir = Directory.systemTemp.createTempSync();
-          var scriptFile = new File("${dir.path}/main.dart");
-          var content = scriptFile.readAsStringSync();
+          var content = entity.readAsStringSync();
           var namerA = new RegExp(r'\* plugin name: (.+)');
           var namerB = new RegExp(r'\/\/\/ plugin name: (.+)');
 
@@ -95,6 +93,13 @@ class PluginHandler {
             pluginName = namerB.firstMatch(content)[1];
           }
 
+          var dir = new Directory("scripts/${pluginName}");
+
+          if (!dir.existsSync()) {
+            dir.createSync(recursive: true);
+          }
+
+          var scriptFile = new File("${dir.path}/main.dart");
           scriptFile.writeAsStringSync(content);
           var pubspecFile = new File("${dir.path}/pubspec.yaml");
           String pubspec;
@@ -107,7 +112,6 @@ class PluginHandler {
           }
 
           pubspecFile.writeAsStringSync(pubspec);
-          _tempDirs.add(dir);
           entity = dir;
         }
         
@@ -240,11 +244,6 @@ class PluginHandler {
 
     return new Future.delayed(new Duration(milliseconds: 100)).then((_) {
       pm.killAll();
-      
-      for (var tmp in _tempDirs) {
-        tmp.deleteSync(recursive: true);
-      }
-      _tempDirs.clear();
     });
   }
 
