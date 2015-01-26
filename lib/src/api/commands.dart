@@ -56,6 +56,25 @@ class CommandEvent {
   }
 
   /**
+   * Joins the arguments by [sep].
+   */
+  String joinArgs([String sep = " "]) => args.join(sep);
+
+  bool get hasArguments => args.isNotEmpty;
+  bool get hasNoArguments => args.isEmpty;
+
+  /**
+   * Replies with the command's usage. If you did not specify a usage it will output '> Usage: command-name'
+   */
+  void usage() {
+    var cmd = bot._myCommands.firstWhere((it) => it.name == command);
+    if (cmd.usage != null && cmd.usage.isNotEmpty) {
+      var needCmd = !cmd.usage.startsWith(command);
+      reply("> Usage: ${needCmd ? '${command} ' : ''}${cmd.usage}");
+    }
+  }
+
+  /**
    * Sends [message] as a notice to [channel] on [network].
    */
   void replyNotice(String message) {
