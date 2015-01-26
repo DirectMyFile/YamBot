@@ -21,6 +21,10 @@ class OnJoin {
   const OnJoin({this.network, this.user, this.channel});
 }
 
+class OnCommand {
+  const OnCommand();
+}
+
 class Start {
   const Start();
 }

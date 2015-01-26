@@ -886,10 +886,25 @@ class BotConnector {
    */
   void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided", String permission}) {
     var info = new CommandInfo(plugin.name, name, usage, description);
-
     _myCommands.add(info);
 
-    var sub = plugin.on("command").where((data) => data['command'] == name).listen((data) {
+    onCommand((CommandEvent event) {
+      if (event.command != name) {
+        return;
+      }
+
+      if (permission != null) {
+        event.require(permission, () {
+          handler(event);
+        });
+      } else {
+        handler(event);
+      }
+    });
+  }
+
+  void onCommand(CommandHandler handler) {
+    var sub = plugin.on("command").listen((data) {
       var command = data['command'];
       var args = data['args'];
       var user = data['from'];
@@ -899,13 +914,7 @@ class BotConnector {
 
       var event = new CommandEvent(this, network, command, message, user, channel, args);
 
-      if (permission != null) {
-        event.require(permission, () {
-          handler(event);
-        });
-      } else {
-        handler(event);
-      }
+      handler(event);
     });
 
     plugin.registerSubscription(sub);
@@ -1186,7 +1195,8 @@ class Plugin {
       OnAction: getBot().onAction,
       OnQuit: getBot().onQuit,
       OnQuitPart: getBot().onQuitPart,
-      OnBotReady: getBot().onReady
+      OnBotReady: getBot().onReady,
+      OnCommand: getBot().onCommand
     };
 
     for (var c in cmds) {
