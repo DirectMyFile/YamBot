@@ -117,9 +117,11 @@ class OnBotPart {
 }
 
 class OnMessage {
-  final Pattern pattern;
+  final String pattern;
+  final bool regex;
+  final bool ping;
   
-  const OnMessage({this.pattern});
+  const OnMessage({this.pattern, this.regex: false, this.ping});
 }
 
 class BotInstance {

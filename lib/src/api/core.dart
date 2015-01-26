@@ -376,12 +376,16 @@ class BotConnector {
    * 
    * If [pattern] is provided then the handler is called only if the message matches the given pattern.
    */
-  void onMessage(MessageHandler handler, {Pattern pattern, bool ping: false}) {
+  void onMessage(MessageHandler handler, {Pattern pattern, bool ping, bool regex: false}) {
+    if (regex && pattern is! RegExp) {
+      pattern = new RegExp(pattern.toString());
+    }
+
     var matches = [];
     var sub = plugin.on("message").where((data) {
       var matched = true;
 
-      if (ping) {
+      if (ping != null && ping) {
         matched = matched && data['ping'];
       }
 
