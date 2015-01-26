@@ -126,6 +126,10 @@ class StatisticHelpers {
   }
 }
 
+Future<Process> runProcess(String executable, List<String> args, {String cwd}) {
+  return Process.start(executable, args, workingDirectory: cwd);
+}
+
 typedef void Task();
 
 class Scheduler {
