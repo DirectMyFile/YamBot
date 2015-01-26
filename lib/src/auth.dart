@@ -79,7 +79,13 @@ class Auth {
     fillIn();
 
     file.watch(events: FileSystemEvent.MODIFY).listen((e) {
-      p = JSON.decode(file.readAsStringSync());
+      try {
+        p = JSON.decode(file.readAsStringSync());
+      } on FormatException catch (e) {
+        print("[Auth] Permissions JSON is corrupt:");
+        print(e);
+        return;
+      }
       fillIn();
     });
 
