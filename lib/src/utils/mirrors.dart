@@ -55,7 +55,7 @@ List<VariableMirror> findVariablesAnnotation(Type type) {
       && !it.isFinal
       && !it.isPrivate 
       && it.isTopLevel
-      && it.metadata.any((it) => name == it.type.simpleName)).toList();
+      && it.metadata.any((it) => name == it.type.simpleName)).map((it) => it as VariableMirror).toList();
 }
 
 List<ClassAnnotation> findClassesAnnotation(Type type, {LibraryMirror lib}) =>

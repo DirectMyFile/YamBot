@@ -83,7 +83,19 @@ class PluginHandler {
           var pluginName = name.substring(0, name.length - ".dart".length);
           Directory dir = Directory.systemTemp.createTempSync();
           var scriptFile = new File("${dir.path}/main.dart");
-          scriptFile.writeAsStringSync(entity.readAsStringSync());
+          var content = scriptFile.readAsStringSync();
+          var namerA = new RegExp(r'\* plugin name: (.+)');
+          var namerB = new RegExp(r'\/\/\/ plugin name: (.+)');
+
+          if (content.contains(namerA)) {
+            pluginName = namerA.firstMatch(content)[1];
+          }
+
+          if (content.contains(namerB)) {
+            pluginName = namerB.firstMatch(content)[1];
+          }
+
+          scriptFile.writeAsStringSync(content);
           var pubspecFile = new File("${dir.path}/pubspec.yaml");
           String pubspec;
 
