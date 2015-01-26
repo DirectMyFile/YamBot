@@ -43,8 +43,19 @@ class CommandEvent {
   
   /**
    * Sends [message] as a message to [channel] on [network].
+   *
+   * If [prefix] is prefixed with [prefixContent].
+   * If [prefixContent] is empty it becomes the display name of this plugin.
    */
-  void reply(String message) {
+  void reply(String message, {bool prefix, String prefixContent}) {
+    if (prefix) {
+      if (prefixContent == null) {
+        prefixContent = bot.plugin.displayName;
+      }
+
+      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+    }
+
     bot.sendMessage(network, channel, message);
   }
 
@@ -76,9 +87,20 @@ class CommandEvent {
   }
 
   /**
-   * Sends [message] as a notice to [channel] on [network].
+   * Sends [message] as a message to [channel] on [network].
+   *
+   * If [prefix] is prefixed with [prefixContent].
+   * If [prefixContent] is empty it becomes the display name of this plugin.
    */
-  void replyNotice(String message) {
+  void replyNotice(String message, {bool prefix, String prefixContent}) {
+    if (prefix) {
+      if (prefixContent == null) {
+        prefixContent = bot.plugin.displayName;
+      }
+
+      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+    }
+
     bot.sendNotice(network, user, message);
   }
   

@@ -127,6 +127,7 @@ class MessageEvent {
   final Match match;
 
   String get user => from;
+  String get channel => target;
 
   MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.isPing, this.message, {this.match});
 
