@@ -1150,7 +1150,14 @@ class Plugin {
             });
           } else if (name == "getRegisteredCommands") {
             request.reply({
-              "value": _bot._myCommands
+              "value": _bot._myCommands.map((command) {
+                return {
+                  "name": command.name,
+                  "description": command.description,
+                  "plugin": command.plugin,
+                  "usage": command.usage
+                };
+              }).toList()
             });
           }
         }

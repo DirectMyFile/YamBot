@@ -12,6 +12,8 @@ import 'package:irc/client.dart' as IRC;
 import 'package:plugins/loader.dart';
 import 'package:path/path.dart' as path;
 
+import 'package:quiver/async.dart';
+
 import 'api.dart' as Polymorphic;
 
 import "utils.dart";

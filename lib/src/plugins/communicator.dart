@@ -162,50 +162,49 @@ class PluginCommunicator {
       _httpPorts.remove(getPluginName());
     }, isVoid: true);
 
-    addBotMethod("getCommandInfo", (call) {
-      var allCommands = {};
+    addBotMethod("getCommandInfo", (Polymorphic.RemoteCall call) {
+      if (call.getArgument("plugin") != null) {
+        pm.get(call.getArgument("plugin"), "__getRegisteredCommands", {}).then((result) {
+          call.reply(result["value"]);
+        });
+      } else if (call.getArgument("command") != null) {
+        var allCommands = {};
+        var group = new FutureGroup();
 
-      for (var pluginName in pm.plugins) {
-        var plugin = pm.plugin(pluginName);
-
-        var pubspec = plugin.pubspec;
-
-        if (pubspec['plugin'] == null || pubspec['plugin']['commands'] == null) {
-          call.reply(null);
-        } else {
-          Map<String, Map<String, dynamic>> commands = pubspec['plugin']['commands'];
-          Map<String, Map<String, dynamic>> converted = {};
-
-          for (var name in commands.keys) {
-            converted[name] = {
-              "plugin": pluginName,
-              "usage": commands[name]['usage'],
-              "description": commands[name]['description']
-            };
-          }
-
-          allCommands.addAll(converted);
+        for (var p in pm.plugins) {
+          group.add(pm.get(p, "__getRegisteredCommands", {}).then((result) {
+            return result["value"];
+          }));
         }
-      }
 
-      if (call.request.data.containsKey("command")) {
-        call.reply(allCommands[call.getArgument("command")]);
-      } else {
-        if (call.getArgument("plugin") != null) {
-          var pc = {};
-
-          for (var key in allCommands.keys) {
-            var info = allCommands[key];
-
-            if (info["plugin"] == call.getArgument("plugin")) {
-              pc[key] = info;
+        group.future.then((all) {
+          for (var a in all) {
+            for (var c in a) {
+              allCommands[c["name"]] = c;
             }
           }
 
-          call.reply(pc);
-        } else {
-          call.reply(allCommands);
+          call.reply(allCommands[call.getArgument("command")]);
+        });
+      } else {
+        var allCommands = {};
+        var group = new FutureGroup();
+
+        for (var p in pm.plugins) {
+          group.add(pm.get(p, "__getRegisteredCommands", {}).then((result) {
+            return result["value"];
+          }));
         }
+
+        group.future.then((all) {
+          for (var a in all) {
+            for (var c in a) {
+              allCommands[c["name"]] = c;
+            }
+          }
+
+          call.reply(allCommands);
+        });
       }
     });
 
