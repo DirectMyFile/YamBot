@@ -62,6 +62,7 @@ class CommandEvent {
 
   bool get hasArguments => args.isNotEmpty;
   bool get hasNoArguments => args.isEmpty;
+  int get argc => args.length;
 
   /**
    * Replies with the command's usage. If you did not specify a usage it will output '> Usage: command-name'
