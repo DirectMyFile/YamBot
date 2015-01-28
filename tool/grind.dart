@@ -33,7 +33,9 @@ package(GrinderContext context) {
     "build/out/PolymorphicBot.dart",
     "-m",
     "-Dcompiled=true",
-    "-Dversion=${version}"
+    "-Dversion=${version}",
+    "--trust-type-annotations",
+    "--trust-primitives"
   ];
   
   return runProcessAsync(context, "dart2js", arguments: args).then((_) {
