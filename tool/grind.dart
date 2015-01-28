@@ -1,6 +1,9 @@
 library polymorphic.grind;
 
+import "dart:io";
+
 import "package:grinder/grinder.dart";
+import "package:yaml/yaml.dart";
 
 void main(List<String> args) {
   task("clean", defaultClean);
@@ -18,6 +21,8 @@ test(GrinderContext context) {
 
 package(GrinderContext context) {
   ensureOutDirectory();
+  var pubspec = loadYaml(new File("pubspec.yaml").readAsStringSync());
+  var version = pubspec["version"];
   
   var args = [
     "--enable-experimental-mirrors",
@@ -26,7 +31,9 @@ package(GrinderContext context) {
     "bin/polymorphic.dart",
     "-o",
     "build/out/PolymorphicBot.dart",
-    "-m"
+    "-m",
+    "-Dcompiled=true",
+    "-Dversion=${version}"
   ];
   
   return runProcessAsync(context, "dart2js", arguments: args).then((_) {
