@@ -8,15 +8,21 @@ import "package:yaml/yaml.dart";
 void main(List<String> args) {
   task("clean", defaultClean);
   task("package", package);
-  task("build", null, ["clean", "package"]);
   task("test", test);
-  task("ci", null, ["test", "build"]);
+  task("analyze", analyze);
+  
+  task("build", null, ["clean", "package"]);
+  task("ci", null, ["analyze", "test", "build"]);
   
   startGrinder(args);
 }
 
 test(GrinderContext context) {
   runDartScript(context, "test/all.dart");
+}
+
+analyze(GrinderContext context) {
+  Analyzer.analyzePaths(context, ["lib/bot.dart", "lib/api.dart", "lib/plugin.dart", "lib/utils.dart"]);
 }
 
 package(GrinderContext context) {
