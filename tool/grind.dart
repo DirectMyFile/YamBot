@@ -37,12 +37,15 @@ package(GrinderContext context) {
     "bin/polymorphic.dart",
     "-o",
     "build/out/PolymorphicBot.dart",
-    "-m",
     "-Dcompiled=true",
     "-Dversion=${version}",
     "--trust-type-annotations",
     "--trust-primitives"
   ];
+  
+  if (Platform.environment["NO_MINIFY"] != "false") {
+    args.add("-m");
+  }
   
   return runProcessAsync(context, "dart2js", arguments: args).then((_) {
     new FileSet.fromDir(getDir("build/out"), pattern: "*.deps").files.forEach((file) {
