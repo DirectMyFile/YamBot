@@ -8,10 +8,11 @@ import "package:yaml/yaml.dart";
 void main(List<String> args) {
   task("clean", defaultClean);
   task("package", package);
+  task("package-dev", packageUnminified);
   task("test", test);
   task("analyze", analyze);
   
-  task("build", null, ["clean", "package"]);
+  task("build", null, ["clean", "package", "package-dev"]);
   task("ci", null, ["analyze", "test", "build"]);
   
   startGrinder(args);
