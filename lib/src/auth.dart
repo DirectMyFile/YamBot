@@ -15,8 +15,6 @@ class Auth {
    * The network this auth system is connected to.
    */
   final String network;
-
-  final RegExp _regex = new RegExp(r"(\u0002)([^\u0002]+)\1");
   final Queue<String> _queue = new Queue<String>();
 
   final Map<String, String> _authenticated = {};
