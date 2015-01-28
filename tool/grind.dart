@@ -26,6 +26,14 @@ analyze(GrinderContext context) {
 }
 
 package(GrinderContext context) {
+  return compile(context, true);
+}
+
+packageUnminified(GrinderContext context) {
+  return compile(context, false, file: "build/out/PolymorphicBot-unminified.dart");
+}
+
+compile(GrinderContext context, bool minify, {String file: "build/out/PolymorphicBot.dart"}) {
   ensureOutDirectory();
   var pubspec = loadYaml(new File("pubspec.yaml").readAsStringSync());
   var version = pubspec["version"];
@@ -36,14 +44,14 @@ package(GrinderContext context) {
     "--output-type=dart",
     "bin/polymorphic.dart",
     "-o",
-    "build/out/PolymorphicBot.dart",
+    file,
     "-Dcompiled=true",
     "-Dversion=${version}",
     "--trust-type-annotations",
     "--trust-primitives"
   ];
   
-  if (Platform.environment["NO_MINIFY"] != "false") {
+  if (minify) {
     args.add("-m");
   }
   
