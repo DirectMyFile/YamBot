@@ -48,7 +48,6 @@ class PluginHandler {
   List<String> _candidates = [];
   Map<String, List<String>> _requirements = <String, List<String>>{};
   Map<String, List<String>> _conflicts = <String, List<String>>{};
-  List<Directory> _tempDirs = [];
 
   Future load() {
     _elevatedPlugins.clear();
