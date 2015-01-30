@@ -123,7 +123,6 @@ class Bot {
       
       print("[$network] Bot is Ready");
       for (var chan in channelConfig) {
-        print("[$network] Joining $chan");
         event.join(chan);
       }
 
@@ -155,7 +154,15 @@ class Bot {
         return;
       }
       
-      print("${network} <${event.channel.name}> ${event.user} quit");
+      print("[${network}] <${event.channel.name}> ${event.user} quit");
+    });
+    
+    client.register((IRC.BotJoinEvent event) {
+      print("[${network}] Joined ${event.channel.name}");
+    });
+    
+    client.register((IRC.BotPartEvent event) {
+      print("[${network}] Left ${event.channel.name}");
     });
   }
 
