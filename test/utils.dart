@@ -16,6 +16,6 @@ class EnvironmentUtilsGroup {
   
   @Test("isLikelyPlugin() returns false for non-plugins")
   isLikelyPluginReturnsFalse() {
-    expect(EnvironmentUtils.isLikelyPlugin(), isFalse);
+    expect(EnvironmentUtils.isPlugin(), isFalse);
   }
 }
