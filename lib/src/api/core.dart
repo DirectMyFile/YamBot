@@ -1230,9 +1230,13 @@ class Plugin {
     }
 
     for (FunctionAnnotation<RemoteMethod> a in findFunctionAnnotations(RemoteMethod)) {
-      addRemoteMethod(a.metadata.name != null ? a.metadata.name : MirrorSystem.getName(a.mirror.simpleName), (call) {
-        a.invoke([call]);
-      });
+      if (a.mirror.parameters.length == 1 && MirrorSystem.getName(a.mirror.parameters.first.simpleName) == "call") {
+        addRemoteMethod(a.metadata.name != null ? a.metadata.name : MirrorSystem.getName(a.mirror.simpleName), (call) {
+          a.invoke([call]);
+        });
+      } else {
+        _addPluginMethod(this, currentMirrorSystem().isolate.rootLibrary, a.mirror);
+      }
     }
 
     for (var variable in findVariablesAnnotation(PluginInstance)) {

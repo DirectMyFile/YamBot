@@ -11,7 +11,7 @@ class RemoteCall {
     if (request.data == null || (!request.data.containsKey(name) && request.data["value"] is! Map)) {
       return defaultValue;
     }
-    
+
     if (request.data.containsKey(name)) {
       return request.data[name];
     } else {
@@ -22,10 +22,53 @@ class RemoteCall {
   void reply(dynamic value) => request.reply({
     "value": value
   });
-  
+
   void error(String message) => request.reply({
     "exception": {
       "message": message
+    }
+  });
+}
+
+const Object _UNSPECIFIED = const Object();
+
+void _addPluginMethod(Plugin plugin, LibraryMirror lib, MethodMirror mirror) {
+  var isVoid = mirror.returnType == currentMirrorSystem().voidType;
+
+  plugin.addRemoteMethod(MirrorSystem.getName(mirror.simpleName), (call) {
+    var params = mirror.parameters;
+    var positional = [];
+    var named = {};
+
+    if (params.length == 1 && params.first.type.reflectedType != Map) {
+      var val = call.getArgument("value", defaultValue: _UNSPECIFIED);
+      if (val != _UNSPECIFIED) {
+        positional.add(val);
+      } else {
+        throw new PluginException("Parameter 'value' is required.");
+      }
+    } else {
+      params.forEach((it) {
+        var n = MirrorSystem.getName(it.simpleName);
+        if (call.getArgument(n, defaultValue: _UNSPECIFIED) != _UNSPECIFIED) {
+          if (it.isNamed) {
+            named[n] = call.getArgument(n);
+          } else {
+            positional.add(call.getArgument(n));
+          }
+        } else {
+          if (!it.isOptional && !it.isNamed) {
+            throw new PluginException("Parameter '${n}' is required.");
+          }
+        }
+      });
+    }
+
+    if (isVoid) {
+      lib.invoke(mirror.simpleName, positional, named);
+    } else {
+      var result = new Future.value(lib.invoke(mirror.simpleName, positional, named).reflectee);
+      result.then(call.reply);
     }
   });
 }
@@ -38,6 +81,7 @@ class RemoteMethodInfo {
   RemoteMethodInfo(this.name, {this.metadata: const {}, this.isVoid: false});
 }
 
+@proxy
 class PluginInterface {
   final Plugin myPlugin;
   final String pluginName;
@@ -50,5 +94,17 @@ class PluginInterface {
 
   Future<List<RemoteMethodInfo>> listMethods() {
     return myPlugin.getRemoteMethods(pluginName);
+  }
+  
+  Future noSuchMethod(Invocation invocation) {
+    if (!invocation.isAccessor) {
+      var name = MirrorSystem.getName(invocation.memberName);
+      var params = invocation.positionalArguments;
+      
+      return myPlugin.callRemoteMethod(pluginName, name, params.first);
+    } else {
+      super.noSuchMethod(invocation);
+      return null;
+    }
   }
 }

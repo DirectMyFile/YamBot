@@ -8,13 +8,11 @@ BotConnector bot;
 Plugin plugin;
 
 @RemoteMethod()
-greet(call) => call.reply("Hello World");
+String greet() => "Hello World";
 
 @RemoteMethod()
-doStuff(call) {
-  call.reply({
-    "test": "Hello World"
-  });
+void doStuff() {
+  print("Do Something.");
 }
 
 @Start()
