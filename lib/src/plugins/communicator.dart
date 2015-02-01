@@ -350,6 +350,13 @@ class PluginCommunicator {
 
       bot[network].client.sendAction(target, message);
     }, isVoid: true);
+    
+    addBotMethod("emit", (call) {
+      var e = call.getArgument("value");
+      pm.sendAll({
+        "type": "event"
+      }..addAll(e));
+    });
 
     addBotMethod("sendCTCP", (call) {
       var network = call.getArgument("network");

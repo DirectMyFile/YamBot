@@ -2,20 +2,6 @@ part of polymorphic.bot;
 
 typedef PluginLoader PluginLoaderCreator();
 
-const String PUBSPEC_COMPILED_TEMPLATE = """
-name: {plugin}
-dependencies:
-  polymorphic_bot:
-    git: git://github.com/PolymorphicBot/PolymorphicBot.git
-""";
-
-const String PUBSPEC_TEMPLATE = """
-name: {plugin}
-dependencies:
-  polymorphic_bot:
-    path: {path}
-""";
-
 class PluginLoadHelper {
   String name;
   String displayName;
@@ -81,17 +67,43 @@ class PluginHandler {
 
           var pluginName = name.substring(0, name.length - ".dart".length);
           var content = entity.readAsStringSync();
-          var namerA = new RegExp(r'\* plugin name: (.+)');
-          var namerB = new RegExp(r'\/\/\/ plugin name: (.+)');
-
-          if (content.contains(namerA)) {
-            pluginName = namerA.firstMatch(content)[1];
+          
+          var unit = analyzer.parseDartFile(entity.path);
+          var visitor = new ConstantValuesVisitor();
+          
+          unit.visitChildren(visitor);
+          var data = visitor.values;
+          var botDir = new File.fromUri(Platform.script).parent.parent;
+          var deps = EnvironmentUtils.isCompiled() ? {
+            "polymorphic_bot": {
+              "path": "${botDir.path}"
+            }
+          } : {
+            "polymorphic_bot": {
+              "git": "git://github.com/PolymorphicBot/PolymorphicBot.git"
+            }
+          };
+          String displayName;
+          bool updateDependencies;
+          List<String> conflicts;
+          List<String> provides;
+          
+          dynamic findData(List<String> names, [dynamic defaultValue = null]) {
+            var value = data[names.firstWhere((name) => data.containsKey(name), orElse: () => null)];
+            if (value == null) {
+              return defaultValue;
+            } else {
+              return value;
+            }
           }
-
-          if (content.contains(namerB)) {
-            pluginName = namerB.firstMatch(content)[1];
-          }
-
+          
+          pluginName = findData(["pluginName", "plugin_name", "PLUGIN_NAME"], pluginName);
+          deps.addAll(findData(["dependencies", "DEPENDENCIES", "pluginDependencies", "pluginDeps", "deps", "plugin_dependencies"], {}));
+          displayName = findData(["displayName", "pluginDisplayName", "plugin_display_name", "DISPLAY_NAME", "PLUGIN_DISPLAY_NAME"], pluginName);
+          updateDependencies = findData(["updateDependencies", "update_dependencies", "runPubUpgrade", "UPDATE_DEPENDENCIES"], false);
+          conflicts = findData(["PLUGIN_CONFLICTS", "conflicts", "CONFLICTS"], []);
+          provides = findData(["PLUGIN_PROVIDES", "provides", "PROVIDES"], []);
+          
           if (bot.config["ignore_scripts"] != null && bot.config["ignore_scripts"].contains(pluginName)) {
             return;
           }
@@ -106,13 +118,17 @@ class PluginHandler {
           scriptFile.writeAsStringSync(content);
           var pubspecFile = new File("${dir.path}/pubspec.yaml");
           String pubspec;
-
-          if (EnvironmentUtils.isCompiled()) {
-            pubspec = PUBSPEC_COMPILED_TEMPLATE.replaceAll("{plugin}", pluginName);
-          } else {
-            var dir = new File.fromUri(Platform.script).parent.parent;
-            pubspec = PUBSPEC_TEMPLATE.replaceAll("{plugin}", pluginName).replaceAll("{path}", dir.path);
-          }
+          
+          pubspec = new JsonEncoder.withIndent("  ").convert({
+            "name": pluginName,
+            "dependencies": deps,
+            "plugin": {
+              "display_name": displayName,
+              "update_dependencies": updateDependencies,
+              "provides": provides,
+              "conflicts": conflicts
+            }
+          });
 
           pubspecFile.writeAsStringSync(pubspec);
           entity = dir;
@@ -151,7 +167,15 @@ class PluginHandler {
           _elevatedPlugins.add(pluginName);
         }
 
-        if (!packagesDirectory.existsSync() && pubspecFile.existsSync()) {
+        var depnames = pubspec["dependencies"].keys.where((it) {
+          var x = pubspec["dependencies"][it];
+          if (x is Map && x.containsKey("path")) {
+            return false;
+          }
+          return true;
+        }).toList();
+        
+        if (!packagesDirectory.existsSync() || !depnames.every((it) => new Directory("${packagesDirectory.path}/${it}").existsSync())) {
           /* Execute 'pub get' */
           print("[Plugin Manager] Fetching dependencies for plugin '${pluginName}'");
           var result = Process.runSync(Platform.isWindows ? "pub.bat" : "pub", ["get"], workingDirectory: entity.path);
@@ -318,6 +342,55 @@ class PluginDependencyException {
   
   @override
   String toString() => "${plugin} requires the plugins ${dependencies.join(', ')}";
+}
+
+class ConstantValuesVisitor extends analyzer.GeneralizingAstVisitor<Object> {
+  final Map<String, dynamic> values = {};
+  
+  @override
+  Object visitTopLevelVariableDeclaration(analyzer.TopLevelVariableDeclaration decl) {
+    for (var v in decl.variables.variables) {
+      if (v.initializer is analyzer.SimpleStringLiteral || v.initializer is analyzer.MapLiteral || v.initializer is analyzer.ListLiteral) {
+        var n = v.name.name;
+        var value;
+        
+        value = visitValue(v.initializer);
+        
+        values[n] = value;
+      }
+    }
+    return null;
+  }
+  
+  @override
+  Object visitSimpleStringLiteral(analyzer.SimpleStringLiteral v) => v.value;
+  
+  @override
+  Object visitMapLiteral(analyzer.MapLiteral literal) {
+    var m = {};
+    
+    for (var e in literal.entries) {
+      if (e.key is! analyzer.SimpleStringLiteral) {
+        continue;
+      }
+      
+      m[e.key.value] = visitValue(e.value);
+    }
+    
+    return m;
+  }
+  
+  dynamic visitValue(e) {
+    if (e is analyzer.SimpleStringLiteral) {
+      return e.value;
+    } else if (e is analyzer.MapLiteral) {
+      return visitMapLiteral(e);
+    } else if (e is analyzer.ListLiteral) {
+      return visitListLiteral(e);
+    } else {
+      return null;
+    }
+  }
 }
 
 class VerificationManager {

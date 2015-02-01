@@ -10,6 +10,7 @@ import 'dart:profiler';
 import 'package:yaml/yaml.dart' as yaml;
 import 'package:irc/client.dart' as IRC;
 import 'package:plugins/loader.dart';
+import 'package:analyzer/analyzer.dart' as analyzer;
 import 'package:path/path.dart' as path;
 
 import 'package:quiver/async.dart';
