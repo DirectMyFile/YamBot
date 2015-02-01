@@ -143,6 +143,34 @@ Future<Process> runProcess(String executable, List<String> args, {String cwd}) {
   return Process.start(executable, args, workingDirectory: cwd);
 }
 
+bool isUrl(String input) {
+  try {
+    return Uri.parse(input) != null;
+  } catch (e) {
+    return false;
+  }
+}
+
+html.Document parseHtml(content, [void handler(HtmlDocument $)]) {
+  var doc = htmlParser.parse(content);
+  
+  if (handler != null) {
+    handler(new HtmlDocument(doc));
+  }
+
+  return doc;
+}
+
+class HtmlDocument {
+  final html.Document document;
+  
+  HtmlDocument(this.document);
+  
+  html.Element call(String query) {
+    return document.querySelector(query);
+  }
+}
+
 Future<String> shortenUrl(String input, {String key: "AIzaSyBNTRakVvRuGHn6AVIhPXE_B3foJDOxmBU"}) {
   return http.post("https://www.googleapis.com/urlshortener/v1/url?key=${key}", body: JSON.encode({
     "longUrl": input

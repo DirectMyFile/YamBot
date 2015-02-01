@@ -46,6 +46,8 @@ import "package:http/http.dart" as http;
 import "package:polymorphic_bot/utils.dart";
 
 import "package:irc/client.dart" show Color;
+import "package:html5lib/parser.dart" as htmlParser show parse;
+import "package:html5lib/dom.dart" as html;
 
 export "package:irc/client.dart" show Color;
 export "package:polymorphic_bot/utils.dart";
