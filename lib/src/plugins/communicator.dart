@@ -106,6 +106,10 @@ class PluginCommunicator {
     addBotMethod("getPlugins", (call) {
       call.reply(pm.plugins.toList());
     });
+    
+    addBotMethod("getBotNickname", (call) {
+      call.reply(bot[call.getArgument("value")].client.nickname);
+    });
 
     addBotMethod("isUserABot", (call) {
       var network = call.getArgument('network');
@@ -206,6 +210,23 @@ class PluginCommunicator {
           call.reply(allCommands);
         });
       }
+    });
+    
+    addBotMethod("getChannelBuffer", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      call.reply(Buffer.get("${network}${channel}").map((it) {
+        return it.toData();
+      }).toList());
+    });
+    
+    addBotMethod("appendChannelBuffer", (call) {
+      var network = call.getArgument("network");
+      var from = call.getArgument("from");
+      var target = call.getArgument("target");
+      var message = call.getArgument("message");
+      Buffer.handle(network, new IRC.MessageEvent(bot[network].client, from, target, message));
     });
 
     addBotMethod("checkPermission", (call) {

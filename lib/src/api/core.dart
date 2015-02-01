@@ -877,7 +877,7 @@ class BotConnector {
    * If [usage] or [description] is provided it is provided to other plugins.
    * If [permission] is given the command will require that permission to use it.
    */
-  void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided", String permission}) {
+  void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided", String permission, bool allowVariables: false}) {
     var info = new CommandInfo(plugin.name, name, usage, description);
     _myCommands.add(info);
 
@@ -893,26 +893,78 @@ class BotConnector {
       } else {
         handler(event);
       }
+    }, allowVariables: allowVariables);
+  }
+  
+  Future<List<BufferEntry>> getChannelBuffer(String network, String channel) {
+    return plugin.callMethod("getChannelBuffer", {
+      "network": network,
+      "channel": channel
+    }).then((result) {
+      return result.map((e) {
+        return new BufferEntry.fromData(e);
+      }).toList();
     });
   }
+  
+  void appendChannelBuffer(BufferEntry entry) {
+    plugin.callMethod("appendChannelBuffer", entry.toData());
+  }
 
-  void onCommand(CommandHandler handler) {
+  void onCommand(CommandHandler handler, {bool allowVariables: false}) {
     var sub = plugin.on("command").listen((data) {
-      var command = data['command'];
-      var args = data['args'];
-      var user = data['from'];
-      var channel = data['target'];
-      var network = data['network'];
-      var message = data['message'];
-
-      var event = new CommandEvent(this, network, command, message, user, channel, args);
-
-      handler(event);
+      String command = data['command'];
+      List<String> args = data['args'];
+      String user = data['from'];
+      String channel = data['target'];
+      String network = data['network'];
+      String message = data['message'];
+      
+      void emit() {
+        var event = new CommandEvent(this, network, command, message, user, channel, args);
+        handler(event);
+      }
+      
+      if (allowVariables) {
+        var variables = <String, String>{
+          "channel": channel,
+          "network": network,
+          "command": command,
+        };
+        
+        getBotNickname(network).then((nickname) {
+          variables["bot.nickname"] = nickname;
+          return getChannelBuffer(network, channel);
+        }).then((List<BufferEntry> buffer) {
+          if (buffer == null || buffer.isEmpty) {
+            return null;
+          }
+          
+          var last = buffer.first;
+          
+          variables["last.message"] = last.message;
+          variables["last.user"] = last.user;
+        }).then((_) {
+          for (var variable in variables.keys) {
+            message = message.replaceAll("%${variable}%", variables[variable]);
+          }
+          
+          args = (message.split(" "))..removeAt(0);
+          
+          emit();
+        });
+      } else {
+        emit();
+      }
     });
 
     plugin.registerSubscription(sub);
   }
 
+  Future<String> getBotNickname(String network) {
+    return plugin.callMethod("getBotNickname", network);
+  }
+  
   /**
    * Sends [msg] to [target] on [network] as a Client to Client Protocol Message.
    */
@@ -1195,7 +1247,7 @@ class Plugin {
     for (var c in cmds) {
       getBot().command(c.metadata.name, (e) {
         c.invoke([e]);
-      }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description);
+      }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description, allowVariables: c.metadata.allowVariables);
     }
 
     for (var handler in handlers) {

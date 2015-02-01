@@ -5,8 +5,9 @@ class Command {
   final String permission;
   final String description;
   final String usage;
+  final bool allowVariables;
   
-  const Command(this.name, {this.permission, this.description, this.usage});
+  const Command(this.name, {this.permission, this.description, this.usage, this.allowVariables});
 }
 
 class EventHandler {

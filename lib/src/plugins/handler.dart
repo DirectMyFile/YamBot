@@ -92,6 +92,10 @@ class PluginHandler {
             pluginName = namerB.firstMatch(content)[1];
           }
 
+          if (bot.config["ignore_scripts"] != null && bot.config["ignore_scripts"].contains(pluginName)) {
+            return;
+          }
+          
           var dir = new Directory(".plugins/${pluginName}");
 
           if (!dir.existsSync()) {

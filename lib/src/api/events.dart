@@ -131,8 +131,40 @@ class MessageEvent {
 
   MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.isPing, this.message, {this.match});
 
-  void reply(String msg) {
-    bot.sendMessage(network, target, msg);
+  /**
+   * Sends [message] as a message to [channel] on [network].
+   *
+   * If [prefix] is prefixed with [prefixContent].
+   * If [prefixContent] is empty it becomes the display name of this plugin.
+   */
+  void reply(String message, {bool prefix, String prefixContent}) {
+    if (prefix || (prefix == null && prefixContent != null)) {
+      if (prefixContent == null) {
+        prefixContent = bot.plugin.displayName;
+      }
+
+      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+    }
+
+    bot.sendMessage(network, channel, message);
+  }
+  
+  /**
+   * Sends [message] as a message to [channel] on [network].
+   *
+   * If [prefix] is prefixed with [prefixContent].
+   * If [prefixContent] is empty it becomes the display name of this plugin.
+   */
+  void replyNotice(String message, {bool prefix, String prefixContent}) {
+    if (prefix || (prefix == null && prefixContent != null)) {
+      if (prefixContent == null) {
+        prefixContent = bot.plugin.displayName;
+      }
+
+      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+    }
+
+    bot.sendNotice(network, user, message);
   }
 
   void random(List<String> messages) {
@@ -254,4 +286,29 @@ class UserInfo {
            this.hostname, this.isIdle, this.idleTime,
            this.memberChannels, this.opChannels, this.voiceChannels,
            this.halfOpChannels, this.ownerChannels, this.channels);
+}
+
+class BufferEntry {
+  final String network;
+  final String target;
+  final String user;
+  final String message;
+
+  BufferEntry(this.network, this.target, this.user, this.message);
+
+  factory BufferEntry.fromData(Map data) {
+    String network = data['network'];
+    String target = data['target'];
+    String message = data['message'];
+    String user = data['from'];
+
+    return new BufferEntry(network, target, user, message);
+  }
+  
+  Map toData() => {
+    "network": network,
+    "target": target,
+    "from": user,
+    "message": message
+  };
 }

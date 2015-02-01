@@ -73,7 +73,7 @@ class CommandEvent {
 
   bool get hasArguments => args.isNotEmpty;
   bool get hasNoArguments => args.isEmpty;
-  bool get hasOneArgument => argc == 0;
+  bool get hasOneArgument => argc == 1;
   int get argc => args.length;
 
   /**
@@ -122,6 +122,16 @@ class CommandEvent {
   Future<dynamic> fetchJSON(String url, {Map<String, String> headers: const {}}) {
     return bot.plugin.httpClient.get(url).then((response) {
       if (response.statusCode != 200) {
+        throw new HttpException("failed to fetch JSON");
+      }
+      
+      return JSON.decode(response.body);
+    });
+  }
+  
+  Future<dynamic> postJSON(String url, dynamic body, {Map<String, String> headers: const { "Content-Type": "application/json" }}) {
+    return bot.plugin.httpClient.post(url, body: JSON.encode(body), headers: headers).then((response) {
+      if (!([200, 201].contains(response.statusCode))) {
         throw new HttpException("failed to fetch JSON");
       }
       

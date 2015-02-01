@@ -87,6 +87,19 @@ class DisplayHelpers {
 
     return buff.toString();
   }
+  
+  static final List<Color> COLORS = [Color.RED, Color.OLIVE, Color.YELLOW, Color.GREEN, Color.BLUE, Color.PURPLE];
+  
+  static String rainbowColor(String message) {
+    var random = new Random();
+    var buff = new StringBuffer();
+    for (var x = 0; x < message.length; x++) {
+      buff.write(COLORS[random.nextInt(COLORS.length)]);
+      buff.write(message[x]);
+      buff.write(Color.RESET);
+    }
+    return buff.toString();
+  }
 }
 
 /**
