@@ -537,6 +537,8 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.JoinEvent e) {
+      if (e.channel == null) return;
+      
       if (e.channel.name == "#bot-communication") {
         return;
       }
@@ -548,6 +550,8 @@ class NetworkEventListener {
     });
 
     b.client.register((IRC.PartEvent e) {
+      if (e.channel == null) return;
+      
       if (e.channel.name == "#bot-communication") {
         return;
       }
@@ -610,13 +614,15 @@ class NetworkEventListener {
       com.pm.sendAll(data);
     });
 
-    b.client.register((IRC.QuitEvent e) {
+    b.client.register((IRC.QuitEvent e) {      
       var data = common("quit");
       data["user"] = e.user;
       com.pm.sendAll(data);
     });
     
     b.client.register((IRC.QuitPartEvent e) {
+      if (e.channel == null) return;
+      
       var data = common("quit-part");
       data["user"] = e.user;
       data["channel"] = e.channel.name;

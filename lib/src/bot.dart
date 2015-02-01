@@ -48,6 +48,12 @@ class Bot {
     _registerCommandHandler();
     _registerJoinPartHandlers();
 
+    client.register((IRC.ConnectEvent event) {
+      if (serverConfig["server_password"] != null) {
+        event.client.send("PASS ${serverConfig["server_password"]}");
+      }
+    });
+    
     client.register((IRC.CTCPEvent event) {
       if (event.message.trim().toUpperCase() == "ARE YOU A BOT") {
         client.sendCTCP(event.user, "I AM A BOT");
@@ -135,6 +141,8 @@ class Bot {
   
   void _registerJoinPartHandlers() {
     client.register((IRC.JoinEvent event) {
+      if (event.channel == null) return;
+      
       if (event.channel.name == "#bot-communication") {
         return;
       }
@@ -143,6 +151,8 @@ class Bot {
     });
     
     client.register((IRC.PartEvent event) {
+      if (event.channel == null) return;
+
       if (event.channel.name == "#bot-communication") {
         return;
       }
@@ -151,6 +161,8 @@ class Bot {
     });
     
     client.register((IRC.QuitPartEvent event) {
+      if (event.channel == null) return;
+
       if (event.channel.name == "#bot-communication") {
         return;
       }
