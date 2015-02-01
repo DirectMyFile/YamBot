@@ -87,8 +87,39 @@ class CommandEvent {
     }
   }
   
+  List<String> copyArguments() => new List<String>.from(args);
+  List<String> dropArguments(int x) {
+    var a = copyArguments();
+    for (var i = 1; i <= x; i++) {
+      a.removeAt(0);
+    }
+    return a;
+  }
+  
+  String dropJoinArguments(int x, [String sep = " "]) {
+    return dropArguments(x).join(sep);
+  }
+  
   Future<BufferEntry> getLastChannelMessage() {
     return getChannelBuffer().then((entries) => entries.first);
+  }
+  
+  Future<String> getChannelPrefix() {
+    return bot.getPrefix(network, channel);
+  }
+  
+  Future<String> getLastCommand([bool userOnly = true]) {
+    return getChannelBuffer().then((entries) {
+      return getChannelPrefix().then((prefix) {
+        return entries.firstWhere((c) =>
+            c.network == network &&
+            c.target == channel &&
+            c.message.startsWith(prefix) &&
+            (userOnly ? c.user == user : true),
+            orElse: () => null
+        );
+      });   
+    });
   }
   
   Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
