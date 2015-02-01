@@ -73,6 +73,7 @@ class CommandEvent {
 
   bool get hasArguments => args.isNotEmpty;
   bool get hasNoArguments => args.isEmpty;
+  bool get hasOneArgument => argc == 0;
   int get argc => args.length;
 
   /**
@@ -103,6 +104,32 @@ class CommandEvent {
 
     bot.sendNotice(network, user, message);
   }
+  
+  /**
+   * Replies with the output from [transformer].
+   */
+  void transform(transformer(String input), {prefix: false, bool notice: false}) {
+    var p = null;
+    if (prefix == true || (prefix != null && prefix is String)) {
+      p = prefix == true ? bot.plugin.displayName : prefix;
+    }
+    
+    new Future.value(transformer(joinArgs())).then((value) {
+      (notice ? replyNotice : reply)(p != null ? value : "> ${value}", prefixContent: p);
+    });
+  }
+  
+  Future<dynamic> fetchJSON(String url, {Map<String, String> headers: const {}}) {
+    return bot.plugin.httpClient.get(url).then((response) {
+      if (response.statusCode != 200) {
+        throw new HttpException("failed to fetch JSON");
+      }
+      
+      return JSON.decode(response.body);
+    });
+  }
+  
+  Future<String> getUsername() => whois().then((info) => info.username);
   
   Future<UserInfo> whois() {
     return bot.getUserInfo(network, user);
