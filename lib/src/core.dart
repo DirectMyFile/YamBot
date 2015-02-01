@@ -37,9 +37,8 @@ class CoreBot {
     for (var server in config['networks']) {
       if (server['enabled'] == false) continue;
       var name = server['name'];
-      var chan = config['channels'][name];
-      var pref = config['prefixes'][name];
-      var bot = new Bot(name, server, chan, pref);
+
+      var bot = new Bot(name, server);
       if (_clients.containsKey(name)) {
         throw new Exception("Server name '$name' already taken");
       }

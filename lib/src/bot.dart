@@ -8,19 +8,9 @@ class Bot {
   final String network;
 
   /**
-   * Holds basic information to start a bot.
+   * Holds Bot Configuration
    */
-  final serverConfig;
-
-  /**
-   * Holds the channel information the bot should auto join.
-   */
-  final channelConfig;
-
-  /**
-   * Holds the prefix information for the network or individual channels.
-   */
-  final prefixConfig;
+  final Map<String, dynamic> config;
 
   /**
    * The client which manages the IRC connections and data.
@@ -34,14 +24,36 @@ class Bot {
   Auth get authManager => _authManager;
   Auth _authManager;
 
-  Bot(this.network, this.serverConfig, this.channelConfig, this.prefixConfig) {
+  Bot(this.network, this.config) {
+    if (!config.containsKey("channels")) {
+      config["channels"] = [];
+    }
+    
+    if (!config.containsKey("ssl")) {
+      config["ssl"] = false;
+    }
+    
+    if (!config.containsKey("allowInvalidCertificate")) {
+      config["allowInvalidCertificate"] = false;
+    }
+    
+    if (!config.containsKey("port")) {
+      config["port"] = config["ssl"] ? 6697 : 6667;
+    }
+    
+    if (!config.containsKey("prefixes")) {
+      config["prefixes"] = {
+        "default": config.containsKey("prefix") ? config["prefix"] : "."
+      };
+    }
+    
     var botConfig = new IRC.IrcConfig();
-    botConfig.nickname = serverConfig['nickname'];
-    botConfig.realname = serverConfig['realname'];
-    botConfig.host = serverConfig['host'];
-    botConfig.port = serverConfig['port'];
-    botConfig.ssl = serverConfig.containsKey("ssl") && serverConfig["ssl"];
-    botConfig.allowInvalidCertificates = serverConfig.containsKey("allowInvalidCertificate") && serverConfig["allowInvalidCertificate"];
+    botConfig.nickname = config['nickname'];
+    botConfig.realname = config['realname'];
+    botConfig.host = config['host'];
+    botConfig.port = config['port'];
+    botConfig.ssl = config["ssl"];
+    botConfig.allowInvalidCertificates = config["allowInvalidCertificate"];
     
     _client = new IRC.Client(botConfig);
 
@@ -52,8 +64,8 @@ class Bot {
     _registerJoinPartHandlers();
 
     client.register((IRC.ConnectEvent event) {
-      if (serverConfig["server_password"] != null) {
-        event.client.send("PASS ${serverConfig["server_password"]}");
+      if (config["server_password"] != null) {
+        event.client.send("PASS ${config["server_password"]}");
       }
     });
     
@@ -127,16 +139,16 @@ class Bot {
 
   void _registerReadyHandler() {
     client.register((IRC.ReadyEvent event) {
-      if (serverConfig['owner'] != null) {
-        client.identify(username: serverConfig['owner'], password: serverConfig['password'], nickserv: serverConfig['nickserv'] != null ? serverConfig['nickserv'] : "NickServ");
+      if (config['owner'] != null) {
+        client.identify(username: config['owner'], password: config['password'], nickserv: config['nickserv'] != null ? config['nickserv'] : "NickServ");
       }
       
       print("[$network] Bot is Ready");
-      for (var chan in channelConfig) {
+      for (var chan in config["channels"]) {
         event.join(chan);
       }
 
-      if (serverConfig['broadcast'] != null && serverConfig['broadcast']) {
+      if (config['broadcast'] != null && config['broadcast']) {
         event.join("#bot-communication");
       }
     });
@@ -174,10 +186,18 @@ class Bot {
     });
     
     client.register((IRC.BotJoinEvent event) {
+      if (event.channel.name == "#bot-communication") {
+        return;
+      }
+      
       print("[${network}] Joined ${event.channel.name}");
     });
     
     client.register((IRC.BotPartEvent event) {
+      if (event.channel.name == "#bot-communication") {
+        return;
+      }
+      
       print("[${network}] Left ${event.channel.name}");
     });
   }
@@ -229,8 +249,8 @@ class Bot {
       }
       
       String prefix;
-      if (!event.isPrivate) prefix = prefixConfig[event.channel.name];
-      if (prefix == null) prefix = prefixConfig['default'];
+      if (!event.isPrivate) prefix = config["prefixes"][event.channel.name];
+      if (prefix == null) prefix = config["prefixes"]['default'];
       if (prefix == null) throw new Exception("[$network] No Prefix Set");
       if (event.message.startsWith(prefix)) {
         List<String> args = event.message.split(' ');
@@ -246,10 +266,10 @@ class Bot {
   }
 
   String getPrefix(String channel) {
-    if (prefixConfig[channel] != null) {
-      return prefixConfig[channel];
+    if (config["prefixes"][channel] != null) {
+      return config["prefixes"][channel];
     } else {
-      return prefixConfig["default"];
+      return config["prefixes"]["default"];
     }
   }
 
