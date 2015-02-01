@@ -260,7 +260,7 @@ class Bot {
       }
       
       new Future.delayed(new Duration(milliseconds: 500), () {
-        Buffer.handle(network, event);
+        Buffer.handle(network, event, limit: config.containsKey("buffer_limit") ? config["buffer_limit"] : 30);
       });
     });
   }
@@ -461,9 +461,11 @@ class BufferEntry {
 class Buffer {
   static Map<String, Buffer> buffers = new Map<String, Buffer>();
 
+  int _limit;
   List<BufferEntry> messages = [];
-  final int _limit = 30;
   int _tracker = 0;
+  
+  Buffer([this._limit = 30]);
 
   void _handle(BufferEntry entry) {
     if (entry.message.startsWith("s/")) return;
@@ -473,7 +475,7 @@ class Buffer {
     _tracker++;
   }
 
-  static void handle(String network, IRC.MessageEvent event) {
+  static void handle(String network, IRC.MessageEvent event, {int limit: 30}) {
     String target = event.target;
     String message = event.message;
     String user = event.from;
@@ -481,9 +483,9 @@ class Buffer {
     var buf = buffers["${network}${target}"];
 
     if (buf == null) {
-      buf = new Buffer();
+      buf = new Buffer(limit);
       buffers["${network}${target}"] = buf;
-      for (int i = 0; i < 30; i++) buf.messages.add(null);
+      for (int i = 0; i < limit; i++) buf.messages.add(null);
     }
 
     buf._handle(new BufferEntry(network, target, user, message));
