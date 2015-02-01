@@ -86,6 +86,12 @@ class CommandEvent {
       reply("> Usage: ${needCmd ? '${command} ' : ''}${cmd.usage}");
     }
   }
+  
+  Future<BufferEntry> getLastChannelMessage() {
+    return getChannelBuffer().then((entries) => entries.first);
+  }
+  
+  Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
 
   /**
    * Sends [message] as a message to [channel] on [network].

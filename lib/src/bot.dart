@@ -40,6 +40,9 @@ class Bot {
     botConfig.realname = serverConfig['realname'];
     botConfig.host = serverConfig['host'];
     botConfig.port = serverConfig['port'];
+    botConfig.ssl = serverConfig.containsKey("ssl") && serverConfig["ssl"];
+    botConfig.allowInvalidCertificates = serverConfig.containsKey("allowInvalidCertificate") && serverConfig["allowInvalidCertificate"];
+    
     _client = new IRC.Client(botConfig);
 
     _registerRawHandler();
