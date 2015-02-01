@@ -128,6 +128,14 @@ class CommandEvent {
   
   Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
 
+  StorageContainer getUserMetadata({bool channelSpecific: false}) {
+    return bot.plugin.getStorage("metadata").getSubStorage(channelSpecific ? "${network}:${channel}:${user}" : "${network}:${user}");
+  }
+  
+  StorageContainer getChannelMetadata() {
+    return bot.plugin.getStorage("metadata").getSubStorage("${network}:${channel}");
+  }
+  
   /**
    * Sends [message] as a message to [channel] on [network].
    *
@@ -185,6 +193,20 @@ class CommandEvent {
       }
       
       return JSON.decode(response.body);
+    });
+  }
+  
+  Future<HtmlDocument> fetchHTML(String url, {Map<String, String> headers: const {}, Map<String, String> query}) {
+    if (query != null) {
+      url += HttpHelper.buildQueryString(query);
+    }
+    
+    return bot.plugin.httpClient.get(url).then((response) {
+      if (response.statusCode != 200) {
+        throw new HttpException("failed to fetch HTML");
+      }
+      
+      return new HtmlDocument(parseHtml(response.body));
     });
   }
   

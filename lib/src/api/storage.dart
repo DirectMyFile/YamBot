@@ -161,6 +161,20 @@ abstract class StorageContainer {
     setInteger(key, v);
     return v;
   }
+  
+  double addToDouble(String key, num n, {double defaultValue: 0.0}) {
+    var v = getDouble(key, defaultValue: defaultValue);
+    v += n;
+    setDouble(key, v);
+    return v;
+  }
+
+  double subtractFromDouble(String key, double n, {double defaultValue: 0.0}) {
+    var v = getDouble(key, defaultValue: defaultValue);
+    v -= n;
+    setDouble(key, v);
+    return v;
+  }
 
   dynamic remove(String key) {
     var value = entries[key];
