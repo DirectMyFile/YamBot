@@ -143,6 +143,18 @@ Future<Process> runProcess(String executable, List<String> args, {String cwd}) {
   return Process.start(executable, args, workingDirectory: cwd);
 }
 
+Future<String> shortenUrl(String input, {String key: "AIzaSyBNTRakVvRuGHn6AVIhPXE_B3foJDOxmBU"}) {
+  return http.post("https://www.googleapis.com/urlshortener/v1/url?key=${key}", body: JSON.encode({
+    "longUrl": input
+  }), headers: { "Content-Type": "application/json" }).then((response) {
+    if (!([200, 201].contains(response.statusCode))) {
+      return input;
+    }
+    
+    return JSON.decode(response.body)["id"];
+  });
+}
+
 typedef void Task();
 
 class Scheduler {

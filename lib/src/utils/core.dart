@@ -22,6 +22,14 @@ bool get DEBUG {
   return false;
 }
 
+bool isUrl(String input) {
+  try {
+    return Uri.parse(input) != null;
+  } catch (e) {
+    return false;
+  }
+}
+
 /**
  * Information about the current environment.
  */

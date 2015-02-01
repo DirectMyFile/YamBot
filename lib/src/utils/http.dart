@@ -67,6 +67,20 @@ class HttpHelper {
       return WebSocketHelper.proxy(requestSocket, responseSocket);
     });
   }
+  
+  static String buildQueryString(Map<String, String> query) {
+    if (query == null) {
+      return "";
+    }
+    
+    var m = "?";
+    var first = true;
+    for (var x in query.keys) {
+      m += "${first ? "" : "&"}${x}=${Uri.encodeComponent(query[x])}";
+      first = false;
+    }
+    return m;
+  }
 }
 
 class WebSocketHelper {
