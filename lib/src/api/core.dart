@@ -161,6 +161,14 @@ class BotConnector {
   void setTopic(String network, String channel, String topic) {
     getChannel(network, channel).then((channel) => channel.topic = topic);
   }
+  
+  StorageContainer getUserMetadata(String network, String channel, String user, {bool channelSpecific: false}) {
+    return plugin.getStorage("metadata").getSubStorage(channelSpecific ? "${network}:${channel}:${user}" : "${network}:${user}");
+  }
+  
+  StorageContainer getChannelMetadata(String network, String channel) {
+    return plugin.getStorage("metadata").getSubStorage("${network}:${channel}");
+  }
 
   /**
    * Kicks [user] in [channel] on [network].

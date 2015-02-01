@@ -129,11 +129,11 @@ class CommandEvent {
   Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
 
   StorageContainer getUserMetadata({bool channelSpecific: false}) {
-    return bot.plugin.getStorage("metadata").getSubStorage(channelSpecific ? "${network}:${channel}:${user}" : "${network}:${user}");
+    return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
   }
   
   StorageContainer getChannelMetadata() {
-    return bot.plugin.getStorage("metadata").getSubStorage("${network}:${channel}");
+    return bot.getChannelMetadata(network, channel);
   }
   
   /**

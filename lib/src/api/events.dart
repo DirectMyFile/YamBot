@@ -66,6 +66,14 @@ class ModeEvent {
   final String user;
   final String mode;
 
+  StorageContainer getUserMetadata({bool channelSpecific: false}) {
+    return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
+  }
+  
+  StorageContainer getChannelMetadata() {
+    return bot.getChannelMetadata(network, channel);
+  }
+  
   ModeEvent(this.bot, this.network, this.channel, this.user, this.mode);
 }
 
@@ -74,6 +82,10 @@ class TopicEvent {
   final String network;
   final String channel;
   final String topic;
+  
+  StorageContainer getChannelMetadata() {
+    return bot.getChannelMetadata(network, channel);
+  }
 
   TopicEvent(this.bot, this.network, this.channel, this.topic);
 }
@@ -98,6 +110,14 @@ class InviteEvent {
   final String user;
   final String channel;
 
+  StorageContainer getUserMetadata({bool channelSpecific: false}) {
+    return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
+  }
+  
+  StorageContainer getChannelMetadata() {
+    return bot.getChannelMetadata(network, channel);
+  }
+  
   InviteEvent(this.bot, this.network, this.user, this.channel);
 }
 
@@ -180,6 +200,14 @@ class MessageEvent {
     bot.ban(network, target, from);
   }
   
+  StorageContainer getUserMetadata({bool channelSpecific: false}) {
+    return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
+  }
+  
+  StorageContainer getChannelMetadata() {
+    return bot.getChannelMetadata(network, channel);
+  }
+  
   void kickBanUser({String reason}) {
     bot.kickBan(network, target, from, reason: reason);
   }
@@ -201,6 +229,14 @@ class JoinEvent {
     bot.kickBan(network, channel, user, reason: reason);
   }
   
+  StorageContainer getUserMetadata({bool channelSpecific: false}) {
+    return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
+  }
+  
+  StorageContainer getChannelMetadata() {
+    return bot.getChannelMetadata(network, channel);
+  }
+  
   void ban() {
     bot.ban(network, channel, user);
   }
@@ -212,6 +248,14 @@ class PartEvent {
   final String channel;
   final String user;
 
+  StorageContainer getUserMetadata({bool channelSpecific: false}) {
+    return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
+  }
+  
+  StorageContainer getChannelMetadata() {
+    return bot.getChannelMetadata(network, channel);
+  }
+  
   PartEvent(this.bot, this.network, this.channel, this.user);
 }
 
