@@ -143,6 +143,18 @@ Future<Process> runProcess(String executable, List<String> args, {String cwd}) {
   return Process.start(executable, args, workingDirectory: cwd);
 }
 
+class ProcessHelper {
+  static Future<String> getStdout(String executable, List<String> args) {
+    return Process.run(executable, args).then((result) {
+      return result.stdout;
+    });
+  }
+  
+  static Future<ProcessResult> run(String executable, List<String> args) {
+    return Process.run(executable, args);
+  }
+}
+
 bool isUrl(String input) {
   try {
     return Uri.parse(input) != null;
