@@ -44,7 +44,7 @@ class Storage extends StorageContainer {
   Map<String, dynamic> _entries;
   Timer _timer;
 
-  Storage(this.path, [ this._saveOnChange = true ]);
+  Storage(this.path, { bool saveOnChange: true }) : _saveOnChange = saveOnChange;
 
   void load() {
     var file = new File(path);

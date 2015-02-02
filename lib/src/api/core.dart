@@ -26,14 +26,14 @@ class BotConnector {
 
   /**
    * Gets the bot configuration.
-   * 
+   *
    * NOTICE: Prefer [getConfig].
    */
   Future<Map<String, dynamic>> get config => getConfig();
 
   /**
    * Checks a permission on a user.
-   * 
+   *
    * [target] is where to send the message if the node is not matched.
    * [callback] is not called if the [user] has no permissions.
    */
@@ -55,7 +55,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a bot is detected.
-   * 
+   *
    * If [network] is provided then the handler will be called only if the event came from the given network.
    */
   void onBotDetected(BotDetectionHandler handler, {String network}) {
@@ -71,7 +71,7 @@ class BotConnector {
 
   /**
    * Changes Modes
-   * 
+   *
    * [mode] is the mode to change.
    * [user] is the user to change it on.
    * [channel] is the channel to change it on.
@@ -161,11 +161,11 @@ class BotConnector {
   void setTopic(String network, String channel, String topic) {
     getChannel(network, channel).then((channel) => channel.topic = topic);
   }
-  
+
   StorageContainer getUserMetadata(String network, String channel, String user, {bool channelSpecific: false}) {
     return plugin.getStorage("metadata").getSubStorage(channelSpecific ? "${network}:${channel}:${user}" : "${network}:${user}");
   }
-  
+
   StorageContainer getChannelMetadata(String network, String channel) {
     return plugin.getStorage("metadata").getSubStorage("${network}:${channel}");
   }
@@ -203,7 +203,7 @@ class BotConnector {
   void unban(String network, String channel, String user) {
     mode(network, "-b", channel: channel, user: user);
   }
-  
+
   void restart() {
     plugin.callMethod("restart", {});
   }
@@ -234,7 +234,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when the bot is ready on a network.
-   * 
+   *
    * If [network] is provided then the handler is only called if the network is the given network.
    */
   void onReady(ReadyHandler handler, {String network}) {
@@ -256,7 +256,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when an action is received.
-   * 
+   *
    * If [network] is provided the handler will be called only if the channel was on the given network.
    * If [target] is provided the handler will be called only if the target was the given target.
    * If [message] is provided the handler will be called only if the message was the given message.
@@ -278,7 +278,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a notice is received.
-   * 
+   *
    * If [pattern] is provided then the handler is called only if the notice matches the given pattern.
    */
   void onNotice(NoticeHandler handler, {Pattern pattern}) {
@@ -381,7 +381,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a message is received.
-   * 
+   *
    * If [pattern] is provided then the handler is called only if the message matches the given pattern.
    */
   void onMessage(MessageHandler handler, {pattern, bool ping, bool regex: false, bool caseSensitive: false}) {
@@ -453,7 +453,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a user joins a channel.
-   * 
+   *
    * If [network] is provided the handler will be called only if the channel was on the given network.
    * If [channel] is provided the handler will be called only if the channel was the given channel.
    * If [user] is provided the handler will be called only if the user is the given user.
@@ -489,7 +489,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a user leaves a channel.
-   * 
+   *
    * If [network] is provided the handler will be called only if the channel was on the given network.
    * If [channel] is provided the handler will be called only if the channel was the given channel.
    * If [user] is provided the handler will be called only if the user is the given user.
@@ -526,7 +526,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a user quits the server.
-   * 
+   *
    * If [network] is provided the handler will be called only if the channel was on the given network.
    * If [user] is provided the handler will be called only if the user is the given user.
    */
@@ -557,7 +557,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a user quits a channel.
-   * 
+   *
    * If [network] is provided the handler will be called only if the channel was on the given network.
    * If [channel] is provided the handler will be called only if the channel was the given channel.
    * If [user] is provided the handler will be called only if the user is the given user.
@@ -626,7 +626,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when the bot joins a channel.
-   * 
+   *
    * If [network] is provided the handler will be called only if the channel was on the given network.
    * If [channel] is provided the handler will be called only if the channel was the given channel.
    */
@@ -657,7 +657,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a CTCP message is received.
-   * 
+   *
    * If [network] is provided the handler will be called only if the channel was on the given network.
    * If [target] is provided the handler will be called only if the target was the given target.
    * If [message] is provided the handler will be called only if the message was the given message.
@@ -684,7 +684,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when the bot is invited to a channel.
-   * 
+   *
    * If [network] is provided the handler will be called only if the event is from the given network.
    * If [user] is provided the handler will be called only if the event is from the given user.
    * If [channel] is provided the handler will be called only if the event is from the given channel.
@@ -709,7 +709,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when the bot connects to a network.
-   * 
+   *
    * If [network] is provided the handler will be called only if the event is from the given network.
    */
   void onConnect(ConnectHandler handler, {String network}) {
@@ -730,7 +730,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when the bot disconnects from a network.
-   * 
+   *
    * If [network] is provided the handler will be called only if the event is from the given network.
    */
   void onDisconnect(DisconnectHandler handler, {String network}) {
@@ -751,7 +751,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a channel's topic is changed or received.
-   * 
+   *
    * If [network] is provided the handler will be called only if the event is from the given network.
    * If [channel] is provided the handler will be called only if the event is from the given channel.
    */
@@ -774,7 +774,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when a user's mode is changed.
-   * 
+   *
    * If [network] is provided the handler will be called only if the channel was on the given network.
    * If [channel] is provided the handler will be called only if the channel was the given channel.
    * If [user] is provided the handler will be called only if the user was the given user.
@@ -801,7 +801,7 @@ class BotConnector {
 
   /**
    * Calls [handler] when the bot leaves a channel.
-   * 
+   *
    * If [network] is provided the handler will be called only if the channel was on the given network.
    * If [channel] is provided the handler will be called only if the channel was the given channel.
    */
@@ -832,7 +832,7 @@ class BotConnector {
 
   /**
    * Gets Command Info.
-   * 
+   *
    * If [pluginName] is provided it gets it from only that plugin, otherwise it gets all commands.
    */
   Future<List<CommandInfo>> getCommands([String pluginName]) {
@@ -881,7 +881,7 @@ class BotConnector {
 
   /**
    * Registers a command with the name given by [name] to the given [handler].
-   * 
+   *
    * If [usage] or [description] is provided it is provided to other plugins.
    * If [permission] is given the command will require that permission to use it.
    */
@@ -903,7 +903,7 @@ class BotConnector {
       }
     }, allowVariables: allowVariables);
   }
-  
+
   Future<List<BufferEntry>> getChannelBuffer(String network, String channel) {
     return plugin.callMethod("getChannelBuffer", {
       "network": network,
@@ -914,7 +914,7 @@ class BotConnector {
       }).toList();
     });
   }
-  
+
   void appendChannelBuffer(BufferEntry entry) {
     plugin.callMethod("appendChannelBuffer", entry.toData());
   }
@@ -927,19 +927,19 @@ class BotConnector {
       String channel = data['target'];
       String network = data['network'];
       String message = data['message'];
-      
+
       void emit() {
         var event = new CommandEvent(this, network, command, message, user, channel, args);
         handler(event);
       }
-      
+
       if (allowVariables) {
         var variables = <String, String>{
           "channel": channel,
           "network": network,
           "command": command,
         };
-        
+
         getBotNickname(network).then((nickname) {
           variables["bot.nickname"] = nickname;
           return getChannelBuffer(network, channel);
@@ -947,18 +947,18 @@ class BotConnector {
           if (buffer == null || buffer.isEmpty) {
             return null;
           }
-          
+
           var last = buffer.first;
-          
+
           variables["last.message"] = last.message;
           variables["last.user"] = last.user;
         }).then((_) {
           for (var variable in variables.keys) {
             message = message.replaceAll("%${variable}%", variables[variable]);
           }
-          
+
           args = (message.split(" "))..removeAt(0);
-          
+
           emit();
         });
       } else {
@@ -972,7 +972,7 @@ class BotConnector {
   Future<String> getBotNickname(String network) {
     return plugin.callMethod("getBotNickname", network);
   }
-  
+
   /**
    * Sends [msg] to [target] on [network] as a Client to Client Protocol Message.
    */
@@ -1117,7 +1117,7 @@ class Plugin {
 
   /**
    * Plugin HTTP Server.
-   * 
+   *
    * This will be null until [startHttpServer] is called.
    */
   HttpServer httpServer;
@@ -1284,7 +1284,7 @@ class Plugin {
         }
 
         var hasParam = x.mirror.parameters.isNotEmpty;
-        
+
         Function.apply(events[type], [hasParam ? (e) => x.invoke([e]) : (_) => x.invoke([])], map);
       }
     }
@@ -1380,10 +1380,10 @@ class Plugin {
 
   /**
    * Gets a Storage instance with the given name provided by [storageName].
-   * 
+   *
    * If [group] is provided it will be stored with that group.
    */
-  Storage getStorage(String storageName, {String group}) {
+  Storage getStorage(String storageName, {String group, bool saveOnChange: true }) {
     _init();
     if (group == null) group = name;
 
@@ -1394,7 +1394,7 @@ class Plugin {
       return existing;
     }
 
-    var storage = new Storage(file.path);
+    var storage = new Storage(file.path, saveOnChange: saveOnChange);
     storage.load();
     _storages.add(storage);
     return storage;
@@ -1402,7 +1402,7 @@ class Plugin {
 
   /**
    * Registers a method [name] to [handler].
-   * 
+   *
    * [metadata] is data to carry with the method.
    */
   void addRemoteMethod(String name, RemoteCallHandler handler, {Map<String, dynamic> metadata: const {}}) {
@@ -1426,7 +1426,7 @@ class Plugin {
 
   /**
    * Calls a Plugin Method.
-   * 
+   *
    * [plugin] is the target plugin.
    * [method] is the method name.
    * [arguments] are optional arguments.
@@ -1445,7 +1445,7 @@ class Plugin {
 
   /**
    * Handles Plugin Events.
-   * 
+   *
    * If [plugin] is provided the handler is called only for that plugin.
    */
   void onPluginEvent(PluginEventHandler handler, {String plugin}) {
@@ -1467,7 +1467,7 @@ class Plugin {
 
   /**
    * Calls a Bot Method.
-   * 
+   *
    * [name] is the method name.
    * [arguments] is an optional argument.
    */
@@ -1555,7 +1555,7 @@ class Plugin {
 
   /**
    * Sends [command] and [data] to a target.
-   * 
+   *
    * If [plugin] is provided it is sent to the given plugin otherwise it is sent to the main bot.
    */
   void send(String command, Map<String, dynamic> data, {String plugin}) {
