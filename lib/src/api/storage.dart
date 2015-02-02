@@ -37,13 +37,14 @@ abstract class StorageType {
 
 class Storage extends StorageContainer {
   final String path;
+  final bool _saveOnChange;
 
   StorageType type = StorageType.JSON;
   List<StorageChecker> _checkers = [];
   Map<String, dynamic> _entries;
   Timer _timer;
 
-  Storage(this.path);
+  Storage(this.path, [ this._saveOnChange = true ]);
 
   void load() {
     var file = new File(path);
@@ -92,7 +93,8 @@ class Storage extends StorageContainer {
 
   @override
   void onChange() {
-    save();
+    if(_saveOnChange)
+      save();
   }
 
   void delete() {
@@ -106,7 +108,7 @@ class Storage extends StorageContainer {
   Map<String, dynamic> asPrimitiveMap() {
     return JSON.decode(StorageType.JSON.encode(entries));
   }
-  
+
   String asJSON() => StorageType.JSON.encode(entries);
 }
 
@@ -161,7 +163,7 @@ abstract class StorageContainer {
     setInteger(key, v);
     return v;
   }
-  
+
   double addToDouble(String key, num n, {double defaultValue: 0.0}) {
     var v = getDouble(key, defaultValue: defaultValue);
     v += n;
@@ -195,14 +197,14 @@ abstract class StorageContainer {
   void removeFromList(String key, dynamic value) => setList(key, new List.from(getList(key, defaultValue: [])..remove(value)));
   void putInMap(String key, dynamic mapKey, dynamic value) => setMap(key, new Map.from(getMap(key, defaultValue: {}))..[mapKey] = value);
   void removeFromMap(String key, dynamic mapKey) => setMap(key, new Map.from(getMap(key, defaultValue: {}))..remove(mapKey));
-  
+
   void updateTimestamp(String key) => setTimestamp(key, new DateTime.now());
 
   void clearMap(String key) => setMap(key, {});
   void clearList(String key) => setList(key, []);
 
   List<String> getMapKeys(String key) => get(key, Map, {}).keys.toList();
-  
+
   bool has(String key) => entries.containsKey(key);
 
   dynamic get(String key, Type type, dynamic defaultValue) {
