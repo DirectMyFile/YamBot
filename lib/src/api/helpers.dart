@@ -1,5 +1,15 @@
 part of polymorphic.api;
 
+class Pair<A, B> {
+  A a;
+  B b;
+  
+  Pair(this.a, this.b);
+  
+  int get hashCode => hash2(a, b);
+  bool operator ==(obj) => obj is Pair<A, B> && obj.a == a && obj.b == b;
+}
+
 /**
  * Helpers to display things.
  */

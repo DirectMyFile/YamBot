@@ -49,6 +49,8 @@ import "package:irc/client.dart" show Color;
 import "package:html5lib/parser.dart" as htmlParser show parse;
 import "package:html5lib/dom.dart" as html;
 
+import "package:quiver/core.dart";
+
 export "package:irc/client.dart" show Color;
 export "package:polymorphic_bot/utils.dart";
 
