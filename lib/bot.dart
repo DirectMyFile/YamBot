@@ -56,11 +56,32 @@ CoreBot launchBot(String path) {
     signal.watch().listen((data) {
       if (!isShuttingDown) {
         isShuttingDown = true;
+        
         print("Shutting Down");
-        handler.killPlugins();
-        bot.bots.forEach((it) {
-          bot._clients[it].client.disconnect(reason: "Stopping Bot").then((_) {
-            exit(0);
+        
+        new Timer(new Duration(seconds: 10), () {
+          exit(0);
+        });
+        
+        handler.killPlugins().then((_) {
+          bot.bots.forEach((it) {
+            var b = bot[it];
+            
+            var timer = new Timer(new Duration(seconds: 5), () {
+              if (b.client.connected) {
+                b.client.disconnect(reason: "Stopping Bot");
+              }
+            });
+            
+            if (b.client != null) {
+              var timer = new Timer(new Duration(seconds: 5), () {
+                if (b.client.connected) {
+                  b.client.disconnect(reason: "Stopping Bot");
+                }
+              });
+              
+              b.client.send("QUIT :Stopping Bot");
+            }
           });
         });
       }

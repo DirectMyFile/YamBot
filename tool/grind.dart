@@ -23,7 +23,7 @@ test(GrinderContext context) {
 }
 
 analyze(GrinderContext context) {
-  Analyzer.analyzePaths(context, ["lib/bot.dart", "lib/api.dart", "lib/plugin.dart", "lib/utils.dart"]);
+  Analyzer.analyzePaths(context, ["lib/bot.dart", "lib/api.dart", "lib/slack.dart", "lib/plugin.dart", "lib/utils.dart"]);
 }
 
 package(GrinderContext context) {
