@@ -51,7 +51,7 @@ class DisplayHelpers {
           i++;
           char = input[i];
 
-          if (_isDigit(char)) {
+          if (isDigit(char)) {
             i++;
           }
         }
@@ -65,13 +65,13 @@ class DisplayHelpers {
             if (i < length) {
               char = input[i];
 
-              if (_isDigit(char)) {
+              if (isDigit(char)) {
                 i++;
 
                 if (i < length) {
                   char = input[i];
 
-                  if (_isDigit(char)) i++;
+                  if (isDigit(char)) i++;
                 }
               }
             }
@@ -235,4 +235,8 @@ class Scheduler {
   }
 }
 
-bool _isDigit(String it) => ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].contains(it);
+List<String> charactersOf(String input) => new List<String>.generate(input.length, (i) => input[i]);
+
+bool isDigit(String it) => ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].contains(it);
+bool isInteger(String it) => charactersOf(it).every((c) => isDigit(c));
+
