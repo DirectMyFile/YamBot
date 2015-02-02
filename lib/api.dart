@@ -50,6 +50,12 @@ import "package:html5lib/parser.dart" as htmlParser show parse;
 import "package:html5lib/dom.dart" as html;
 
 import "package:quiver/core.dart";
+import "package:quiver/strings.dart";
+import "package:quiver/async.dart";
+
+export "package:quiver/async.dart";
+export "package:quiver/strings.dart";
+export "package:quiver/core.dart";
 
 export "package:irc/client.dart" show Color;
 export "package:polymorphic_bot/utils.dart";
