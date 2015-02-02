@@ -93,8 +93,13 @@ class DisplayHelpers {
   static String rainbowColor(String message) {
     var random = new Random();
     var buff = new StringBuffer();
+    var i = 0;
     for (var x = 0; x < message.length; x++) {
-      buff.write(COLORS[random.nextInt(COLORS.length)]);
+      buff.write(COLORS[i]);
+      i++;
+      if (i == COLORS.length - 1) {
+        i = 0;
+      }
       buff.write(message[x]);
       buff.write(Color.RESET);
     }

@@ -186,6 +186,30 @@ class MessageEvent {
 
     bot.sendNotice(network, user, message);
   }
+  
+  Future<BufferEntry> getLastChannelMessage() {
+    return getChannelBuffer().then((entries) => entries.first);
+  }
+  
+  Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
+  
+  Future<String> getChannelPrefix() {
+    return bot.getPrefix(network, channel);
+  }
+  
+  Future<BufferEntry> getLastCommand([bool userOnly = true]) {
+    return getChannelBuffer().then((entries) {
+      return getChannelPrefix().then((prefix) {
+        return entries.firstWhere((c) =>
+            c.network == network &&
+            c.target == channel &&
+            c.message.startsWith(prefix) &&
+            (userOnly ? c.user == user : true),
+            orElse: () => null
+        );
+      });   
+    });
+  }
 
   void random(List<String> messages) {
     var random = new Random();

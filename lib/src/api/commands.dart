@@ -128,7 +128,11 @@ class CommandEvent {
   
   Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
 
-  StorageContainer getUserMetadata({bool channelSpecific: false}) {
+  StorageContainer getUserMetadata({String user, bool channelSpecific: false}) {
+    if (user == null) {
+      user = this.user;
+    }
+    
     return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
   }
   
@@ -157,18 +161,18 @@ class CommandEvent {
   /**
    * Replies with the output from [transformer].
    */
-  void transform(transformer(String input), {prefix: false, bool notice: false}) {
+  void transform(transformer(String input), {prefix: false, bool notice: false, bool noSign: false}) {
     var p = null;
     if (prefix == true || (prefix != null && prefix is String)) {
       p = prefix == true ? bot.plugin.displayName : prefix;
     }
     
     new Future.value(transformer(joinArgs())).then((value) {
-      (notice ? replyNotice : reply)(p != null ? value : "> ${value}", prefixContent: p);
+      (notice ? replyNotice : reply)(p != null ? value : "${noSign ? "" : "> "}${value}", prefixContent: p);
     });
   }
   
-  Future<dynamic> fetchJSON(String url, {Map<String, String> headers: const {}, Map<String, String> query}) {
+  Future<dynamic> fetchJSON(String url, {String transform(String input), Map<String, String> headers: const {}, Map<String, String> query}) {
     if (query != null) {
       url += HttpHelper.buildQueryString(query);
     }
@@ -178,7 +182,7 @@ class CommandEvent {
         throw new HttpException("failed to fetch JSON");
       }
       
-      return JSON.decode(response.body);
+      return JSON.decode(transform != null ? transform(response.body) : response.body);
     });
   }
   
