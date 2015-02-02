@@ -28,16 +28,12 @@ class Auth {
       file.createSync(recursive: true);
       file.writeAsStringSync(new JsonEncoder.withIndent("  ").convert({
         "groups": {
-          "public": [
-            "core.auth"
-          ]
+          "public": ["core.auth"]
         },
         "networks": {
           "EsperNet": {
             "groups": {
-              "*": [
-                "public"
-              ]
+              "*": ["public"]
             },
             "nodes": {
               "*": []
@@ -108,18 +104,31 @@ class Auth {
   }
 
   Future<bool> hasPermission(String plugin, String nick, String node) {
-    return registeredAs(nick).then((List<String> info) {
-      var nickserv = info[0];
-      if (nickserv == null) return false;
+    if (bot.isSlack) {
+      return new Future(() {
+        var parts = node.split(".");
+        var success = _userHasMatch(nick, plugin, parts);
 
-      var node_parts = node.split(".");
+        if (success == null) {
+          success = _userHasMatch(nick, plugin, parts);
+        }
 
-      var success = _userHasMatch(nickserv, plugin, node_parts);
-      if (success == null) {
-        success = _userHasMatch("*", plugin, node_parts);
-      }
-      return success != null ? success : false;
-    });
+        return success != null ? success : false;
+      });
+    } else {
+      return registeredAs(nick).then((List<String> info) {
+        var nickserv = info[0];
+        if (nickserv == null) return false;
+
+        var parts = node.split(".");
+
+        var success = _userHasMatch(nickserv, plugin, parts);
+        if (success == null) {
+          success = _userHasMatch("*", plugin, parts);
+        }
+        return success != null ? success : false;
+      });
+    }
   }
 
   /**

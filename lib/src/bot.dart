@@ -12,6 +12,8 @@ class Bot {
    */
   final Map<String, dynamic> config;
 
+  bool get isSlack => config["slack"];
+  
   /**
    * The client which manages the IRC connections and data.
    */
@@ -31,6 +33,10 @@ class Bot {
     
     if (!config.containsKey("ssl")) {
       config["ssl"] = false;
+    }
+    
+    if (!config.containsKey("slack")) {
+      config["slack"] = false;
     }
     
     if (!config.containsKey("allowInvalidCertificate")) {
