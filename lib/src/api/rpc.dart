@@ -100,8 +100,13 @@ class PluginInterface {
     if (!invocation.isAccessor) {
       var name = MirrorSystem.getName(invocation.memberName);
       var params = invocation.positionalArguments;
+      var n = invocation.namedArguments;
       
-      return myPlugin.callRemoteMethod(pluginName, name, params.first);
+      if (params.isEmpty && n.isNotEmpty) {
+        return myPlugin.callRemoteMethod(pluginName, name, n);
+      } else {
+        return myPlugin.callRemoteMethod(pluginName, name, params.isEmpty ? null : params.first); 
+      }
     } else {
       super.noSuchMethod(invocation);
       return null;
