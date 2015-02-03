@@ -41,3 +41,7 @@ BotConnector bot;
 @Command("hello")
 hello(CommandEvent event) => event.reply("> Hello World");
 ```
+
+## Links
+
+- [Wiki](https://github.com/PolymorphicBot/PolymorphicBot/wiki)
