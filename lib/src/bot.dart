@@ -12,7 +12,7 @@ class Bot {
    */
   final Map<String, dynamic> config;
 
-  bool get isSlack => config["slack"];
+  bool get isSlackBot => config["slack"];
   
   /**
    * The client which manages the IRC connections and data.
@@ -25,6 +25,8 @@ class Bot {
    */
   Auth get authManager => _authManager;
   Auth _authManager;
+  
+  SlackClient slack;
 
   Bot(this.network, this.config) {
     if (!config.containsKey("channels")) {
@@ -37,6 +39,15 @@ class Bot {
     
     if (!config.containsKey("slack")) {
       config["slack"] = false;
+    }
+    
+    if (!config.containsKey("token")) {
+      config["token"] = null;
+      
+      if (isSlackBot) {
+        print("[${network}] Slack Token not configured.");
+        exit(1);
+      }
     }
     
     if (!config.containsKey("allowInvalidCertificate")) {
@@ -92,6 +103,10 @@ class Bot {
       Buffer.clearNetwork(network);
       print("[${network}] Disconnected");
     });
+    
+    if (isSlackBot) {
+      slack = new SlackClient(config["token"]);
+    }
   }
 
   void start() {

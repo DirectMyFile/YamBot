@@ -483,17 +483,17 @@ class PluginCommunicator {
 
   void _handleEventListeners() {
     bot.bots.forEach((String network) {
-      var nel = new NetworkEventListener(network, this);
+      var nel = new IrcEventListener(network, this);
       nel.handle();
     });
   }
 }
 
-class NetworkEventListener {
+class IrcEventListener {
   final PluginCommunicator com;
   final String network;
 
-  NetworkEventListener(this.network, this.com);
+  IrcEventListener(this.network, this.com);
 
   void handle() {
     Bot b = com.bot[network];

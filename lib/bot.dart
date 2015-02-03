@@ -18,6 +18,7 @@ import 'package:quiver/async.dart';
 import 'api.dart' as Polymorphic;
 
 import "utils.dart";
+import "slack.dart";
 
 part 'src/plugins/handler.dart';
 part 'src/plugins/communicator.dart';
