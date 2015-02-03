@@ -1319,7 +1319,7 @@ class Plugin {
 
     for (var variable in findVariablesAnnotation(PluginStorage)) {
       PluginStorage m = variable.metadata.firstWhere((it) => it.type.isAssignableTo(reflectClass(PluginStorage))).reflectee;
-      currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getStorage(m.name, group: m.group));
+      currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getStorage(m.name, group: m.group, saveOnChange: m.saveOnChange));
     }
 
     var httpEndpoints = findFunctionAnnotations(HttpEndpoint);
@@ -1383,7 +1383,7 @@ class Plugin {
    *
    * If [group] is provided it will be stored with that group.
    */
-  Storage getStorage(String storageName, {String group, bool saveOnChange: true }) {
+  Storage getStorage(String storageName, {String group, bool saveOnChange: true}) {
     _init();
     if (group == null) group = name;
 

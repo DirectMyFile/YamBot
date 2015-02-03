@@ -39,8 +39,9 @@ class Shutdown {
 class PluginStorage {
   final String name;
   final String group;
+  final bool saveOnChange;
   
-  const PluginStorage(this.name, {this.group});
+  const PluginStorage(this.name, {this.group, this.saveOnChange: true});
 }
 
 class FromConfig {
