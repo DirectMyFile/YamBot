@@ -245,6 +245,18 @@ class PluginCommunicator {
         call.reply(has);
       });
     });
+    
+    addBotMethod("executeCommand", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      var user = call.getArgument("user");
+      var command = call.getArgument("command");
+      var args = call.getArgument("args");
+      var client = bot[network].client;
+      var b = bot[network];
+      var message = "${b.getPrefix(channel)}${command} ${args.join(' ')}";
+      client.post(new IRC.CommandEvent(new IRC.MessageEvent(client, user, channel, message), command, args));
+    });
 
     addBotMethod("getChannel", (call) {
       var net = call.getArgument('network');

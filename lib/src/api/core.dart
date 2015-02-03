@@ -681,6 +681,16 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
+  
+  void executeCommand(String network, String channel, String user, String command, [List<String> args = const []]) {
+    plugin.callMethod("executeCommand", {
+      "network": network,
+      "channel": channel,
+      "user": user,
+      "command": command,
+      "args": args
+    });
+  }
 
   /**
    * Calls [handler] when the bot is invited to a channel.
