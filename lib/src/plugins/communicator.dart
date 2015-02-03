@@ -254,7 +254,7 @@ class PluginCommunicator {
       var args = call.getArgument("args");
       var client = bot[network].client;
       var b = bot[network];
-      var message = "${b.getPrefix(channel)}${command} ${args.join(' ')}";
+      var message = "${b.getPrefix(channel)}${command}${args.isNotEmpty ? ' ' + args.join(' ')}";
       client.post(new IRC.CommandEvent(new IRC.MessageEvent(client, user, channel, message), command, args));
     }, isVoid: true);
 
