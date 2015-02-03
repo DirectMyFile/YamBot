@@ -14,6 +14,7 @@ import 'package:analyzer/analyzer.dart' as analyzer;
 import 'package:path/path.dart' as path;
 
 import 'package:quiver/async.dart';
+import 'package:polymorphic_bot/slack.dart';
 
 import 'api.dart' as Polymorphic;
 
@@ -60,7 +61,7 @@ CoreBot launchBot(String path) {
         
         print("Shutting Down");
         
-        new Timer(new Duration(seconds: 10), () {
+        new Timer(new Duration(seconds: 5), () {
           exit(0);
         });
         
@@ -68,14 +69,14 @@ CoreBot launchBot(String path) {
           bot.bots.forEach((it) {
             var b = bot[it];
             
-            var timer = new Timer(new Duration(seconds: 5), () {
+            var timer = new Timer(new Duration(seconds: 2), () {
               if (b.client.connected) {
                 b.client.disconnect(reason: "Stopping Bot");
               }
             });
             
             if (b.client != null) {
-              var timer = new Timer(new Duration(seconds: 5), () {
+              var timer = new Timer(new Duration(seconds: 2), () {
                 if (b.client.connected) {
                   b.client.disconnect(reason: "Stopping Bot");
                 }

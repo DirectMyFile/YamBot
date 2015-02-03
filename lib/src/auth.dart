@@ -104,13 +104,13 @@ class Auth {
   }
 
   Future<bool> hasPermission(String plugin, String nick, String node) {
-    if (bot.isSlack) {
-      return new Future(() {
+    if (bot.isSlackBot) {
+      return new Future.sync(() {
         var parts = node.split(".");
         var success = _userHasMatch(nick, plugin, parts);
 
         if (success == null) {
-          success = _userHasMatch(nick, plugin, parts);
+          success = _userHasMatch("*", plugin, parts);
         }
 
         return success != null ? success : false;

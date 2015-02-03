@@ -174,6 +174,8 @@ class CommandEvent {
     }
     
     new Future.value(transformer(joinArgs())).then((value) {
+      if (value == null) return;
+      
       (notice ? replyNotice : reply)(p != null ? value : "${noSign ? "" : "> "}${value}", prefixContent: p);
     });
   }

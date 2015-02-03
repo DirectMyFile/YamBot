@@ -25,7 +25,6 @@ class Bot {
    */
   Auth get authManager => _authManager;
   Auth _authManager;
-  
   SlackClient slack;
 
   Bot(this.network, this.config) {
