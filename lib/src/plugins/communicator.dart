@@ -285,7 +285,12 @@ class PluginCommunicator {
       bot[net].client.whois(user).then((event) {
         var memberIn = () {
           var list = <String>[];
-          list.addAll(event.builder.channels.where((i) => !event.builder.opIn.contains(i) && !event.builder.voiceIn.contains(i) && !event.builder.halfOpIn.contains(i) && !event.builder.ownerIn.contains(i)));
+          list.addAll(event.builder.channels.where((i) =>
+            !event.builder.opIn.contains(i) &&
+            !event.builder.voiceIn.contains(i) &&
+            !event.builder.halfOpIn.contains(i) &&
+            !event.builder.ownerIn.contains(i)
+          ));
           return list;
         }();
 
@@ -449,12 +454,13 @@ class PluginCommunicator {
       if (_methods.containsKey(request.command)) {
         var handler = _methods[request.command];
         var call = new Polymorphic.RemoteCall(request);
-        Zone.current.fork(specification: new ZoneSpecification(handleUncaughtError: (Zone self, ZoneDelegate parent, Zone zone, error, StackTrace stackTrace) {
-          pm.send(plugin, {
-            "exception": {
-              "message": "Error while calling method '${request.command}' for '${plugin}' \n\n${error}"
-            }
-          });
+        Zone.current.fork(specification: new ZoneSpecification(handleUncaughtError:
+          (Zone self, ZoneDelegate parent, Zone zone, error, StackTrace stackTrace) {
+            pm.send(plugin, {
+              "exception": {
+                "message": "Error while calling method '${request.command}' for '${plugin}' \n\n${error}"
+              }
+            });
         }), zoneValues: {
           "bot.plugin.method.plugin": plugin
         }).run(() {
