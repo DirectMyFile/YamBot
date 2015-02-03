@@ -256,7 +256,7 @@ class PluginCommunicator {
       var b = bot[network];
       var message = "${b.getPrefix(channel)}${command} ${args.join(' ')}";
       client.post(new IRC.CommandEvent(new IRC.MessageEvent(client, user, channel, message), command, args));
-    });
+    }, isVoid: true);
 
     addBotMethod("getChannel", (call) {
       var net = call.getArgument('network');
