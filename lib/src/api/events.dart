@@ -169,6 +169,10 @@ class MessageEvent {
     bot.sendMessage(network, channel, message);
   }
   
+  void executeCommand(String command, [List<String> args = const []]) {
+    bot.executeCommand(network, channel, user, command, args);
+  }
+  
   /**
    * Sends [message] as a message to [channel] on [network].
    *

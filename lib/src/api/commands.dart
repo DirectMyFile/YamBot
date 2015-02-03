@@ -70,6 +70,8 @@ class CommandEvent {
    * Joins the arguments by [sep].
    */
   String joinArgs([String sep = " "]) => args.join(sep);
+  
+  String joinArguments([String sep = " "]) => joinArgs(sep);
 
   bool get hasArguments => args.isNotEmpty;
   bool get hasNoArguments => args.isEmpty;
@@ -85,6 +87,10 @@ class CommandEvent {
       var needCmd = !cmd.usage.startsWith(command);
       reply("> Usage: ${needCmd ? '${command} ' : ''}${cmd.usage}");
     }
+  }
+  
+  void executeCommand(String command, [List<String> args = const []]) {
+    bot.executeCommand(network, channel, user, command, args);
   }
   
   dynamic chooseAtRandom(List<dynamic> list) {
