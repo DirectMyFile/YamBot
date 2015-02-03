@@ -1,6 +1,6 @@
 # Polymorphic Bot
 
-Automation Bot that connects to IRC.
+Automation Bot that connects to IRC or Slack.
 
 ## Goals
 
@@ -23,3 +23,21 @@ Automation Bot that connects to IRC.
 - Simple API
 - Flexible and Powerful
 - Asynchronous by Design
+
+### Example
+
+Simple Plugin with a hello command:
+
+```dart
+import "package:polymorphic_bot/plugin.dart";
+export "package:polymorphic_bot/plugin.dart";
+
+@PluginInstance()
+Plugin plugin;
+
+@BotInstance()
+BotConnector bot;
+
+@Command("hello")
+hello(CommandEvent event) => event.reply("> Hello World");
+```
