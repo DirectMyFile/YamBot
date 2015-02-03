@@ -216,8 +216,8 @@ class MessageEvent {
   }
 
   void random(List<String> messages) {
-    var random = new Random();
-    reply(messages[random.nextInt(messages.length)]);
+    var r = new Random();
+    reply(messages[r.nextInt(messages.length)]);
   }
   
   void kickUser({String reason}) {
