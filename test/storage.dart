@@ -1,4 +1,4 @@
-library polymorphic.test.storage;
+library polymorphic.tests.storage;
 
 import "common.dart";
 export "common.dart";
