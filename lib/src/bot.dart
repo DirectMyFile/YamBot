@@ -226,6 +226,17 @@ class Bot {
     client.register((IRC.MessageEvent event) {
       if (event.isPrivate) return;
       
+      String prefix;
+      if (!event.isPrivate) prefix = config["prefixes"][event.channel.name];
+      if (prefix == null) prefix = config["prefixes"]['default'];
+      if (prefix == null) throw new Exception("[$network] No Prefix Set");
+      if (event.message.trim().startsWith(prefix)) {
+        List<String> args = event.message.trim().split(' ');
+        String command = args[0].substring(1);
+        args.removeAt(0);
+        client.post(new IRC.CommandEvent(event, command, args));
+      }
+      
       BotMetrics.messagesMetric.value++;
       
       var from = event.from;
@@ -266,17 +277,6 @@ class Bot {
         print("[$network] <$from> ${cleanMsg}");
       } else {
         print("[$network] <${event.channel.name}><$from> ${cleanMsg}");
-      }
-      
-      String prefix;
-      if (!event.isPrivate) prefix = config["prefixes"][event.channel.name];
-      if (prefix == null) prefix = config["prefixes"]['default'];
-      if (prefix == null) throw new Exception("[$network] No Prefix Set");
-      if (event.message.startsWith(prefix)) {
-        List<String> args = event.message.split(' ');
-        String command = args[0].substring(1);
-        args.removeAt(0);
-        client.post(new IRC.CommandEvent(event, command, args));
       }
       
       new Future.delayed(new Duration(milliseconds: 500), () {
