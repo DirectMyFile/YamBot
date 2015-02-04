@@ -59,13 +59,21 @@ class Mocker {
   const Mocker(this.type);
 }
 
-void main() {
-  findFunctionAnnotations(Configure).forEach((s) {
+void runTests([Symbol lib]) {
+  LibraryMirror library = currentMirrorSystem().isolate.rootLibrary;
+
+  if (lib != null) {
+    library = currentMirrorSystem().findLibrary(lib);
+  }
+
+  findFunctionAnnotations(Configure, lib: library).forEach((s) {
     s.function();
   });
 
-  scanLibrary(currentMirrorSystem().isolate.rootLibrary);
+  scanLibrary(library);
 }
+
+void main() => runTests();
 
 void scanLibrary(LibraryMirror lib) {
   void setupTest(FunctionAnnotation a) {
@@ -170,7 +178,7 @@ List<ClassAnnotation> findClassesAnnotation(Type type, {LibraryMirror lib}) =>
     ..metadata = (it.metadata.firstWhere(
         (it) => reflectType(type).isAssignableTo(it.type)).reflectee)
     ..mirror = it;
-});
+}).toList();
 
 Map<Type, Function> _mocks = {};
 
