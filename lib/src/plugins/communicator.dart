@@ -284,6 +284,78 @@ class PluginCommunicator {
         "topic": channel.topic
       });
     });
+    
+    addBotMethod("isInChannel", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      call.reply(bot[network].client.channels.any((it) => it.name == channel));
+    });
+    
+    addBotMethod("listChannels", (call) {
+      var network = call.getArgument("network");
+      
+      call.reply(bot[network].client.channels.map((it) => it.name).toList());
+    });
+    
+    addBotMethod("getChannelUsers", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      call.reply(bot[network].client.getChannel(channel).allUsers);
+    });
+    
+    addBotMethod("setChannelTopic", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      var topic = call.getArgument("topic");
+      
+      bot[network].client.getChannel(channel).topic = topic;
+    }, isVoid: true);
+    
+    addBotMethod("getChannelTopic", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+
+      call.reply(bot[network].client.getChannel(channel).topic);
+    });
+
+    addBotMethod("getChannelMembers", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      call.reply(bot[network].client.getChannel(channel).members);
+    });
+    
+    addBotMethod("getChannelVoices", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      call.reply(bot[network].client.getChannel(channel).voices);
+    });
+    
+    addBotMethod("getChannelOps", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      call.reply(bot[network].client.getChannel(channel).ops);
+    });
+    
+    addBotMethod("getChannelOwners", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      call.reply(bot[network].client.getChannel(channel).owners);
+    });
+    
+    addBotMethod("getChannelHalfOps", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      
+      call.reply(bot[network].client.getChannel(channel).halfops);
+    });
+    
+    addBotMethod()
 
     addBotMethod("whois", (call) {
       var net = call.getArgument('network');

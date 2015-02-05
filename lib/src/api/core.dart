@@ -219,6 +219,24 @@ class BotConnector {
       return new UserInfo(this, network, data["nickname"], data["username"], data["realname"], data["away"], data["awayMessage"], data["isServerOperator"], data["hostname"], data["idle"], data["idleTime"], data["memberIn"], data["operatorIn"], data["voiceIn"], data["halfOpIn"], data["ownerIn"], data["channels"]);
     });
   }
+  
+  Future<List<Channel>> getChannels(String network) {
+    var group = new FutureGroup();
+    
+    return listChannels(network).then((names) {
+      for (var name in names) {
+        group.add(getChannel(network, name));
+      }
+      
+      return group.future;
+    });
+  }
+  
+  Future<List<String>> listChannels(String network) {
+    return plugin.callMethod("listChannels", {
+      "network": network
+    });
+  }
 
   /**
    * Gets Channel Information for the given channel [name] on [network].
@@ -229,6 +247,13 @@ class BotConnector {
       "channel": name
     }).then((data) {
       return new Channel(this, network, name, data["topic"], data["members"], data["ops"], data["voices"], data["halfops"], data["owners"]);
+    });
+  }
+  
+  Future<bool> isInChannel(String network, String name) {
+    return plugin.callMethod("isInChannel", {
+      "network": network,
+      "channel": name
     });
   }
 
