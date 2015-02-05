@@ -944,7 +944,7 @@ class BotConnector {
         handler(event);
       }
 
-      if (allowVariables) {
+      if (allowVariables == true) {
         var variables = <String, String>{
           "channel": channel,
           "network": network,

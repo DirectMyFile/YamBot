@@ -48,7 +48,7 @@ class CommandEvent {
    * If [prefixContent] is empty it becomes the display name of this plugin.
    */
   void reply(String message, {bool prefix, String prefixContent, bool ping: false}) {
-    if (prefix || (prefix == null && prefixContent != null)) {
+    if (prefix == true || (prefix == null && prefixContent != null)) {
       if (prefixContent == null) {
         prefixContent = bot.plugin.displayName;
       }

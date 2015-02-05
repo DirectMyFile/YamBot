@@ -226,15 +226,34 @@ class Bot {
     client.register((IRC.MessageEvent event) {
       if (event.isPrivate) return;
       
-      String prefix;
-      if (!event.isPrivate) prefix = config["prefixes"][event.channel.name];
-      if (prefix == null) prefix = config["prefixes"]['default'];
-      if (prefix == null) throw new Exception("[$network] No Prefix Set");
-      if (event.message.trim().startsWith(prefix)) {
-        List<String> args = event.message.trim().split(' ');
-        String command = args[0].substring(1);
-        args.removeAt(0);
-        client.post(new IRC.CommandEvent(event, command, args));
+      var prefix = getPrefix(event.channel.name);
+
+      if (prefix == null) {
+        throw new Exception("[$network] No Prefix Set");
+      }
+
+      var trimmed = event.message.trim();
+
+      bool isCommand = false;
+
+      if (prefix is String && trimmed.startsWith(prefix)) {
+        isCommand = true;
+      } else if (prefix is RegExp) {
+        var p = prefix as RegExp;
+        if (p.hasMatch(trimmed)) {
+          isCommand = true;
+          prefix = p.firstMatch(trimmed).group(1);
+        }
+      }
+
+      if (isCommand) {
+        trimmed = trimmed.substring(prefix.length);
+
+        List<String> parts = trimmed.split(' ');
+        String command = parts[0];
+        parts.removeAt(0);
+
+        client.post(new IRC.CommandEvent(event, command, parts));
       }
       
       BotMetrics.messagesMetric.value++;
@@ -285,12 +304,24 @@ class Bot {
     });
   }
 
-  String getPrefix(String channel) {
+  Pattern getPrefix(String channel) {
+    var prefix;
+
     if (config["prefixes"][channel] != null) {
-      return config["prefixes"][channel];
+      prefix = config["prefixes"][channel];
     } else {
-      return config["prefixes"]["default"];
+      prefix = config["prefixes"]["default"];
     }
+
+    if (prefix == "%ping%") {
+      prefix = new RegExp("(${client.nickname}(,|:)( )?)(.+)");
+    }
+
+    if (prefix is String && prefix.contains("%bot%")) {
+      prefix = prefix.replaceAll("%bot%", client.nickname);
+    }
+
+    return prefix;
   }
 
   void _registerCommandHandler() {

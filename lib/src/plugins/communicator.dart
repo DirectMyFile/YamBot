@@ -159,7 +159,13 @@ class PluginCommunicator {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
 
-      call.reply(bot[network].getPrefix(channel));
+      var prefix = bot[network].getPrefix(channel);
+
+      if (prefix is Pattern) {
+        prefix = "${bot[network].client.nickname}: ";
+      }
+
+      call.reply(prefix);
     });
 
     addBotMethod("unforwardHttpPort", (call) {
