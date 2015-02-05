@@ -536,6 +536,14 @@ class IrcEventListener {
       com.pm.sendAll(data);
     });
     
+    b.client.register((IRC.ServerSupportsEvent e) {
+      var data = common("supports");
+      
+      data["supported"] = e.supported;
+      
+      com.pm.sendAll(data);
+    });
+    
     b.client.register((IRC.NickChangeEvent e) {
       var data = common("nick-change");
       
