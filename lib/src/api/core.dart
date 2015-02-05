@@ -396,7 +396,61 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
-
+  
+  void onNickChange(NickChangeHandler handler) {
+    var sub = plugin.on("nick-change").map((it) {
+      var network = it["network"];
+      var original = it["original"];
+      var now = it["now"];
+      
+      return new NickChangeEvent(this, network, original, now);
+    }).listen((event) {
+      handler(event);
+    });
+    
+    plugin.registerSubscription(sub);
+  }
+  
+  void onNickInUse(NickInUseHandler handler) {
+    var sub = plugin.on("nick-in-use").map((it) {
+      return new NickInUseEvent(this, it["network"], it["original"]);
+    }).listen((event) {
+      handler(event);
+    });
+    
+    plugin.registerSubscription(sub);
+  }
+  
+  void onServerSupports(ServerSupportsHandler handler) {
+    var sub = plugin.on("supports").map((it) {
+      return new ServerSupportsEvent(this, it["network"], it["supported"]);
+    }).listen((event) {
+      handler(event);
+    });
+    
+    plugin.registerSubscription(sub);
+  }
+  
+  void onMOTD(MOTDHandler handler) {
+    var sub = plugin.on("motd").map((it) {
+      return new MOTDEvent(this, it["network"], it["message"]);
+    }).listen((event) {
+      handler(event);
+    });
+    
+    plugin.registerSubscription(sub);
+  }
+  
+  void onKick(KickHandler handler) {
+    var sub = plugin.on("kick").map((it) {
+      return new KickEvent(this, it["network"], it["channel"], it["user"], it["kicker"], it["reason"]);
+    }).listen((event) {
+      handler(event);
+    });
+    
+    plugin.registerSubscription(sub);
+  }
+  
   /**
    * Sends [message] to [target] on [network] as a message.
    */
@@ -1055,6 +1109,13 @@ class BotConnector {
 
   void appendChannelBuffer(BufferEntry entry) {
     plugin.callMethod("appendChannelBuffer", entry.toData());
+  }
+  
+  void changeBotNickname(String network, String nick) {
+    plugin.callMethod("changeBotNickname", {
+      "network": network,
+      "nickname": nickname
+    });
   }
 
   void onCommand(CommandHandler handler, {bool allowVariables: false}) {

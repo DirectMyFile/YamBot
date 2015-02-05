@@ -18,8 +18,65 @@ typedef void BotDetectionHandler(BotDetectionEvent event);
 typedef void ActionHandler(ActionEvent event);
 typedef void QuitHandler(QuitEvent event);
 typedef void QuitPartHandler(QuitPartEvent event);
+typedef void NickChangeHandler(NickChangeEvent event);
+typedef void NickInUseHandler(NickInUseEvent event);
+typedef void ServerSupportsHandler(ServerSupportsEvent event);
+typedef void MOTDHandler(MOTDEvent event);
+typedef void KickHandler(KickEvent event);
 
 typedef void ShutdownAction();
+
+class NickChangeEvent {
+  final BotConnector bot;
+  final String network;
+  final String original;
+  final String now;
+  
+  NickChangeEvent(this.bot, this.network, this.original, this.now);
+}
+
+class KickEvent {
+  final BotConnector bot;
+  final String network;
+  final String channel;
+  final String user;
+  final String kicker;
+  final String reason;
+  
+  KickEvent(this.bot, this.network, this.channel, this.user, this.kicker, this.reason);
+}
+
+class MOTDEvent {
+  final BotConnector bot;
+  final String network;
+  final String message;
+  
+  MOTDEvent(this.bot, this.network, this.message);
+}
+
+class ServerSupportsEvent {
+  final BotConnector bot;
+  final String network;
+  final Map<String, dynamic> supported;
+  
+  ServerSupportsEvent(this.bot, this.network, this.supported);
+}
+
+class NickInUseEvent {
+  final BotConnector bot;
+  final String network;
+  final String original;
+  
+  NickInUseEvent(this.bot, this.network, this.original);
+  
+  void useNickname(String nick) {
+    bot.changeBotNickname(network, nick);
+  }
+  
+  void append(String suffix) {
+    bot.changeBotNickname(network, original + suffix);
+  }
+}
 
 class ConnectEvent {
   final BotConnector bot;

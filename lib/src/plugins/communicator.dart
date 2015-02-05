@@ -264,6 +264,54 @@ class PluginCommunicator {
       });
     });
     
+    addBotMethod("getUsername", (call) {
+      var network = call.getArgument("network");
+      var user = call.getArgument("user");
+    
+      var b = bot[network];
+      
+      if (b.authManager._authenticated.containsKey(user)) {
+        call.reply(b.authManager._authenticated[user]);
+      } else {
+        b.client.whois(user).then((info) {
+          call.reply(info.username != null ? info.username : user);
+        });
+      }
+    });
+    
+    addBotMethod("isUserAway", (call) {
+      var network = call.getArgument("network");
+      var user = call.getArgument("user");
+    
+      var b = bot[network];
+      
+      b.client.whois(user).then((info) {
+        call.reply(info.away);
+      });
+    });
+    
+    addBotMethod("getRealName", (call) {
+      var network = call.getArgument("network");
+      var user = call.getArgument("user");
+    
+      var b = bot[network];
+      
+      b.client.whois(user).then((info) {
+        call.reply(info.realname);
+      });
+    });
+    
+    addBotMethod("getAwayMessage", (call) {
+      var network = call.getArgument("network");
+      var user = call.getArgument("user");
+    
+      var b = bot[network];
+      
+      b.client.whois(user).then((info) {
+        call.reply(info.awayMessage);
+      });
+    });
+    
     addBotMethod("executeCommand", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
@@ -303,6 +351,13 @@ class PluginCommunicator {
       
       call.reply(bot[network].client.channels.any((it) => it.name == channel));
     });
+    
+    addBotMethod("changeBotNickname", (call) {
+      var network = call.getArgument("network");
+      var nick = call.getArgument("nickname");
+      
+      bot[network].changeNickname(nick);
+    }, isVoid: true);
     
     addBotMethod("listChannels", (call) {
       var network = call.getArgument("network");
@@ -366,8 +421,6 @@ class PluginCommunicator {
       
       call.reply(bot[network].client.getChannel(channel).halfops);
     });
-    
-    addBotMethod()
 
     addBotMethod("whois", (call) {
       var net = call.getArgument('network');
