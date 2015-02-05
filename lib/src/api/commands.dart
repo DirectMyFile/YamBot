@@ -69,7 +69,9 @@ class CommandEvent {
   /**
    * Joins the arguments by [sep].
    */
-  String joinArgs([String sep = " "]) => args.join(sep);
+  String joinArgs([String sep = " "]) {
+    return args.join(sep);
+  }
   
   String joinArguments([String sep = " "]) => joinArgs(sep);
 

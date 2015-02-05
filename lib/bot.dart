@@ -58,6 +58,10 @@ CoreBot launchBot(String path) {
     signal.watch().listen((data) {
       if (!isShuttingDown) {
         isShuttingDown = true;
+
+        if (!(bot.bots.any((it) => bot[it].client.connected))) {
+          exit(0);
+        }
         
         print("Shutting Down");
         

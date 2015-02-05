@@ -934,6 +934,7 @@ class BotConnector {
     var sub = plugin.on("command").listen((data) {
       String command = data['command'];
       List<String> args = data['args'];
+
       String user = data['from'];
       String channel = data['target'];
       String network = data['network'];
@@ -964,11 +965,12 @@ class BotConnector {
           variables["last.message"] = last.message;
           variables["last.user"] = last.user;
         }).then((_) {
+          var argz = args.join(" ");
           for (var variable in variables.keys) {
-            message = message.replaceAll("%${variable}%", variables[variable]);
+            argz = argz.replaceAll("%${variable}%", variables[variable]);
           }
 
-          args = (message.split(" "))..removeAt(0);
+          args = argz.split(" ");
 
           emit();
         });

@@ -251,6 +251,7 @@ class Bot {
 
         List<String> parts = trimmed.split(' ');
         String command = parts[0];
+
         parts.removeAt(0);
 
         client.post(new IRC.CommandEvent(event, command, parts));
