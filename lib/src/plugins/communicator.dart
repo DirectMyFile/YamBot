@@ -387,6 +387,7 @@ class PluginCommunicator {
     
     addBotMethod("emit", (call) {
       var e = call.getArgument("value");
+      
       pm.sendAll({
         "type": "event"
       }..addAll(e));

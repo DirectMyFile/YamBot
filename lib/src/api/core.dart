@@ -914,6 +914,38 @@ class BotConnector {
       }
     }, allowVariables: allowVariables);
   }
+  
+  void emitBotEvent(String event, Map<String, dynamic> data) {
+    var map = {
+      "event": event
+    }..addAll(data);
+    
+    plugin.callMethod("emit", map);
+  }
+  
+  Future<String> getMOTD(String network) {
+    return plugin.callMethod("getMOTD", {
+      "network": network
+    });
+  }
+  
+  Future<Map<String, dynamic>> getSupported(String network) {
+    return plugin.callMethod("getSupported", {
+      "network": network
+    });
+  }
+  
+  Future<bool> isConnected(String network) {
+    return plugin.callMethod("isConnected", {
+      "network": network
+    });
+  }
+  
+  Future<String> getNetworkName(String network) {
+    return plugin.callMethod("getNetworkName", {
+      "network": network
+    });
+  }
 
   Future<List<BufferEntry>> getChannelBuffer(String network, String channel) {
     return plugin.callMethod("getChannelBuffer", {
