@@ -1450,7 +1450,12 @@ class Plugin {
       OnQuit: getBot().onQuit,
       OnQuitPart: getBot().onQuitPart,
       OnBotReady: getBot().onReady,
-      OnCommand: getBot().onCommand
+      OnCommand: getBot().onCommand,
+      OnKick: getBot().onKick,
+      OnServerSupports: getBot().onServerSupports,
+      OnMOTD: getBot().onMOTD,
+      OnNickChange: getBot().onNickChange,
+      OnNickInUse: getBot().onNickInUse
     };
 
     for (var c in cmds) {

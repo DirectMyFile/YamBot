@@ -65,6 +65,26 @@ class OnQuit {
   const OnQuit({this.network, this.user});
 }
 
+class OnKick {
+  const OnKick();
+}
+
+class OnServerSupports {
+  const OnServerSupports();
+}
+
+class OnNickChange {
+  const OnNickChange();
+}
+
+class OnNickInUse {
+  const OnNickInUse();
+}
+
+class OnMOTD {
+  const OnMOTD();
+}
+
 class OnQuitPart {
   final String network;
   final String channel;
