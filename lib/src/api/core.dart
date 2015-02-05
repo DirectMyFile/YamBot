@@ -305,11 +305,12 @@ class BotConnector {
   /**
    * Sends [message] to [target] on [network] as a message.
    */
-  void sendMessage(String network, String target, String message) {
+  void sendMessage(String network, String target, String message, {String ping}) {
     plugin.callMethod("sendMessage", {
       "network": network,
       "message": message,
-      "target": target
+      "target": target,
+      "ping": ping
     });
   }
 

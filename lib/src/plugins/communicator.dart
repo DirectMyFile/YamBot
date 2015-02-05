@@ -348,6 +348,17 @@ class PluginCommunicator {
       var network = call.getArgument("network");
       var target = call.getArgument("target");
       var message = call.getArgument("message");
+      var ping = call.getArgument("ping");
+
+      var b = bot[network];
+
+      if (ping != null) {
+        if (b.isSlackBot) {
+          message = "@${ping}: ${message}";
+        } else {
+          message = "${ping}: ${message}";
+        }
+      }
 
       bot[network].client.sendMessage(target, message);
     }, isVoid: true);

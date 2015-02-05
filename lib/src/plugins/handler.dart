@@ -154,6 +154,11 @@ class PluginHandler {
           }
 
           String pluginName = pubspec["name"];
+
+          if (bot.config["plugins"] != null && bot.config["plugins"] is List && !bot.config["plugins"].contains(pluginName)) {
+            return new Future.value();
+          }
+
           _candidates.add(pluginName);
 
           if (_disabled.contains(pluginName)) {

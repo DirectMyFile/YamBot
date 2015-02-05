@@ -47,7 +47,7 @@ class CommandEvent {
    * If [prefix] is prefixed with [prefixContent].
    * If [prefixContent] is empty it becomes the display name of this plugin.
    */
-  void reply(String message, {bool prefix, String prefixContent}) {
+  void reply(String message, {bool prefix, String prefixContent, bool ping: false}) {
     if (prefix || (prefix == null && prefixContent != null)) {
       if (prefixContent == null) {
         prefixContent = bot.plugin.displayName;
@@ -56,7 +56,7 @@ class CommandEvent {
       message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
     }
 
-    bot.sendMessage(network, channel, message);
+    bot.sendMessage(network, channel, message, ping: ping ? user : null);
   }
 
   /**
