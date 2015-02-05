@@ -315,7 +315,7 @@ class Bot {
     }
 
     if (prefix == "%ping%") {
-      prefix = new RegExp("(${client.nickname}(,|:)( )?)(.+)");
+      prefix = new RegExp("(@?${client.nickname}(,|:)( )?)(.+)");
     }
 
     if (prefix is String && prefix.contains("%bot%")) {
