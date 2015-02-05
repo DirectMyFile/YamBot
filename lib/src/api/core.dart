@@ -250,6 +250,63 @@ class BotConnector {
     });
   }
   
+  Future<List<String>> listChannelUsers(String network, String name) {
+    return plugin.callMethod("getChannelUsers", {
+      "network": network,
+      "channel": name
+    });
+  }
+  
+  Future<List<String>> listChannelOps(String network, String name) {
+    return plugin.callMethod("getChannelOps", {
+      "network": network,
+      "channel": name
+    });
+  }
+  
+  Future<List<String>> listChannelVoices(String network, String name) {
+    return plugin.callMethod("getChannelVoices", {
+      "network": network,
+      "channel": name
+    });
+  }
+  
+  Future<List<String>> listChannelMembers(String network, String name) {
+    return plugin.callMethod("getChannelMembers", {
+      "network": network,
+      "channel": name
+    });
+  }
+  
+  Future<List<String>> listChannelOwners(String network, String name) {
+    return plugin.callMethod("getChannelOwners", {
+      "network": network,
+      "channel": name
+    });
+  }
+  
+  Future<List<String>> listChannelHalfOps(String network, String name) {
+    return plugin.callMethod("getChannelHalfOps", {
+      "network": network,
+      "channel": name
+    });
+  }
+  
+  void setChannelTopic(String network, String name, String topic) {
+    plugin.callMethod("setChannelTopic", {
+      "network": network,
+      "channel": name,
+      "topic": topic
+    });
+  }
+  
+  Future<String> getChannelTopic(String network, String name) {
+    return plugin.callMethod("getChannelTopic", {
+      "network": network,
+      "channel": name
+    });
+  }
+  
   Future<bool> isInChannel(String network, String name) {
     return plugin.callMethod("isInChannel", {
       "network": network,
