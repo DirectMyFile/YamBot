@@ -62,6 +62,10 @@ class Bot {
         "default": config.containsKey("prefix") ? config["prefix"] : "."
       };
     }
+
+    if (isSlackBot) {
+      config["nickname"] = config["nickname"].toString().toLowerCase();
+    }
     
     var botConfig = new IRC.IrcConfig();
     botConfig.nickname = config['nickname'];
@@ -315,7 +319,7 @@ class Bot {
     }
 
     if (prefix == "%ping%") {
-      prefix = new RegExp("(@?${client.nickname}(,|:)( )?)(.+)");
+      prefix = new RegExp("(@?${client.nickname}(,|:)( )?)(.+)", caseSensitive: false);
     }
 
     if (prefix is String && prefix.contains("%bot%")) {
