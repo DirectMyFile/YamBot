@@ -515,6 +515,36 @@ class IrcEventListener {
   void handle() {
     Bot b = com.bot[network];
 
+    b.client.register((IRC.KickEvent e) {
+      if (e.channel != null && e.channel.name == "#bot-communication") {
+        return;
+      }
+      
+      var data = common("kick");
+      
+      data["kicker"] = e.by;
+      data["reason"] = e.reason;
+      data["user"] = e.user;
+      data["channel"] = e.channel.name;
+      
+      com.pm.sendAll(data);
+    });
+    
+    b.client.register((IRC.MOTDEvent e) {
+      var data = common("motd");
+      data["message"] = e.message;
+      com.pm.sendAll(data);
+    });
+    
+    b.client.register((IRC.NickChangeEvent e) {
+      var data = common("nick-change");
+      
+      data["original"] = e.original;
+      data["now"] = e.now;
+      
+      com.pm.sendAll(data);
+    });
+
     b.client.register((IRC.MessageEvent e) {
       if (e.channel != null && e.channel.name == "#bot-communication") {
         return;
@@ -558,6 +588,24 @@ class IrcEventListener {
 
       data['command'] = e.command;
       data['args'] = e.args;
+      com.pm.sendAll(data);
+    });
+    
+    b.client.register((IRC.NickInUseEvent e) {
+      var data = common("nick-in-use");
+      
+      data["original"] = e.original;
+      
+      com.pm.sendAll(data);
+    });
+    
+    
+    
+    b.client.register((IRC.PongEvent e) {
+      var data = common("pong");
+      
+      data['message'] = e.message;
+      
       com.pm.sendAll(data);
     });
 
@@ -630,6 +678,27 @@ class IrcEventListener {
       var data = common("invite");
       data['user'] = e.user;
       data['channel'] = e.channel;
+      com.pm.sendAll(data);
+    });
+    
+    b.client.register((IRC.ErrorEvent e) {
+      var data = common("error");
+      
+      data["message"] = e.message;
+      data["type"] = e.type;
+      
+      com.pm.sendAll(data);
+    });
+    
+    b.client.register((IRC.LineSentEvent e) {
+      var data = common("line-sent");
+      data["line"] = e.line;
+      com.pm.sendAll(data);
+    });
+    
+    b.client.register((IRC.LineReceiveEvent e) {
+      var data = common("line-receive");
+      data["line"] = e.line;
       com.pm.sendAll(data);
     });
 
