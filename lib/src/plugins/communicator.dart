@@ -390,6 +390,30 @@ class PluginCommunicator {
       pm.sendAll({
         "type": "event"
       }..addAll(e));
+    }, isVoid: true);
+    
+    addBotMethod("getMOTD", (call) {
+      var network = call.getArgument("network");
+      
+      call.reply(bot[network].client.motd);
+    });
+    
+    addBotMethod("getSupported", (call) {
+      var network = call.getArgument("network");
+      
+      call.reply(bot[network].client.supported);
+    });
+    
+    addBotMethod("getNetworkName", (call) {
+      var network = call.getArgument("network");
+      
+      call.reply(bot[network].client.networkName);
+    });
+    
+    addBotMethod("isConnected", (call) {
+      var network = call.getArgument("network");
+      
+      call.reply(bot[network].client.connected);
     });
 
     addBotMethod("sendCTCP", (call) {
