@@ -278,6 +278,19 @@ class BotConnector {
     });
   }
   
+  Future<bool> hasPermission(String network, String user, String permission, {String plugin}) {
+    if (plugin == null) {
+      plugin = plugin.name;
+    }
+    
+    return plugin.callMethod("hasPermission", {
+      "network": network,
+      "user": user,
+      "permission": permission,
+      "plugin": plugin
+    });
+  }
+  
   Future<List<String>> listChannelOwners(String network, String name) {
     return plugin.callMethod("getChannelOwners", {
       "network": network,

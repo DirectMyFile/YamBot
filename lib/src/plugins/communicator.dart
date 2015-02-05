@@ -241,6 +241,7 @@ class PluginCommunicator {
       var user = call.getArgument('user');
       var target = call.getArgument('target');
       var notify = call.getArgument("notify", defaultValue: true);
+      
       bot[net].authManager.hasPermission(getPluginName(), user, node).then((bool has) {
         if (!has) {
           var b = bot[net];
@@ -248,6 +249,17 @@ class PluginCommunicator {
             b.client.sendMessage(target, "$user> You are not authorized to perform this action (missing ${getPluginName()}.${node})");
           }
         }
+        call.reply(has);
+      });
+    });
+    
+    addBotMethod("hasPermission", (call) {
+      var plugin = call.getArgument("plugin");
+      var node = call.getArgument("node");
+      var network = call.getArgument("network");
+      var user = call.getArgument("user");
+      
+      bot[network].authManager.hasPermission(plugin, user, node).then((bool has) {
         call.reply(has);
       });
     });
