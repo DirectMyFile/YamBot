@@ -77,5 +77,13 @@ class HttpRoute {
   HttpRoute(this.pattern, this.handler, this.method);
 }
 
+class HttpError {
+  final String message;
+  final int statusCode;
+  final String response;
+
+  HttpError(this.message, this.statusCode, this.response);
+}
+
 typedef void HttpRequestHandler(HttpRequest request);
 typedef void WebSocketHandler(WebSocket socket);

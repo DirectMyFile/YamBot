@@ -181,6 +181,20 @@ class CommandEvent {
       (notice ? replyNotice : reply)(p != null ? value : "${noSign ? "" : "> "}${value}", prefixContent: p);
     });
   }
+
+  Future<dynamic> fetch(String url, {Map<String, String> headers: const {}, Map<String, String> query}) {
+    if (query != null) {
+      url += HttpHelper.buildQueryString(query);
+    }
+
+    return bot.plugin.httpClient.get(url).then((response) {
+      if (response.statusCode != 200) {
+        throw new HttpError("failed to fetch data", response.statusCode, response.body);
+      }
+
+      return response.body;
+    });
+  }
   
   Future<dynamic> fetchJSON(String url, {String transform(String input), Map<String, String> headers: const {}, Map<String, String> query}) {
     if (query != null) {
@@ -189,10 +203,24 @@ class CommandEvent {
     
     return bot.plugin.httpClient.get(url).then((response) {
       if (response.statusCode != 200) {
-        throw new HttpException("failed to fetch JSON");
+        throw new HttpError("failed to fetch JSON", response.statusCode, response.body);
       }
       
       return JSON.decode(transform != null ? transform(response.body) : response.body);
+    });
+  }
+
+  Future<dynamic> fetchYAML(String url, {String transform(String input), Map<String, String> headers: const {}, Map<String, String> query}) {
+    if (query != null) {
+      url += HttpHelper.buildQueryString(query);
+    }
+
+    return bot.plugin.httpClient.get(url).then((response) {
+      if (response.statusCode != 200) {
+        throw new HttpError("failed to fetch YAML", response.statusCode, response.body);
+      }
+
+      return yaml.loadYaml(transform != null ? transform(response.body) : response.body);
     });
   }
   
@@ -203,7 +231,7 @@ class CommandEvent {
     
     return bot.plugin.httpClient.post(url, body: JSON.encode(body), headers: headers).then((response) {
       if (!([200, 201].contains(response.statusCode))) {
-        throw new HttpException("failed to fetch JSON");
+        throw new HttpError("failed to post JSON", response.statusCode, response.body);
       }
       
       return JSON.decode(response.body);
@@ -217,7 +245,7 @@ class CommandEvent {
     
     return bot.plugin.httpClient.get(url).then((response) {
       if (response.statusCode != 200) {
-        throw new HttpException("failed to fetch HTML");
+        throw new HttpError("failed to fetch HTML", response.statusCode, response.body);
       }
       
       return new HtmlDocument(parseHtml(response.body));
