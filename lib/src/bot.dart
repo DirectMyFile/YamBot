@@ -230,25 +230,17 @@ class Bot {
     client.register((IRC.MessageEvent event) {
       if (event.isPrivate) return;
       
-      var prefix = getPrefix(event.channel.name);
+      var prefixes = getPrefixes(event.channel.name);
 
-      if (prefix == null) {
+      if (prefixes == null) {
         throw new Exception("[$network] No Prefix Set");
       }
 
       var trimmed = event.message.trim();
 
-      bool isCommand = false;
+      var prefix = getMessagePrefix(event.target, event.message);
 
-      if (prefix is String && trimmed.startsWith(prefix)) {
-        isCommand = true;
-      } else if (prefix is RegExp) {
-        var p = prefix as RegExp;
-        if (p.hasMatch(trimmed)) {
-          isCommand = true;
-          prefix = p.firstMatch(trimmed).group(1);
-        }
-      }
+      var isCommand = prefix != null;
 
       if (isCommand) {
         trimmed = trimmed.substring(prefix.length);
@@ -283,10 +275,10 @@ class Bot {
         } else if (msg.trim() == "FIND BOTS") {
           event.reply("${event.from}: I AM A BOT");
         } else if (msg.trim() == "PREFIXES") {
-          event.reply("MY PREFIX FOR ${event.channel.name} IS ${getPrefix(event.channel.name)}");
+          event.reply("MY PREFIX FOR ${event.channel.name} IS ${getPrefixes(event.channel.name)}");
         } else if (msg.trim().startsWith("${client.nickname}: WHAT IS YOUR PREFIX FOR ")) {
           var channel = msg.trim().substring("${client.nickname}: WHAT IS YOUR PREFIX FOR ".length);
-          event.reply("${event.from}: MY PREFIX FOR ${channel} IS ${getPrefix(channel)}");
+          event.reply("${event.from}: MY PREFIX FOR ${channel} IS ${getPrefixes(channel)}");
         } else if (msg.trim() == "${client.nickname}: WHAT EXTENSIONS DO YOU SUPPORT") {
           event.reply("${event.from}: I SUPPORT " + Globals.EXTENSIONS.join(" "));
         } else if (msg.trim() == "${client.nickname}: WHAT POLYMORPHIC PLUGINS DO YOU HAVE") {
@@ -309,21 +301,50 @@ class Bot {
     });
   }
 
-  Pattern getPrefix(String channel) {
-    var prefix;
+  List<Pattern> getPrefixes(String channel) {
+    var prefixes;
 
     if (config["prefixes"][channel] != null) {
-      prefix = config["prefixes"][channel];
+      prefixes = config["prefixes"][channel];
     } else {
-      prefix = config["prefixes"]["default"];
+      prefixes = config["prefixes"]["default"];
     }
 
-    if (prefix == "%ping%") {
-      prefix = new RegExp("(@?${client.nickname}(,|:)( )?)(.+)", caseSensitive: false);
+    if (prefixes is! List) {
+      prefixes = [prefixes];
     }
 
-    if (prefix is String && prefix.contains("%bot%")) {
-      prefix = prefix.replaceAll("%bot%", client.nickname);
+    for (var i = 0; i < prefixes.length; i++) {
+      var prefix = prefixes[i];
+
+      if (prefix == "%ping%") {
+        prefixes[i] = new RegExp("(@?${client.nickname}(,|:)( )?)(.+)", caseSensitive: false);
+      }
+
+      if (prefix is String && prefix.contains("%bot%")) {
+        prefixes[i] = prefix.replaceAll("%bot%", client.nickname);
+      }
+    }
+
+    return prefixes;
+  }
+
+  String getMessagePrefix(String channel, String message) {
+    var trimmed = message.trim();
+    String prefix;
+    List<Pattern> prefixes = getPrefixes(channel);
+
+    for (var p in prefixes) {
+      if (p is String && trimmed.startsWith(p)) {
+        prefix = p;
+        break;
+      } else if (p is RegExp) {
+        var m = p as RegExp;
+        if (m.hasMatch(trimmed)) {
+          prefix = m.firstMatch(trimmed).group(1);
+          break;
+        }
+      }
     }
 
     return prefix;

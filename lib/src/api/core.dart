@@ -280,10 +280,10 @@ class BotConnector {
   
   Future<bool> hasPermission(String network, String user, String permission, {String plugin}) {
     if (plugin == null) {
-      plugin = plugin.name;
+      plugin = this.plugin.name;
     }
     
-    return plugin.callMethod("hasPermission", {
+    return this.plugin.callMethod("hasPermission", {
       "network": network,
       "user": user,
       "permission": permission,
@@ -588,16 +588,6 @@ class BotConnector {
     return plugin.callMethod("isUserABot", {
       "network": network,
       "user": user
-    });
-  }
-
-  /**
-   * Gets the prefix for the given [channel] on [network].
-   */
-  Future<String> getPrefix(String network, String channel) {
-    return plugin.callMethod("getPrefix", {
-      "network": network,
-      "channel": channel
     });
   }
 
@@ -1114,7 +1104,7 @@ class BotConnector {
   void changeBotNickname(String network, String nick) {
     plugin.callMethod("changeBotNickname", {
       "network": network,
-      "nickname": nickname
+      "nickname": nick
     });
   }
 

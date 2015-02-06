@@ -255,7 +255,7 @@ class MessageEvent {
   Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
   
   Future<String> getChannelPrefix() {
-    return bot.getPrefix(network, channel);
+    return bot.getChannelsPrefixes(network, channel);
   }
   
   Future<BufferEntry> getLastCommand([bool userOnly = true]) {

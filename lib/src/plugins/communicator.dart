@@ -159,7 +159,7 @@ class PluginCommunicator {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
 
-      var prefix = bot[network].getPrefix(channel);
+      var prefix = bot[network].getPrefixes(channel);
 
       if (prefix is Pattern) {
         prefix = "${bot[network].client.nickname}: ";
@@ -320,7 +320,7 @@ class PluginCommunicator {
       var args = call.getArgument("args");
       var client = bot[network].client;
       var b = bot[network];
-      var message = "${b.getPrefix(channel)}${command}${args.isNotEmpty ? ' ' + args.join(' ') : ""}";
+      var message = "${b.getPrefixes(channel)}${command}${args.isNotEmpty ? ' ' + args.join(' ') : ""}";
       client.post(new IRC.CommandEvent(new IRC.MessageEvent(client, user, channel, message), command, args));
     }, isVoid: true);
 
@@ -552,6 +552,26 @@ class PluginCommunicator {
       var network = call.getArgument("network");
       
       call.reply(bot[network].client.connected);
+    });
+
+    addBotMethod("getLastCommand", (call) {
+      var network = call.getArgument("network");
+      var channel = call.getArgument("channel");
+      var user = call.getArgument("user");
+
+      var buff = Buffer.get("${network}${channel}");
+
+      var b = bot[network];
+
+      for (var e in buff) {
+        var p = b.getMessagePrefix(channel, e.message);
+        if (p != null) {
+          call.reply(e.message.substring(p.length));
+          break;
+        }
+      }
+
+      call.reply(null);
     });
 
     addBotMethod("sendCTCP", (call) {
