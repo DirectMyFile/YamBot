@@ -356,7 +356,7 @@ class PluginCommunicator {
       var network = call.getArgument("network");
       var nick = call.getArgument("nickname");
       
-      bot[network].changeNickname(nick);
+      bot[network].client.changeNickname(nick);
     }, isVoid: true);
     
     addBotMethod("listChannels", (call) {
