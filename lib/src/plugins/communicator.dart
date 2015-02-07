@@ -567,7 +567,7 @@ class PluginCommunicator {
         var p = b.getMessagePrefix(channel, e.message);
         if (p != null) {
           call.reply(e.message.substring(p.length));
-          break;
+          return;
         }
       }
 
