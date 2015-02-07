@@ -40,6 +40,7 @@ class Auth {
     
     if (!file.existsSync() && jsonFile.existsSync()) {
       file.writeAsStringSync(yamlToString(JSON.decode(jsonFile.readAsStringSync())));
+      jsonFile.deleteSync();
     }
     
     if (!file.existsSync()) {
