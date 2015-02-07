@@ -1,6 +1,7 @@
 library polymorphic.utils;
 
 import "dart:async";
+import "dart:convert";
 import "dart:io";
 import "dart:mirrors";
 

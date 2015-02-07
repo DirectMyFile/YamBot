@@ -1,10 +1,22 @@
 part of polymorphic.bot;
 
+const String _DEFAULT_PERMS = """
+groups:
+  public:
+    - core.auth
+networks:
+  EsperNet:
+    groups:
+      *: [core.auth]
+    nodes:
+      *: []
+""";
+
 class Auth {
   static const String LOGGED = "You are already logged into NickServ";
   static const String UNLOGGED = "You are not logged into NickServ";
   static const String CHANNEL = "You must be in at least 1 channel that the bot is in to authenticate.";
-
+  
   /**
    * The auth system this is good for
    */
@@ -18,29 +30,21 @@ class Auth {
 
   final Map<String, String> _authenticated = {};
   final List<String> _rejected = [];
-  final File file = new File("permissions.json");
+  final File file = new File("permissions.yaml");
   Map p;
 
   Completer _completer;
 
   Auth(this.network, this.bot) {
+    var jsonFile = new File("permissions.json");
+    
+    if (!file.existsSync() && jsonFile.existsSync()) {
+      file.writeAsStringSync(yamlToString(JSON.decode(jsonFile.readAsStringSync())));
+    }
+    
     if (!file.existsSync()) {
       file.createSync(recursive: true);
-      file.writeAsStringSync(new JsonEncoder.withIndent("  ").convert({
-        "groups": {
-          "public": ["core.auth"]
-        },
-        "networks": {
-          "EsperNet": {
-            "groups": {
-              "*": ["public"]
-            },
-            "nodes": {
-              "*": []
-            }
-          }
-        }
-      }) + "\n");
+      file.writeAsStringSync(_DEFAULT_PERMS);
     }
 
     void fillIn() {
@@ -68,15 +72,15 @@ class Auth {
       }
     }
 
-    p = JSON.decode(file.readAsStringSync());
+    p = new Map<dynamic, dynamic>.from(yaml.loadYaml(file.readAsStringSync()));
     fillIn();
 
     file.watch(events: FileSystemEvent.MODIFY).listen((e) {
       print("[Auth] Reloading Permissions");
       try {
-        p = JSON.decode(file.readAsStringSync());
+        p = yaml.loadYaml(file.readAsStringSync());
       } on FormatException catch (e) {
-        print("[Auth] Permissions JSON is corrupt:");
+        print("[Auth] Permissions file is corrupt:");
         print(e);
         return;
       }
