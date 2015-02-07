@@ -557,6 +557,7 @@ class PluginCommunicator {
     addBotMethod("getLastCommand", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
+      var not = call.getArgument("not");
       var user = call.getArgument("user");
 
       var buff = Buffer.get("${network}${channel}");
@@ -566,6 +567,11 @@ class PluginCommunicator {
       for (var e in buff) {
         var p = b.getMessagePrefix(channel, e.message);
         if (p != null) {
+          var m = e.message.substring(p.length);
+          if (not != null && (m.trim() == not || m.trim().startsWith("${not} "))) {
+            continue;
+          }
+
           call.reply(e.message.substring(p.length));
           return;
         }

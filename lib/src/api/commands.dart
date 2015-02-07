@@ -145,7 +145,8 @@ class CommandEvent {
   Future<String> getLastCommand([bool userOnly = true]) {
     return bot.plugin.callMethod("getLastCommand", {
       "network": network,
-      "channel": channel
+      "channel": channel,
+      "not": command
     }..addAll(userOnly ? { "user": user } : {}));
   }
   
