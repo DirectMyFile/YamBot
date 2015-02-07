@@ -1,5 +1,7 @@
 part of polymorphic.api;
 
+typedef void SubCommandHandler(List<String> args);
+
 /**
  * A Command Event.
  */
@@ -64,6 +66,30 @@ class CommandEvent {
    */
   void require(String permission, void handle()) {
     bot.checkPermission((it) => handle(), network, channel, user, permission);
+  }
+  
+  /**
+   * Handle Sub Commands
+   */
+  void subcommands(Map<String, SubCommandHandler> handlers, {List<String> args}) {
+    if (args == null) {
+      args = this.args;
+    }
+    
+    if (args.isEmpty) {
+      usage();
+      return;
+    }
+    
+    var cmd = args[0];
+    var cargs = new List<String>.from(args)..removeAt(0);
+    
+    if (!handlers.keys.contains(cmd)) {
+      usage();
+      return;
+    }
+    
+    handlers[cmd](cargs);
   }
 
   /**
