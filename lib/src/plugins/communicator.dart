@@ -43,6 +43,28 @@ class PluginCommunicator {
             response.writeln(encodeJSON(pm.plugins));
             response.close();
           }
+        } else if (request.uri.path.trim() == "/kill") {
+          if (request.headers.value("Polymorphic-Key") == Globals.key) {
+            Globals.kill();
+            response.statusCode = 200;
+            response.writeln("Success");
+            response.close();
+          } else {
+            response.statusCode = 403;
+            response.writeln("Not Allowed");
+            response.close();
+          }
+        } else if (request.uri.path.trim() == "/reload") {
+          if (request.headers.value("Polymorphic-Key") == Globals.key) {
+            handler.reloadPlugins();
+            response.statusCode = 200;
+            response.writeln("Success");
+            response.close();
+          } else {
+            response.statusCode = 403;
+            response.writeln("Not Allowed");
+            response.close();
+          }
         } else {
           response.statusCode = 404;
           response.writeln("ERROR: 404 not found.");
