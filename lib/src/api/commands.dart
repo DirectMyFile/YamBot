@@ -212,7 +212,7 @@ class CommandEvent {
     });
   }
   
-  Future<dynamic> fetchJSON(String url, {String transform(String input), Map<String, String> headers: const {}, Map<String, String> query}) {
+  Future<dynamic> fetchJSON(String url, {String transform(String input), Map<String, String> headers: const {}, Map<String, String> query, Type type}) {
     if (query != null) {
       url += HttpHelper.buildQueryString(query);
     }
@@ -222,7 +222,11 @@ class CommandEvent {
         throw new HttpError("failed to fetch JSON", response.statusCode, response.body);
       }
       
-      return JSON.decode(transform != null ? transform(response.body) : response.body);
+      var out = jsonx.decode(transform != null ? transform(response.body) : response.body, type: type);
+      if (out is Map) {
+        out = new SimpleMap(out);
+      }
+      return out;
     });
   }
 
@@ -240,7 +244,7 @@ class CommandEvent {
     });
   }
   
-  Future<dynamic> postJSON(String url, dynamic body, {Map<String, String> headers: const { "Content-Type": "application/json" }, Map<String, String> query}) {
+  Future<dynamic> postJSON(String url, dynamic body, {Map<String, String> headers: const { "Content-Type": "application/json" }, Map<String, String> query, Type type}) {
     if (query != null) {
       url += HttpHelper.buildQueryString(query);
     }
@@ -249,8 +253,12 @@ class CommandEvent {
       if (!([200, 201].contains(response.statusCode))) {
         throw new HttpError("failed to post JSON", response.statusCode, response.body);
       }
-      
-      return JSON.decode(response.body);
+
+      var out = jsonx.decode(response.body, type: type);
+      if (out is Map) {
+        out = new SimpleMap(out);
+      }
+      return out;
     });
   }
   

@@ -245,6 +245,57 @@ class Scheduler {
   }
 }
 
+@proxy
+class SimpleMap extends DelegatingMap {
+
+  SimpleMap(Map map) : super(map);
+
+  Object get(String key, [Object defaultValue]) {
+    if(containsKey(key)) {
+      var value = this[key];
+      if (value is! SimpleMap && value is Map) {
+        value = new SimpleMap(value);
+        this[key] = value;
+      } else if (value is! _ListWrapper && value is List) {
+        value = new _ListWrapper.wrap(value);
+        this[key] = value;
+      }
+      return value;
+    } else if(defaultValue != null) {
+      return defaultValue;
+    }
+    return null;
+  }
+
+  noSuchMethod(Invocation invocation) {
+    var key = MirrorSystem.getName(invocation.memberName);
+    if (invocation.isGetter) {
+      return get(key);
+    } else if (invocation.isSetter) {
+      this[key.substring(0, key.length - 1)] = invocation.positionalArguments.first;
+    } else {
+      super.noSuchMethod(invocation);
+    }
+  }
+}
+
+class _ListWrapper extends DelegatingList {
+
+  _ListWrapper(List list) : super(list);
+
+  factory _ListWrapper.wrap(List list) {
+    list = list.map((e) {
+      if (e is Map && e is! SimpleMap) {
+        return new SimpleMap(e);
+      } else if (e is List && e is! _ListWrapper) {
+        return new _ListWrapper.wrap(e);
+      }
+      return e;
+    }).toList();
+    return new _ListWrapper(list);
+  }
+}
+
 List<String> charactersOf(String input) => new List<String>.generate(input.length, (i) => input[i]);
 
 bool isDigit(String it) => ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].contains(it);

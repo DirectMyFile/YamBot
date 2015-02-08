@@ -1,25 +1,25 @@
 /**
  * # PolymorphicBot API
- * 
+ *
  * This is the API for PolymorphicBot.
- * 
+ *
  * ## Plugin Structure
- * 
+ *
  * Plugins are loaded from the directory `plugins/`. Each directory is a plugin which has a pubspec.yaml and a main file.
- * 
+ *
  * ### pubspec.yaml
- * 
+ *
  * ```yaml
  * name: MyPlugin
  * dependencies:
  *   polymorphic_bot: any
  * ```
- * 
+ *
  * ### main.dart
- * 
+ *
  * ```dart
  * import "package:polymorphic_bot/api.dart";
- * 
+ *
  * @PluginInstance()
  * Plugin plugin;
  *
@@ -47,6 +47,8 @@ import "package:polymorphic_bot/utils.dart";
 
 import "package:irc/client.dart" show Color;
 import "package:html5lib/parser.dart" as htmlParser show parse;
+import "package:jsonx/jsonx.dart" as jsonx;
+import "package:collection/wrappers.dart" show DelegatingList, DelegatingMap;
 import "package:html5lib/dom.dart" as html;
 
 import "package:yaml/yaml.dart" as yaml;
@@ -59,6 +61,7 @@ export "package:quiver/strings.dart";
 export "package:quiver/core.dart";
 
 export "package:irc/client.dart" show Color;
+export "package:jsonx/jsonx.dart" show jsonIgnore, jsonProperty, jsonObject;
 export "package:polymorphic_bot/utils.dart";
 
 part "src/api/core.dart";
