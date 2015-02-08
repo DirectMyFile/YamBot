@@ -5,7 +5,7 @@ class FunctionAnnotation<T> {
   MethodMirror mirror;
   Function function;
   
-  invoke(List<dynamic> args) {
+  dynamic invoke(List<dynamic> args) {
     return function(args);  
   }
   

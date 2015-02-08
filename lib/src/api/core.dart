@@ -1461,8 +1461,23 @@ class Plugin {
     };
 
     for (var c in cmds) {
-      getBot().command(c.metadata.name, (e) {
-        c.invoke([e]);
+      var params = <String, Type>{};
+      c.mirror.parameters.forEach((param) => params[MirrorSystem.getName(param.simpleName)] = param.type.reflectedType);
+
+      if (params.length > 1) {
+        throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid number of arguments.");
+      }
+
+      var useInput = params.containsKey("input");
+
+      getBot().command(c.metadata.name, (CommandEvent e) {
+        if (useInput) {
+          e.transform(c.function);
+        } else if (params.isEmpty) {
+          return c.invoke([]);
+        } else {
+          return c.invoke([e]);
+        }
       }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description, allowVariables: c.metadata.allowVariables);
     }
 
