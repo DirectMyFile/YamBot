@@ -290,8 +290,31 @@ class CommandEvent {
     return joinArguments();
   }
 
-  operator <<(String msg) {
-    reply(msg);
+  operator <<(msg) {
+    if (msg == null) {
+      return;
+    }
+
+    if (msg is NoArgumentFunction) {
+      var value = msg();
+
+      if (value == null) {
+        return;
+      }
+
+      if (value is Future) {
+        value.then((msg) {
+          if (msg == null) {
+            return;
+          }
+
+          reply(msg);
+        });
+        return;
+      }
+    } else {
+      reply(msg.toString());
+    }
   }
 
   operator >>(Function function) {
