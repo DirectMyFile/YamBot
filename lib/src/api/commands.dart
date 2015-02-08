@@ -294,8 +294,31 @@ class CommandEvent {
     reply(msg);
   }
 
-  operator >>(transformer(String input)) {
-    transform(transformer, noSign: true);
+  operator >>(Function function) {
+    if (function is NoArgumentFunction) {
+      var value = function();
+
+      if (value == null) {
+        return;
+      }
+
+      if (value is Future) {
+        value.then((msg) {
+          if (msg == null) {
+            return;
+          }
+
+          reply(msg);
+        });
+        return;
+      }
+
+      reply(value);
+    } else if (function is OneArgumentFunction) {
+      transform(function, noSign: true);
+    } else {
+      throw new ArgumentError("invalid function");
+    }
   }
 
   operator >(Map<String, SubCommandHandler> subcommands) {
@@ -312,6 +335,9 @@ class CommandEvent {
     return args[index];
   }
 }
+
+typedef NoArgumentFunction();
+typedef OneArgumentFunction(argument);
 
 class CommandInfo {
   final String plugin;
