@@ -294,6 +294,12 @@ class CommandEvent {
     reply(msg);
   }
 
+  operator >>(transformer(String input)) {
+    transform(transformer);
+  }
+
+  bool operator %(int count) => argc == count;
+
   String operator [](int index) {
     return args[index];
   }
