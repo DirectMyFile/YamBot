@@ -1462,9 +1462,15 @@ class Plugin {
 
     for (var c in cmds) {
       var params = <String, Type>{};
-      c.mirror.parameters.forEach((param) => params[MirrorSystem.getName(param.simpleName)] = param.type.reflectedType);
+      var rpc = 0;
+      c.mirror.parameters.forEach((param) {
+        if (!param.isOptional && !param.isNamed) {
+          rpc++;
+        }
+        params[MirrorSystem.getName(param.simpleName)] = param.type.reflectedType;
+      });
 
-      if (params.length > 1) {
+      if (rpc > 1) {
         throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid number of arguments.");
       }
 
