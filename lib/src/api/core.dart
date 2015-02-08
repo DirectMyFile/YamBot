@@ -1120,7 +1120,19 @@ class BotConnector {
 
       void emit() {
         var event = new CommandEvent(this, network, command, message, user, channel, args);
-        handler(event);
+        var result = handler(event);
+
+        handleValue(value) {
+          if (value == null) {
+            return;
+          } else if (value is Future) {
+            value.then(handleValue);
+          } else {
+            event << value;
+          }
+        }
+
+        handleValue(result);
       }
 
       if (allowVariables == true) {

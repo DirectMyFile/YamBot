@@ -1,6 +1,6 @@
 part of polymorphic.api;
 
-typedef void CommandHandler(CommandEvent event);
+typedef CommandHandler(CommandEvent event);
 typedef void MessageHandler(MessageEvent event);
 typedef void JoinHandler(JoinEvent event);
 typedef void PartHandler(PartEvent event);
