@@ -1041,15 +1041,15 @@ class BotConnector {
 
     onCommand((CommandEvent event) {
       if (event.command != name) {
-        return;
+        return null;
       }
 
       if (permission != null) {
         event.require(permission, () {
-          handler(event);
+          return handler(event);
         });
       } else {
-        handler(event);
+        return handler(event);
       }
     }, allowVariables: allowVariables);
   }

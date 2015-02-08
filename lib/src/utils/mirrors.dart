@@ -19,7 +19,7 @@ class ClassAnnotation<T> {
 
 List<FunctionAnnotation> findFunctionAnnotations(Type type,
     {InstanceMirror instance, LibraryMirror lib}) {
-  var l = (lib == null ? currentMirrorSystem().isolate.rootLibrary : lib);
+  LibraryMirror l = (lib == null ? currentMirrorSystem().isolate.rootLibrary : lib);
   var result = [];
   var t = reflectType(type);
   var decl = instance != null ? instance.type.declarations.values :
