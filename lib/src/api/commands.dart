@@ -295,7 +295,7 @@ class CommandEvent {
   }
 
   operator >>(transformer(String input)) {
-    transform(transformer);
+    transform(transformer, noSign: true);
   }
 
   operator >(Map<String, SubCommandHandler> subcommands) {
