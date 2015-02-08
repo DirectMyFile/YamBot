@@ -298,6 +298,14 @@ class CommandEvent {
     transform(transformer);
   }
 
+  operator >(Map<String, SubCommandHandler> subcommands) {
+    this.subcommands(subcommands);
+  }
+
+  operator <(String msg) {
+    replyNotice(msg);
+  }
+
   bool operator %(int count) => argc == count;
 
   String operator [](int index) {
