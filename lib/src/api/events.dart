@@ -276,6 +276,8 @@ class MessageEvent {
         });
         return;
       }
+    } else if (msg is List) {
+      random(msg);
     } else {
       reply(msg.toString());
     }
@@ -288,7 +290,7 @@ class MessageEvent {
   String operator ~() {
     return message;
   }
-  
+
   Future<String> getLastCommand([bool userOnly = true]) {
     return bot.plugin.callMethod("getLastCommand", {
       "network": network,

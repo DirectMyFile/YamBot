@@ -313,10 +313,12 @@ class CommandEvent {
             return;
           }
 
-          reply(msg);
+          this << msg;
         });
         return;
       }
+    } else if (msg is List) {
+      this << chooseAtRandom(msg);
     } else {
       reply(msg.toString());
     }
