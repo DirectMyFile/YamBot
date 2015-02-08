@@ -253,6 +253,41 @@ class MessageEvent {
   }
   
   Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
+
+  operator <<(msg) {
+    if (msg == null) {
+      return;
+    }
+
+    if (msg is NoArgumentFunction) {
+      var value = msg();
+
+      if (value == null) {
+        return;
+      }
+
+      if (value is Future) {
+        value.then((msg) {
+          if (msg == null) {
+            return;
+          }
+
+          reply(msg);
+        });
+        return;
+      }
+    } else {
+      reply(msg.toString());
+    }
+  }
+
+  operator <(String msg) {
+    replyNotice(msg);
+  }
+
+  String operator ~() {
+    return message;
+  }
   
   Future<String> getLastCommand([bool userOnly = true]) {
     return bot.plugin.callMethod("getLastCommand", {
