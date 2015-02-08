@@ -285,6 +285,18 @@ class CommandEvent {
   Future<Channel> getChannel() {
     return bot.getChannel(network, channel);
   }
+
+  String operator ~() {
+    return joinArguments();
+  }
+
+  operator <<(String msg) {
+    reply(msg);
+  }
+
+  String operator [](int index) {
+    return args[index];
+  }
 }
 
 class CommandInfo {
