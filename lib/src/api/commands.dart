@@ -190,6 +190,11 @@ class CommandEvent {
     if (prefix == true || (prefix != null && prefix is String)) {
       p = prefix == true ? bot.plugin.displayName : prefix;
     }
+
+    if (hasNoArguments) {
+      usage();
+      return;
+    }
     
     new Future.value(transformer(joinArgs())).then((value) {
       if (value == null) return;
@@ -319,24 +324,18 @@ class CommandEvent {
 
   operator >>(Function function) {
     if (function is NoArgumentFunction) {
-      var value = function();
-
-      if (value == null) {
+      if (hasArguments) {
+        usage();
         return;
       }
 
-      if (value is Future) {
-        value.then((msg) {
-          if (msg == null) {
-            return;
-          }
+      var p = null;
 
-          reply(msg);
-        });
-        return;
-      }
+      new Future.value(function()).then((value) {
+        if (value == null) return;
 
-      reply(value);
+        reply(value);
+      });
     } else if (function is OneArgumentFunction) {
       transform(function, noSign: true);
     } else {
