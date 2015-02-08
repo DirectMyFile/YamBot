@@ -296,6 +296,42 @@ class _ListWrapper extends DelegatingList {
   }
 }
 
+class MessagePen {
+  String _content;
+
+  MessagePen([String content = ""]) : _content = content;
+
+  MessagePen blue([String msg]) => color(Color.BLUE, msg);
+  MessagePen red([String msg]) => color(Color.RED, msg);
+  MessagePen green([String msg]) => color(Color.GREEN, msg);
+  MessagePen gold([String msg]) => color(Color.YELLOW, msg);
+  MessagePen yellow([String msg]) => color(Color.YELLOW, msg);
+  MessagePen orange([String msg]) => color(Color.OLIVE, msg);
+  MessagePen olive([String msg]) => color(Color.OLIVE, msg);
+  MessagePen bold([String msg]) => color(Color.BOLD, msg);
+
+  MessagePen color(String color, String msg) {
+    if (msg == null) {
+      write(color);
+    } else {
+      write(color);
+      write(msg);
+      write(Color.RESET);
+    }
+  }
+
+  MessagePen reset() => write(Color.RESET);
+
+  MessagePen newLine() => write("\n");
+
+  MessagePen write(String msg) {
+    _content += msg;
+    return this;
+  }
+
+  String toString() => _content;
+}
+
 List<String> charactersOf(String input) => new List<String>.generate(input.length, (i) => input[i]);
 
 bool isDigit(String it) => ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].contains(it);
