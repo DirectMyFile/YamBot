@@ -201,12 +201,13 @@ class MessageEvent {
   final bool isPrivate;
   final String message;
   final bool isPing;
+  final bool isCommand;
   final Match match;
 
   String get user => from;
   String get channel => target;
 
-  MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.isPing, this.message, {this.match});
+  MessageEvent(this.bot, this.network, this.target, this.from, this.isPrivate, this.isPing, this.isCommand, this.message, {this.match});
 
   /**
    * Sends [message] as a message to [channel] on [network].

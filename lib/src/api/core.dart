@@ -569,8 +569,9 @@ class BotConnector {
       var private = it["private"];
       var message = it["message"];
       var isPing = it["ping"];
+      var isCommand = it["command"];
 
-      return new MessageEvent(this, network, target, from, private, isPing, message, match: match);
+      return new MessageEvent(this, network, target, from, private, isPing, isCommand, message, match: match);
     }).listen((event) {
       handler(event);
     });

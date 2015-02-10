@@ -771,6 +771,8 @@ class IrcEventListener {
       var data = common("message");
 
       var pings = <String>["${e.client.nickname}: ", "${e.client.nickname}, "];
+      var isCommand = b.getMessagePrefix(e.channel.name, e.message) != null;
+      data["command"] = isCommand;
       if (pings.any((it) => e.message.startsWith(it))) {
         var p = pings.firstWhere((it) => e.message.startsWith(it));
         data['msgnoping'] = e.message.substring(p.length);
