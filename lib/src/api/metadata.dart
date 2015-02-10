@@ -66,8 +66,21 @@ class OnQuit {
   const OnQuit({this.network, this.user});
 }
 
+/**
+ * Annotation that marks a function that is called only if the specified plugin is installed. This is called when all plugins are ready.
+ */
+class NotifyPlugin {
+  final String plugin;
+  
+  const NotifyPlugin(this.plugin);
+}
+
 class OnKick {
   const OnKick();
+}
+
+class OnPluginsReady {
+  const OnPluginsReady();
 }
 
 class OnServerSupports {

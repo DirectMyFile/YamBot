@@ -99,6 +99,11 @@ class PluginCommunicator {
     _addBotMethods();
     _handleRequests();
 
+    pm.sendAll({
+      "type": "event",
+      "event": "initialize"
+    });
+    
     pm.listenAll((plugin, data) {
       /* We don't use this anymore, everything is a method call */
     });
@@ -106,7 +111,19 @@ class PluginCommunicator {
 
   void _addBotMethods() {
     String getPluginName() => Zone.current["bot.plugin.method.plugin"];
-
+    
+    addBotMethod("__initialized", (call) {
+      /* Plugin was initialized */
+      var name = getPluginName();
+      pm.sendAll({
+        "type": "event",
+        "event": "plugin-initialized",
+        "plugin": name
+      });
+      _initialized.add(getPluginName());
+      _checkInitialized();
+    }, isVoid: true);
+    
     addBotMethod("getNetworks", (call) {
       call.reply(bot.bots);
     });
@@ -670,12 +687,26 @@ class PluginCommunicator {
         exit(0);
       });
     }, isVoid: true);
-
-    addBotMethod("__initialized", (call) {
-      /* Plugin was initialized */
-    }, isVoid: true);
   }
 
+  Completer _completer;
+  
+  void _checkInitialized() {
+    var names = handler.pm.plugins.toList();
+    if (names.every((x) => _initialized.contains(x))) {
+      debug(() => print("[Plugin Manager] All Plugins have been initialized."));
+      pm.sendAll({
+        "type": "event",
+        "event": "plugins-initialized"
+      });
+      if (_completer != null && !_completer.isCompleted) {
+        _completer.complete();
+      }
+    }
+  }
+  
+  List<String> _initialized = [];
+  
   void _handleRequests() {
     pm.listenAllRequest((plugin, request) {
       if (_methods.containsKey(request.command)) {

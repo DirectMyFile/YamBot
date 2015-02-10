@@ -23,11 +23,14 @@ class PluginHandler {
   }
 
   Future init() {
+    _communicator._completer = new Completer();
     return load().then((List<Plugin> plugins) {
       BotMetrics.pluginsMetric.value = plugins.length.toDouble();
       print("[Plugin Manager] Registered: ${plugins.join(", ")}");
       _communicator.handle();
-      return plugins;
+      return _communicator._completer.future.then((_) { // Ensures Plugins are initialized.
+        return plugins;
+      });
     });
   }
 
@@ -38,6 +41,7 @@ class PluginHandler {
   Future load() {
     _elevatedPlugins.clear();
     _requirements.clear();
+    _communicator._initialized.clear();
     _conflicts.clear();
 
     var pluginNames = <String>[];

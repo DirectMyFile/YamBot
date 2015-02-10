@@ -212,19 +212,19 @@ class BotConnector {
       return new UserInfo(this, network, data["nickname"], data["username"], data["realname"], data["away"], data["awayMessage"], data["isServerOperator"], data["hostname"], data["idle"], data["idleTime"], data["memberIn"], data["operatorIn"], data["voiceIn"], data["halfOpIn"], data["ownerIn"], data["channels"]);
     });
   }
-  
+
   Future<List<Channel>> getChannels(String network) {
     var group = new FutureGroup();
-    
+
     return listChannels(network).then((names) {
       for (var name in names) {
         group.add(getChannel(network, name));
       }
-      
+
       return group.future;
     });
   }
-  
+
   Future<List<String>> listChannels(String network) {
     return plugin.callMethod("listChannels", {
       "network": network
@@ -242,40 +242,40 @@ class BotConnector {
       return new Channel(this, network, name, data["topic"], data["members"], data["ops"], data["voices"], data["halfops"], data["owners"]);
     });
   }
-  
+
   Future<List<String>> listChannelUsers(String network, String name) {
     return plugin.callMethod("getChannelUsers", {
       "network": network,
       "channel": name
     });
   }
-  
+
   Future<List<String>> listChannelOps(String network, String name) {
     return plugin.callMethod("getChannelOps", {
       "network": network,
       "channel": name
     });
   }
-  
+
   Future<List<String>> listChannelVoices(String network, String name) {
     return plugin.callMethod("getChannelVoices", {
       "network": network,
       "channel": name
     });
   }
-  
+
   Future<List<String>> listChannelMembers(String network, String name) {
     return plugin.callMethod("getChannelMembers", {
       "network": network,
       "channel": name
     });
   }
-  
+
   Future<bool> hasPermission(String network, String user, String permission, {String plugin}) {
     if (plugin == null) {
       plugin = this.plugin.name;
     }
-    
+
     return this.plugin.callMethod("hasPermission", {
       "network": network,
       "user": user,
@@ -283,21 +283,21 @@ class BotConnector {
       "plugin": plugin
     });
   }
-  
+
   Future<List<String>> listChannelOwners(String network, String name) {
     return plugin.callMethod("getChannelOwners", {
       "network": network,
       "channel": name
     });
   }
-  
+
   Future<List<String>> listChannelHalfOps(String network, String name) {
     return plugin.callMethod("getChannelHalfOps", {
       "network": network,
       "channel": name
     });
   }
-  
+
   void setChannelTopic(String network, String name, String topic) {
     plugin.callMethod("setChannelTopic", {
       "network": network,
@@ -305,14 +305,14 @@ class BotConnector {
       "topic": topic
     });
   }
-  
+
   Future<String> getChannelTopic(String network, String name) {
     return plugin.callMethod("getChannelTopic", {
       "network": network,
       "channel": name
     });
   }
-  
+
   Future<bool> isInChannel(String network, String name) {
     return plugin.callMethod("isInChannel", {
       "network": network,
@@ -389,61 +389,61 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
-  
+
   void onNickChange(NickChangeHandler handler) {
     var sub = plugin.on("nick-change").map((it) {
       var network = it["network"];
       var original = it["original"];
       var now = it["now"];
-      
+
       return new NickChangeEvent(this, network, original, now);
     }).listen((event) {
       handler(event);
     });
-    
+
     plugin.registerSubscription(sub);
   }
-  
+
   void onNickInUse(NickInUseHandler handler) {
     var sub = plugin.on("nick-in-use").map((it) {
       return new NickInUseEvent(this, it["network"], it["original"]);
     }).listen((event) {
       handler(event);
     });
-    
+
     plugin.registerSubscription(sub);
   }
-  
+
   void onServerSupports(ServerSupportsHandler handler) {
     var sub = plugin.on("supports").map((it) {
       return new ServerSupportsEvent(this, it["network"], it["supported"]);
     }).listen((event) {
       handler(event);
     });
-    
+
     plugin.registerSubscription(sub);
   }
-  
+
   void onMOTD(MOTDHandler handler) {
     var sub = plugin.on("motd").map((it) {
       return new MOTDEvent(this, it["network"], it["message"]);
     }).listen((event) {
       handler(event);
     });
-    
+
     plugin.registerSubscription(sub);
   }
-  
+
   void onKick(KickHandler handler) {
     var sub = plugin.on("kick").map((it) {
       return new KickEvent(this, it["network"], it["channel"], it["user"], it["kicker"], it["reason"]);
     }).listen((event) {
       handler(event);
     });
-    
+
     plugin.registerSubscription(sub);
   }
-  
+
   /**
    * Sends [message] to [target] on [network] as a message.
    */
@@ -819,7 +819,7 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
-  
+
   void executeCommand(String network, String channel, String user, String command, [List<String> args = const []]) {
     plugin.callMethod("executeCommand", {
       "network": network,
@@ -1051,33 +1051,33 @@ class BotConnector {
       }
     }, allowVariables: allowVariables);
   }
-  
+
   void emitBotEvent(String event, Map<String, dynamic> data) {
     var map = {
       "event": event
     }..addAll(data);
-    
+
     plugin.callMethod("emit", map);
   }
-  
+
   Future<String> getMOTD(String network) {
     return plugin.callMethod("getMOTD", {
       "network": network
     });
   }
-  
+
   Future<Map<String, dynamic>> getSupported(String network) {
     return plugin.callMethod("getSupported", {
       "network": network
     });
   }
-  
+
   Future<bool> isConnected(String network) {
     return plugin.callMethod("isConnected", {
       "network": network
     });
   }
-  
+
   Future<String> getNetworkName(String network) {
     return plugin.callMethod("getNetworkName", {
       "network": network
@@ -1098,7 +1098,7 @@ class BotConnector {
   void appendChannelBuffer(BufferEntry entry) {
     plugin.callMethod("appendChannelBuffer", entry.toData());
   }
-  
+
   void changeBotNickname(String network, String nick) {
     plugin.callMethod("changeBotNickname", {
       "network": network,
@@ -1262,6 +1262,7 @@ class Plugin {
   }
 
   List<ReadyAction> _readyActions = [];
+  List<ReadyAction> _pluginsReadyActions = [];
 
   /**
    * Calls [action] when the plugin is ready.
@@ -1269,6 +1270,13 @@ class Plugin {
   void onPluginReady(ReadyAction action) {
     _init();
     _readyActions.add(action);
+  }
+
+  /**
+   * Calls [action] when all plugins are ready.
+   */
+  void onPluginsReady(ReadyAction action) {
+    _pluginsReadyActions.add(action);
   }
 
   /**
@@ -1393,6 +1401,12 @@ class Plugin {
         _isShutdown = true;
       });
 
+      registerSubscription(on("plugins-initialized").listen((event) {
+        while (_pluginsReadyActions.isNotEmpty) {
+          _pluginsReadyActions.removeAt(0)();
+        }
+      }));
+
       _conn.listenIntercom((plugin, data) {
         for (var handler in _pluginEventHandlers) {
           handler(plugin, data);
@@ -1431,203 +1445,220 @@ class Plugin {
       _bot = new BotConnector(this);
     }
 
-    for (var action in _readyActions) {
-      action();
-    }
+    on("initialize").listen((_) {
+      /* Discover Annotations */
+      List<FunctionAnnotation<Command>> cmds = findFunctionAnnotations(Command);
+      List<FunctionAnnotation<EventHandler>> handlers = findFunctionAnnotations(EventHandler);
+      Map<Type, Function> events = {
+        OnJoin: getBot().onJoin,
+        OnPart: getBot().onPart,
+        OnBotJoin: getBot().onBotJoin,
+        OnBotPart: getBot().onBotPart,
+        OnMessage: getBot().onMessage,
+        OnCTCP: getBot().onCTCP,
+        OnNotice: getBot().onNotice,
+        OnAction: getBot().onAction,
+        OnQuit: getBot().onQuit,
+        OnQuitPart: getBot().onQuitPart,
+        OnBotReady: getBot().onReady,
+        OnCommand: getBot().onCommand,
+        OnKick: getBot().onKick,
+        OnServerSupports: getBot().onServerSupports,
+        OnMOTD: getBot().onMOTD,
+        OnNickChange: getBot().onNickChange,
+        OnNickInUse: getBot().onNickInUse,
+        OnPluginsReady: onPluginsReady
+      };
 
-    /* Discover Annotations */
-    List<FunctionAnnotation<Command>> cmds = findFunctionAnnotations(Command);
-    List<FunctionAnnotation<EventHandler>> handlers = findFunctionAnnotations(EventHandler);
-    Map<Type, Function> events = {
-      OnJoin: getBot().onJoin,
-      OnPart: getBot().onPart,
-      OnBotJoin: getBot().onBotJoin,
-      OnBotPart: getBot().onBotPart,
-      OnMessage: getBot().onMessage,
-      OnCTCP: getBot().onCTCP,
-      OnNotice: getBot().onNotice,
-      OnAction: getBot().onAction,
-      OnQuit: getBot().onQuit,
-      OnQuitPart: getBot().onQuitPart,
-      OnBotReady: getBot().onReady,
-      OnCommand: getBot().onCommand,
-      OnKick: getBot().onKick,
-      OnServerSupports: getBot().onServerSupports,
-      OnMOTD: getBot().onMOTD,
-      OnNickChange: getBot().onNickChange,
-      OnNickInUse: getBot().onNickInUse
-    };
-
-    for (var c in cmds) {
-      var params = <String, Type>{};
-      var rpc = 0;
-      c.mirror.parameters.forEach((param) {
-        if (!param.isOptional && !param.isNamed) {
-          rpc++;
-        }
-        params[MirrorSystem.getName(param.simpleName)] = param.type.reflectedType;
-      });
-
-      if (rpc > 2) {
-        throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid number of arguments.");
-      }
-
-      var useInput = params.containsKey("input");
-      bool hasEvent;
-      
-      if (rpc == 1 && params.containsKey("input")) {
-        hasEvent = false;
-      } else if (rpc == 2 && params.containsKey("input")) {
-        hasEvent = true;
-      } else if (rpc == 1) {
-        hasEvent = true;
-      } else if (params.isEmpty) {
-        hasEvent = false;
-      } else {
-        throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid command signature.");
-      }
-      
-      var prefix;
-      if (c.metadata.prefix != null && c.metadata.prefix is bool) {
-        prefix = name;
-      } else if (c.metadata.prefix != null && c.metadata.prefix is String) {
-        prefix = c.metadata.prefix;
-      } else if (c.metadata.prefix == null) {
-      } else {
-        throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid prefix value.");
-      }
-
-      getBot().command(c.metadata.name, (CommandEvent e) {
-        e._prefix = prefix;
-
-        if (useInput) {
-          return e.transform((input) {
-            return c.function(hasEvent ? [e, input] : [input]);
-          });
-        } else if (params.isEmpty) {
-          return c.invoke([]);
-        } else {
-          return c.invoke([e]);
-        }
-      }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description, allowVariables: c.metadata.allowVariables);
-    }
-
-    for (var handler in handlers) {
-      EventHandler h = handler.metadata;
-      var hasParam = handler.mirror.parameters.isNotEmpty;
-
-      on(h.event).listen((e) {
-        if (hasParam) {
-          handler.invoke([e]);
-        } else {
-          handler.invoke([]);
-        }
-      });
-    }
-
-    for (var type in events.keys) {
-      var functions = findFunctionAnnotations(type);
-      var vars = reflectClass(type).declarations.values.where((it) => it is VariableMirror && it.isFinal && !it.isStatic).toList();
-      var map = <Symbol, dynamic>{};
-
-      for (var x in functions) {
-        var instance = reflect(x.metadata);
-        for (var v in vars) {
-          var i = instance.getField(v.simpleName);
-          map[v.simpleName] = i.reflectee;
-        }
-
-        var hasParam = x.mirror.parameters.isNotEmpty;
-
-        Function.apply(events[type], [hasParam ? (e) => x.invoke([e]) : (_) => x.invoke([])], map);
-      }
-    }
-
-    for (FunctionAnnotation<RemoteMethod> a in findFunctionAnnotations(RemoteMethod)) {
-      if (a.mirror.parameters.length == 1 && MirrorSystem.getName(a.mirror.parameters.first.simpleName) == "call") {
-        addRemoteMethod(a.metadata.name != null ? a.metadata.name : MirrorSystem.getName(a.mirror.simpleName), (call) {
-          a.invoke([call]);
+      for (var c in cmds) {
+        var params = <String, Type>{};
+        var rpc = 0;
+        c.mirror.parameters.forEach((param) {
+          if (!param.isOptional && !param.isNamed) {
+            rpc++;
+          }
+          params[MirrorSystem.getName(param.simpleName)] = param.type.reflectedType;
         });
-      } else {
-        _addPluginMethod(this, currentMirrorSystem().isolate.rootLibrary, a.mirror);
+
+        if (rpc > 2) {
+          throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid number of arguments.");
+        }
+
+        var useInput = params.containsKey("input");
+        bool hasEvent;
+
+        if (rpc == 1 && params.containsKey("input")) {
+          hasEvent = false;
+        } else if (rpc == 2 && params.containsKey("input")) {
+          hasEvent = true;
+        } else if (rpc == 1) {
+          hasEvent = true;
+        } else if (params.isEmpty) {
+          hasEvent = false;
+        } else {
+          throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid command signature.");
+        }
+
+        var prefix;
+        if (c.metadata.prefix != null && c.metadata.prefix is bool) {
+          prefix = name;
+        } else if (c.metadata.prefix != null && c.metadata.prefix is String) {
+          prefix = c.metadata.prefix;
+        } else if (c.metadata.prefix == null) {
+        } else {
+          throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid prefix value.");
+        }
+
+        getBot().command(c.metadata.name, (CommandEvent e) {
+          e._prefix = prefix;
+
+          if (useInput) {
+            return e.transform((input) {
+              return c.function(hasEvent ? [e, input] : [input]);
+            });
+          } else if (params.isEmpty) {
+            return c.invoke([]);
+          } else {
+            return c.invoke([e]);
+          }
+        }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description, allowVariables: c.metadata.allowVariables);
       }
-    }
 
-    for (var variable in findVariablesAnnotation(PluginInstance)) {
-      currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, this);
-    }
+      for (var handler in handlers) {
+        EventHandler h = handler.metadata;
+        var hasParam = handler.mirror.parameters.isNotEmpty;
 
-    for (var variable in findVariablesAnnotation(BotInstance)) {
-      currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getBot());
-    }
-
-    for (var s in findFunctionAnnotations(Start)) {
-      s.invoke([]);
-    }
-
-    for (var s in findFunctionAnnotations(Shutdown)) {
-      onShutdown(() {
-        s.invoke([]);
-      });
-    }
-
-    for (var variable in findVariablesAnnotation(PluginStorage)) {
-      PluginStorage m = variable.metadata.firstWhere((it) => it.type.isAssignableTo(reflectClass(PluginStorage))).reflectee;
-      currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getStorage(m.name, group: m.group, saveOnChange: m.saveOnChange));
-    }
-
-    var httpEndpoints = findFunctionAnnotations(HttpEndpoint);
-    var websocketEndpoints = findFunctionAnnotations(WebSocketEndpoint);
-    var defaultEndpoints = findFunctionAnnotations(DefaultEndpoint);
-
-    if (defaultEndpoints.isNotEmpty && defaultEndpoints.length != 1) {
-      throw new Exception("A plugin cannot have more than one default HTTP Endpoint.");
-    }
-
-    if (httpEndpoints.isNotEmpty || websocketEndpoints.isNotEmpty) {
-      createHttpRouter().then((router) {
-        for (var e in httpEndpoints) {
-          var path = e.metadata.path;
-
-          if (e.parameters.length == 1) {
-            router.addRoute(path, (req) {
-              e.invoke([req]);
-            });
-          } else if (e.parameters.length == 2) {
-            router.addRoute(path, (req) {
-              e.invoke([req, req.response]);
-            });
+        on(h.event).listen((e) {
+          if (hasParam) {
+            handler.invoke([e]);
           } else {
-            throw new Exception("HTTP Endpoint has an invalid number of parameters");
+            handler.invoke([]);
           }
-        }
+        });
+      }
 
-        for (var e in websocketEndpoints) {
-          var path = e.metadata.path;
-          router.addWebSocketEndpoint(path, (socket) {
-            e.invoke([socket]);
+      var notifiers = findFunctionAnnotations(NotifyPlugin);
+
+      for (var notifier in notifiers) {
+        var plugin = notifier.metadata.plugin;
+        onPluginsReady(() {
+          var hasParam = notifier.mirror.parameters.where((it) => !it.isNamed && !it.isOptional).length == 1;
+          isPluginInstalled(plugin).then((isInstalled) {
+            if (isInstalled) {
+              notifier.invoke(hasParam ? [getPluginInterface(plugin)] : []);
+            }
           });
-        }
+        });
+      }
 
-        if (defaultEndpoints.isNotEmpty) {
-          var de = defaultEndpoints.first;
+      for (var type in events.keys) {
+        var functions = findFunctionAnnotations(type);
+        var vars = reflectClass(type).declarations.values.where((it) => it is VariableMirror && it.isFinal && !it.isStatic).toList();
+        var map = <Symbol, dynamic>{};
 
-          if (de.parameters.length == 1) {
-            router.defaultRoute((req) {
-              de.invoke([req]);
-            });
-          } else if (de.parameters.length == 2) {
-            router.defaultRoute((req) {
-              de.invoke([req, req.response]);
-            });
-          } else {
-            throw new Exception("Default HTTP Endpoint has an invalid number of parameters");
+        for (var x in functions) {
+          var instance = reflect(x.metadata);
+          for (var v in vars) {
+            var i = instance.getField(v.simpleName);
+            map[v.simpleName] = i.reflectee;
           }
-        }
-      });
-    }
 
-    callMethod("__initialized", true);
+          var hasParam = x.mirror.parameters.isNotEmpty;
+
+          Function.apply(events[type], [hasParam ? (e) => x.invoke([e]) : (_) => x.invoke([])], map);
+        }
+      }
+
+      for (FunctionAnnotation<RemoteMethod> a in findFunctionAnnotations(RemoteMethod)) {
+        if (a.mirror.parameters.length == 1 && MirrorSystem.getName(a.mirror.parameters.first.simpleName) == "call") {
+          addRemoteMethod(a.metadata.name != null ? a.metadata.name : MirrorSystem.getName(a.mirror.simpleName), (call) {
+            a.invoke([call]);
+          });
+        } else {
+          _addPluginMethod(this, currentMirrorSystem().isolate.rootLibrary, a.mirror);
+        }
+      }
+
+      for (var variable in findVariablesAnnotation(PluginInstance)) {
+        currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, this);
+      }
+
+      for (var variable in findVariablesAnnotation(BotInstance)) {
+        currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getBot());
+      }
+
+      for (var s in findFunctionAnnotations(Start)) {
+        s.invoke([]);
+      }
+
+      for (var s in findFunctionAnnotations(Shutdown)) {
+        onShutdown(() {
+          s.invoke([]);
+        });
+      }
+
+      for (var variable in findVariablesAnnotation(PluginStorage)) {
+        PluginStorage m = variable.metadata.firstWhere((it) => it.type.isAssignableTo(reflectClass(PluginStorage))).reflectee;
+        currentMirrorSystem().isolate.rootLibrary.setField(variable.simpleName, getStorage(m.name, group: m.group, saveOnChange: m.saveOnChange));
+      }
+
+      var httpEndpoints = findFunctionAnnotations(HttpEndpoint);
+      var websocketEndpoints = findFunctionAnnotations(WebSocketEndpoint);
+      var defaultEndpoints = findFunctionAnnotations(DefaultEndpoint);
+
+      if (defaultEndpoints.isNotEmpty && defaultEndpoints.length != 1) {
+        throw new Exception("A plugin cannot have more than one default HTTP Endpoint.");
+      }
+
+      if (httpEndpoints.isNotEmpty || websocketEndpoints.isNotEmpty) {
+        createHttpRouter().then((router) {
+          for (var e in httpEndpoints) {
+            var path = e.metadata.path;
+
+            if (e.parameters.length == 1) {
+              router.addRoute(path, (req) {
+                e.invoke([req]);
+              });
+            } else if (e.parameters.length == 2) {
+              router.addRoute(path, (req) {
+                e.invoke([req, req.response]);
+              });
+            } else {
+              throw new Exception("HTTP Endpoint has an invalid number of parameters");
+            }
+          }
+
+          for (var e in websocketEndpoints) {
+            var path = e.metadata.path;
+            router.addWebSocketEndpoint(path, (socket) {
+              e.invoke([socket]);
+            });
+          }
+
+          if (defaultEndpoints.isNotEmpty) {
+            var de = defaultEndpoints.first;
+
+            if (de.parameters.length == 1) {
+              router.defaultRoute((req) {
+                de.invoke([req]);
+              });
+            } else if (de.parameters.length == 2) {
+              router.defaultRoute((req) {
+                de.invoke([req, req.response]);
+              });
+            } else {
+              throw new Exception("Default HTTP Endpoint has an invalid number of parameters");
+            }
+          }
+        });
+      }
+      
+      callMethod("__initialized", true);
+      
+      for (var action in _readyActions) {
+        action();
+      }
+    });
   }
 
   bool _initCalled = false;
