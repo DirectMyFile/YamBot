@@ -1483,7 +1483,7 @@ class Plugin {
       } else if (params.isEmpty) {
         hasEvent = false;
       } else {
-        throw new Exception("Invalid Stuff");
+        throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid command signature.");
       }
       
       var prefix;
@@ -1493,7 +1493,7 @@ class Plugin {
         prefix = c.metadata.prefix;
       } else if (c.metadata.prefix == null) {
       } else {
-        throw new Exception("Invalid Prefix Value");
+        throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid prefix value.");
       }
 
       getBot().command(c.metadata.name, (CommandEvent e) {
