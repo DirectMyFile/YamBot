@@ -68,11 +68,13 @@ class OnQuit {
 
 /**
  * Annotation that marks a function that is called only if the specified plugin is installed. This is called when all plugins are ready.
+ * If [methods] is provided, then it will only be called if the plugin is installed AND those methods exist in that plugin.
  */
 class NotifyPlugin {
   final String plugin;
+  final List<String> methods;
   
-  const NotifyPlugin(this.plugin);
+  const NotifyPlugin(this.plugin, {this.methods: const []});
 }
 
 class OnKick {

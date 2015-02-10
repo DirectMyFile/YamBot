@@ -1423,7 +1423,12 @@ class Plugin {
 
           if (name == "getRemoteMethods") {
             request.reply({
-              "value": _myMethods.values
+              "value": _myMethods.values.map((it) {
+                return {
+                  "name": it.name,
+                  "isVoid": it.isVoid
+                };
+              }).toList()
             });
           } else if (name == "getRegisteredCommands") {
             request.reply({
@@ -1543,9 +1548,28 @@ class Plugin {
         var plugin = notifier.metadata.plugin;
         onPluginsReady(() {
           var hasParam = notifier.mirror.parameters.where((it) => !it.isNamed && !it.isOptional).length == 1;
+          var m = notifier.metadata.methods;
+          PluginInterface interface;
+          
           isPluginInstalled(plugin).then((isInstalled) {
-            if (isInstalled) {
-              notifier.invoke(hasParam ? [getPluginInterface(plugin)] : []);
+            if (!isInstalled) {
+              return null;
+            }
+            
+            interface = getPluginInterface(plugin);
+            
+            if (m.isNotEmpty) {
+              return interface.listMethods();
+            } else {
+              return [];
+            }
+          }).then((List<RemoteMethodInfo> methods) {
+            if (methods == null) {
+              return;
+            }
+            
+            if (m.every((x) => methods.any((n) => n.name == x))) {
+              notifier.invoke(hasParam ? [interface] : []);
             }
           });
         });
@@ -1706,7 +1730,11 @@ class Plugin {
    * Fetches Plugin Methods for the given [plugin].
    */
   Future<List<RemoteMethodInfo>> getRemoteMethods(String plugin) {
-    return callRemoteMethod(plugin, "__getRemoteMethods");
+    return callRemoteMethod(plugin, "__getRemoteMethods").then((list) {
+      return list.map((it) {
+        return new RemoteMethodInfo(it["name"], isVoid: it["isVoid"]);
+      }).toList();
+    });
   }
 
   /**
