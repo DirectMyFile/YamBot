@@ -354,7 +354,7 @@ class CommandEvent {
         reply(value);
       });
     } else if (function is OneArgumentFunction) {
-      transform(function, noSign: true);
+      transform(function);
     } else {
       throw new ArgumentError("invalid function");
     }
