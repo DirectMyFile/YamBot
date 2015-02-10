@@ -1475,8 +1475,19 @@ class Plugin {
       }
 
       var useInput = params.containsKey("input");
+      var prefix;
+      if (c != null && c.metadata.prefix is bool) {
+        prefix = name;
+      } else if (c != null && c.metadata.prefix is String) {
+        prefix = c.metadata.prefix;
+      } else if (c == null) {
+      } else {
+        throw new Exception("Invalid Prefix Value");
+      }
 
       getBot().command(c.metadata.name, (CommandEvent e) {
+        e._prefix = prefix;
+
         if (useInput) {
           e.transform(c.function);
         } else if (params.isEmpty) {

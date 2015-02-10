@@ -5,9 +5,10 @@ class Command {
   final String permission;
   final String description;
   final String usage;
+  final dynamic prefix;
   final bool allowVariables;
   
-  const Command(this.name, {this.permission, this.description, this.usage, this.allowVariables});
+  const Command(this.name, {this.permission, this.prefix, this.description, this.usage, this.allowVariables});
 }
 
 class EventHandler {

@@ -41,6 +41,8 @@ class CommandEvent {
    */
   final List<String> args;
 
+  String _prefix;
+
   CommandEvent(this.bot, this.network, this.command, this.message, this.user, this.channel, this.args);
   
   /**
@@ -50,11 +52,18 @@ class CommandEvent {
    * If [prefixContent] is empty it becomes the display name of this plugin.
    */
   void reply(String message, {bool prefix, String prefixContent, bool ping: false}) {
+    var wasPrefixed = false;
+
     if (prefix == true || (prefix == null && prefixContent != null)) {
       if (prefixContent == null) {
         prefixContent = bot.plugin.displayName;
       }
 
+      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+      wasPrefixed = true;
+    }
+
+    if (!wasPrefixed && _prefix != null) {
       message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
     }
 
@@ -171,11 +180,17 @@ class CommandEvent {
    * If [prefixContent] is empty it becomes the display name of this plugin.
    */
   void replyNotice(String message, {bool prefix, String prefixContent}) {
+    var wasPrefixed = false;
     if (prefix == true || (prefix == null && prefixContent != null)) {
       if (prefixContent == null) {
         prefixContent = bot.plugin.displayName;
       }
 
+      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+      wasPrefixed = true;
+    }
+
+    if (!wasPrefixed && _prefix != null) {
       message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
     }
 
@@ -199,7 +214,7 @@ class CommandEvent {
     new Future.value(transformer(joinArgs())).then((value) {
       if (value == null) return;
       
-      (notice ? replyNotice : reply)(p != null ? value : "${noSign ? "" : "> "}${value}", prefixContent: p);
+      (notice ? replyNotice : reply)(p != null ? value : "${noSign ? "" : "> "}${value}");
     });
   }
 
