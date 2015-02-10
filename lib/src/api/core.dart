@@ -1474,11 +1474,11 @@ class Plugin {
       var useInput = params.containsKey("input");
       bool hasEvent;
       
-      if (params.length - rpc == 1 && params.containsKey("input")) {
+      if (rpc == 1 && params.containsKey("input")) {
         hasEvent = false;
-      } else if (params.length - rpc == 2 && params.containsKey("input")) {
+      } else if (rpc == 2 && params.containsKey("input")) {
         hasEvent = true;
-      } else if (params.length - rpc == 1) {
+      } else if (rpc == 1) {
         hasEvent = true;
       } else if (params.isEmpty) {
         hasEvent = false;
