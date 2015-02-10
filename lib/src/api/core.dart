@@ -155,13 +155,6 @@ class BotConnector {
     mode(network, "-q", channel: channel, user: user);
   }
 
-  /**
-   * Set the topic for [channel] on [network] to [topic].
-   */
-  void setTopic(String network, String channel, String topic) {
-    getChannel(network, channel).then((channel) => channel.topic = topic);
-  }
-
   StorageContainer getUserMetadata(String network, String channel, String user, {bool channelSpecific: false}) {
     return plugin.getStorage("metadata").getSubStorage(channelSpecific ? "${network}:${channel}:${user}" : "${network}:${user}");
   }
@@ -535,8 +528,12 @@ class BotConnector {
    * If [pattern] is provided then the handler is called only if the message matches the given pattern.
    */
   void onMessage(MessageHandler handler, {pattern, bool ping, bool regex: false, bool caseSensitive: false}) {
-    if (regex && pattern is! RegExp) {
-      pattern = new RegExp(pattern.toString(), caseSensitive: caseSensitive);
+    if (pattern is String) {
+      if (regex) {
+        pattern = new RegExp(pattern.toString(), caseSensitive: caseSensitive);
+      } else {
+        pattern = new RegExp(escapeRegex(pattern.toString()), caseSensitive: caseSensitive);
+      }
     }
 
     if (pattern != null && pattern is! RegExp) {

@@ -55,6 +55,7 @@ import "package:yaml/yaml.dart" as yaml;
 
 import "package:quiver/core.dart";
 import "package:quiver/async.dart";
+import "package:quiver/pattern.dart";
 
 export "package:quiver/async.dart";
 export "package:quiver/strings.dart";

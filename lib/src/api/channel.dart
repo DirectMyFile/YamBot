@@ -14,7 +14,7 @@ class Channel {
   
   String get topic => _topic;
   set topic(String value) {
-    bot.sendRawLine(network, "TOPIC ${name} :${value}");
+    bot.setChannelTopic(network, name, topic);
     refresh();
   }
   
