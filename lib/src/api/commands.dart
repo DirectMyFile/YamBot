@@ -1,6 +1,6 @@
 part of polymorphic.api;
 
-typedef void SubCommandHandler(List<String> args);
+typedef SubCommandHandler(List<String> args);
 
 /**
  * A Command Event.
@@ -80,14 +80,14 @@ class CommandEvent {
   /**
    * Handle Sub Commands
    */
-  void subcommands(Map<String, SubCommandHandler> handlers, {List<String> args}) {
+  subcommands(Map<String, SubCommandHandler> handlers, {List<String> args}) {
     if (args == null) {
       args = this.args;
     }
     
     if (args.isEmpty) {
       usage();
-      return;
+      return null;
     }
     
     var cmd = args[0];
@@ -95,10 +95,10 @@ class CommandEvent {
     
     if (!handlers.keys.contains(cmd)) {
       usage();
-      return;
+      return null;
     }
     
-    handlers[cmd](cargs);
+    return handlers[cmd](cargs);
   }
 
   /**
