@@ -1467,11 +1467,25 @@ class Plugin {
         params[MirrorSystem.getName(param.simpleName)] = param.type.reflectedType;
       });
 
-      if (rpc > 1) {
+      if (rpc > 2) {
         throw new Exception("Command function '${MirrorSystem.getName(c.mirror.simpleName)}' from plugin '${name}' has an invalid number of arguments.");
       }
 
       var useInput = params.containsKey("input");
+      bool hasEvent;
+      
+      if (params.length == 1 && params.containsKey("input")) {
+        hasEvent = false;
+      } else if (params.length == 2 && params.containsKey("input")) {
+        hasEvent = true;
+      } else if (params.length == 1) {
+        hasEvent = true;
+      } else if (params.isEmpty) {
+        hasEvent = false;
+      } else {
+        throw new Exception("Invalid Stuff");
+      }
+      
       var prefix;
       if (c.metadata.prefix != null && c.metadata.prefix is bool) {
         prefix = name;
@@ -1487,7 +1501,7 @@ class Plugin {
 
         if (useInput) {
           return e.transform((input) {
-            return c.function([input]);
+            return c.function(hasEvent ? [e, input] : [input]);
           });
         } else if (params.isEmpty) {
           return c.invoke([]);
