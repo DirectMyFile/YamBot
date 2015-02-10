@@ -20,7 +20,7 @@ class PluginCommunicator {
       server.listen((request) {
         var segments = request.uri.pathSegments;
         
-        if (segments.length >= 2 && segments[0] == "plugin" && _httpPorts.containsKey(segments[1])) {
+        if (segments.length >= 2 && (["plugin", "p", "script", "scripts", "endpoints"].contains(segments[0])) && _httpPorts.containsKey(segments[1])) {
           var name = segments[1];
           var segs = []
               ..addAll(segments)
