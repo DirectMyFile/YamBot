@@ -1476,11 +1476,11 @@ class Plugin {
 
       var useInput = params.containsKey("input");
       var prefix;
-      if (c != null && c.metadata.prefix is bool) {
+      if (c.metadata.prefix != null && c.metadata.prefix is bool) {
         prefix = name;
-      } else if (c != null && c.metadata.prefix is String) {
+      } else if (c.metadata.prefix != null && c.metadata.prefix is String) {
         prefix = c.metadata.prefix;
-      } else if (c == null) {
+      } else if (c.metadata.prefix == null) {
       } else {
         throw new Exception("Invalid Prefix Value");
       }
@@ -1489,7 +1489,9 @@ class Plugin {
         e._prefix = prefix;
 
         if (useInput) {
-          e.transform(c.function);
+          return e.transform((input) {
+            return c.function([input]);
+          });
         } else if (params.isEmpty) {
           return c.invoke([]);
         } else {

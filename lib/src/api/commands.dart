@@ -64,7 +64,7 @@ class CommandEvent {
     }
 
     if (!wasPrefixed && _prefix != null) {
-      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+      message = "[${Color.BLUE}${_prefix}${Color.RESET}] ${message}";
     }
 
     bot.sendMessage(network, channel, message, ping: ping ? user : null);
@@ -191,7 +191,7 @@ class CommandEvent {
     }
 
     if (!wasPrefixed && _prefix != null) {
-      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+      message = "[${Color.BLUE}${_prefix}${Color.RESET}] ${message}";
     }
 
     bot.sendNotice(network, user, message);
@@ -200,7 +200,7 @@ class CommandEvent {
   /**
    * Replies with the output from [transformer].
    */
-  void transform(transformer(String input), {prefix: false, bool notice: false, bool noSign: false}) {
+  void transform(transformer(String input), {prefix: false, bool notice: false}) {
     var p = null;
     if (prefix == true || (prefix != null && prefix is String)) {
       p = prefix == true ? bot.plugin.displayName : prefix;
@@ -214,7 +214,7 @@ class CommandEvent {
     new Future.value(transformer(joinArgs())).then((value) {
       if (value == null) return;
       
-      (notice ? replyNotice : reply)(p != null ? value : "${noSign ? "" : "> "}${value}");
+      (notice ? replyNotice : reply)(value);
     });
   }
 
