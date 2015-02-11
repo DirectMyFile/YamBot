@@ -70,6 +70,7 @@ class Bot {
     var botConfig = new IRC.Configuration();
     botConfig.nickname = config['nickname'];
     botConfig.realname = config['realname'];
+    botConfig.username = config['username'];
     botConfig.host = config['host'];
     botConfig.port = config['port'];
     botConfig.ssl = config["ssl"];
