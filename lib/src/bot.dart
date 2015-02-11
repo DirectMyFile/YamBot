@@ -67,12 +67,13 @@ class Bot {
       config["nickname"] = config["nickname"].toString().toLowerCase();
     }
     
-    var botConfig = new IRC.IrcConfig();
+    var botConfig = new IRC.Configuration();
     botConfig.nickname = config['nickname'];
     botConfig.realname = config['realname'];
     botConfig.host = config['host'];
     botConfig.port = config['port'];
     botConfig.ssl = config["ssl"];
+    botConfig.bindHost = config["bindhost"];
     botConfig.allowInvalidCertificates = config["allowInvalidCertificate"];
     
     _client = new IRC.Client(botConfig);
