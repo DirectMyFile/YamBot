@@ -13,6 +13,7 @@ import 'package:irc/client.dart' as IRC;
 import 'package:plugins/loader.dart';
 import 'package:analyzer/analyzer.dart' as analyzer;
 import 'package:path/path.dart' as path;
+import 'package:usage/usage_io.dart';
 
 import 'package:quiver/async.dart';
 import 'package:polymorphic_bot/slack.dart';
@@ -34,6 +35,7 @@ class Globals {
   static PluginHandler pluginHandler;
   static Function kill;
   static String key;
+  static Analytics analytics;
 }
 
 Random random = new Random();
@@ -50,6 +52,26 @@ String generateToken(int length) {
     }
   }
   return buffer.toString();
+}
+
+String _version;
+
+String getVersion() {
+  if (_version != null) {
+    return _version;
+  } else {
+    var v = new String.fromEnvironment("version");
+    if (v != null) {
+      return _version = v;
+    } else {
+      var pubspecFile = new File("${new File.fromUri(Platform.script).parent.parent.path}/pubspec.yaml");
+      if (!pubspecFile.existsSync()) {
+        return _version = "Unknown";
+      } else {
+        return _version = yaml.loadYaml(pubspecFile.readAsStringSync())["version"];
+      }
+    }
+  }
 }
 
 /**
@@ -82,17 +104,24 @@ CoreBot launchBot(String path) {
   Directory.current = dir;
 
   var bot = new CoreBot();
+  var analytics = Globals.analytics = new AnalyticsIO("UA-40996230-2", "PolymorphicBot", getVersion());
+  analytics.optIn = true;
+  
+  analytics.sendScreenView("initial start");
+  
   var handler = Globals.pluginHandler = new PluginHandler(bot);
 
+  var started = false;
+  
   Globals.kill = ([_]) {
     if (!isShuttingDown) {
       isShuttingDown = true;
-
-      if (!(bot.bots.any((it) => bot[it].client.connected))) {
+      
+      print("Shutting Down");
+      
+      if (!started) {
         exit(0);
       }
-
-      print("Shutting Down");
 
       new Timer(new Duration(seconds: 5), () {
         exit(0);
@@ -126,8 +155,16 @@ CoreBot launchBot(String path) {
     signal.watch().listen(Globals.kill);
   });
 
+  var stopwatch = new Stopwatch();
+  stopwatch.start();
   handler.init().then((_) {
+    stopwatch.stop();
+    
+    analytics.sendTiming("initial plugin load", stopwatch.elapsedMilliseconds);
+    
     bot.start();
+    started = true;
+    analytics.sendScreenView("bot");
   });
 
   return bot;

@@ -51,23 +51,26 @@ class CommandEvent {
    * If [prefix] is prefixed with [prefixContent].
    * If [prefixContent] is empty it becomes the display name of this plugin.
    */
-  void reply(String message, {bool prefix, String prefixContent, bool ping: false}) {
-    var wasPrefixed = false;
+  void reply(String input, {bool prefix, String prefixContent, bool ping: false}) {
+    var msgs = input.split("\n");
+    for (var message in msgs) {
+      var wasPrefixed = false;
 
-    if (prefix == true || (prefix == null && prefixContent != null)) {
-      if (prefixContent == null) {
-        prefixContent = bot.plugin.displayName;
+      if (prefix == true || (prefix == null && prefixContent != null)) {
+        if (prefixContent == null) {
+          prefixContent = bot.plugin.displayName;
+        }
+
+        message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+        wasPrefixed = true;
       }
 
-      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
-      wasPrefixed = true;
-    }
+      if (!wasPrefixed && _prefix != null) {
+        message = "[${Color.BLUE}${_prefix}${Color.RESET}] ${message}";
+      }
 
-    if (!wasPrefixed && _prefix != null) {
-      message = "[${Color.BLUE}${_prefix}${Color.RESET}] ${message}";
+      bot.sendMessage(network, channel, message, ping: ping ? user : null);
     }
-
-    bot.sendMessage(network, channel, message, ping: ping ? user : null);
   }
 
   /**
@@ -122,7 +125,7 @@ class CommandEvent {
     var cmd = bot._myCommands.firstWhere((it) => it.name == command);
     if (cmd.usage != null && cmd.usage.isNotEmpty) {
       var needCmd = !cmd.usage.startsWith(command);
-      reply("> Usage: ${needCmd ? '${command} ' : ''}${cmd.usage}");
+      reply("${_prefix != null ? '[${Color.BLUE}${_prefix}${Color.RESET}]' : ">"} Usage: ${needCmd ? '${command} ' : ''}${cmd.usage}");
     }
   }
   
@@ -174,27 +177,32 @@ class CommandEvent {
   }
   
   /**
-   * Sends [message] as a message to [channel] on [network].
+   * Sends [input] as a message to [user] on [network] as a notice.
    *
    * If [prefix] is prefixed with [prefixContent].
    * If [prefixContent] is empty it becomes the display name of this plugin.
    */
-  void replyNotice(String message, {bool prefix, String prefixContent}) {
-    var wasPrefixed = false;
-    if (prefix == true || (prefix == null && prefixContent != null)) {
-      if (prefixContent == null) {
-        prefixContent = bot.plugin.displayName;
+  void replyNotice(String input, {bool prefix, String prefixContent}) {
+    var msgs = input.split("\n");
+    
+    for (var message in msgs) {
+      var wasPrefixed = false;
+
+      if (prefix == true || (prefix == null && prefixContent != null)) {
+        if (prefixContent == null) {
+          prefixContent = bot.plugin.displayName;
+        }
+
+        message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
+        wasPrefixed = true;
       }
 
-      message = "[${Color.BLUE}${prefixContent}${Color.RESET}] ${message}";
-      wasPrefixed = true;
-    }
+      if (!wasPrefixed && _prefix != null) {
+        message = "[${Color.BLUE}${_prefix}${Color.RESET}] ${message}";
+      }
 
-    if (!wasPrefixed && _prefix != null) {
-      message = "[${Color.BLUE}${_prefix}${Color.RESET}] ${message}";
+      bot.sendNotice(network, user, message);
     }
-
-    bot.sendNotice(network, user, message);
   }
   
   /**
@@ -364,8 +372,33 @@ class CommandEvent {
     this.subcommands(subcommands);
   }
 
-  operator <(String msg) {
-    replyNotice(msg);
+  operator <(msg) {
+    if (msg == null) {
+      return;
+    }
+
+    if (msg is NoArgumentFunction) {
+      var value = msg();
+
+      if (value == null) {
+        return;
+      }
+
+      if (value is Future) {
+        value.then((msg) {
+          if (msg == null) {
+            return;
+          }
+
+          this < msg;
+        });
+        return;
+      }
+    } else if (msg is List) {
+      this < chooseAtRandom(msg);
+    } else {
+      replyNotice(msg.toString());
+    }
   }
 
   bool operator %(int count) => argc == count;

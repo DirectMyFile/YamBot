@@ -840,6 +840,9 @@ class IrcEventListener {
       data['command'] = e.command;
       data['args'] = e.args;
       com.pm.sendAll(data);
+      
+      Globals.analytics.sendEvent("irc", "command", label: "IRC Command");
+      Globals.analytics.sendEvent("command", e.command, label: "${e.command} command");
     });
     
     b.client.register((IRC.NickInUseEvent e) {

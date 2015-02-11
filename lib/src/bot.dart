@@ -87,6 +87,8 @@ class Bot {
       if (config["server_password"] != null) {
         event.client.send("PASS ${config["server_password"]}");
       }
+      
+      Globals.analytics.sendEvent("irc", "connect", label: "IRC Connect");
     });
     
     client.register((IRC.CTCPEvent event) {
@@ -105,6 +107,8 @@ class Bot {
     client.register((IRC.DisconnectEvent event) {
       Buffer.clearNetwork(network);
       print("[${network}] Disconnected");
+      
+      Globals.analytics.sendEvent("irc", "disconnect", label: "IRC Disconnect");
     });
     
     if (isSlackBot) {
@@ -228,6 +232,8 @@ class Bot {
 
   void _registerMessageHandler() {
     client.register((IRC.MessageEvent event) {
+      Globals.analytics.sendEvent("irc", "message", label: "IRC Message");
+      
       if (event.isPrivate) return;
       
       var prefixes = getPrefixes(event.channel.name);

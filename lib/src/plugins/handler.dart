@@ -345,7 +345,14 @@ class PluginHandler {
   List<String> _disabled = [];
 
   Future reloadPlugins() {
-    return killPlugins().then((_) => init());
+    var stopwatch = new Stopwatch();
+    stopwatch.start();
+    return killPlugins().then((_) {
+      return init();
+    }).then((_) {
+      stopwatch.stop();
+      Globals.analytics.sendTiming("plugin reload", stopwatch.elapsedMilliseconds);
+    });
   }
 
   bool isPluginElevated(String plugin) {
