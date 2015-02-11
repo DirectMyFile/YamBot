@@ -76,3 +76,4 @@ part "src/api/metadata.dart";
 part "src/api/helpers.dart";
 
 bool _createdPlugin = false;
+BotConnector _bot;

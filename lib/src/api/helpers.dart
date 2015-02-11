@@ -3,9 +3,9 @@ part of polymorphic.api;
 class Pair<A, B> {
   A a;
   B b;
-  
+
   Pair(this.a, this.b);
-  
+
   int get hashCode => hash2(a, b);
   bool operator ==(obj) => obj is Pair<A, B> && obj.a == a && obj.b == b;
 }
@@ -17,7 +17,8 @@ class DisplayHelpers {
   /**
    * Calls [handler] with the page number and items with the given amount [per] items.
    */
-  static void paginate(List<dynamic> allItems, int per, void handler(int page, List<dynamic> items)) {
+  static void paginate(List<dynamic> allItems, int per,
+      void handler(int page, List<dynamic> items)) {
     var x = 0;
     var buff = [];
     var p = 1;
@@ -97,9 +98,16 @@ class DisplayHelpers {
 
     return buff.toString();
   }
-  
-  static final List<Color> COLORS = [Color.RED, Color.OLIVE, Color.YELLOW, Color.GREEN, Color.BLUE, Color.PURPLE];
-  
+
+  static final List<Color> COLORS = [
+    Color.RED,
+    Color.OLIVE,
+    Color.YELLOW,
+    Color.GREEN,
+    Color.BLUE,
+    Color.PURPLE
+  ];
+
   static String rainbowColor(String message) {
     var random = new Random();
     var buff = new StringBuffer();
@@ -164,7 +172,7 @@ class ProcessHelper {
       return result.stdout;
     });
   }
-  
+
   static Future<ProcessResult> run(String executable, List<String> args) {
     return Process.run(executable, args);
   }
@@ -180,7 +188,7 @@ bool isUrl(String input) {
 
 html.Document parseHtml(content, [void handler(HtmlDocument $)]) {
   var doc = htmlParser.parse(content);
-  
+
   if (handler != null) {
     handler(new HtmlDocument(doc));
   }
@@ -190,23 +198,110 @@ html.Document parseHtml(content, [void handler(HtmlDocument $)]) {
 
 class HtmlDocument {
   final html.Document document;
-  
+
   HtmlDocument(this.document);
-  
+
   html.Element call(String query) {
     return document.querySelector(query);
   }
 }
 
-Future<String> shortenUrl(String input, {String key: "AIzaSyBNTRakVvRuGHn6AVIhPXE_B3foJDOxmBU"}) {
-  return http.post("https://www.googleapis.com/urlshortener/v1/url?key=${key}", body: JSON.encode({
-    "longUrl": input
-  }), headers: { "Content-Type": "application/json" }).then((response) {
+Future<String> shortenUrl(String input,
+    {String key: "AIzaSyBNTRakVvRuGHn6AVIhPXE_B3foJDOxmBU"}) {
+  return http
+      .post("https://www.googleapis.com/urlshortener/v1/url?key=${key}",
+          body: JSON.encode({"longUrl": input}),
+          headers: {"Content-Type": "application/json"})
+      .then((response) {
     if (!([200, 201].contains(response.statusCode))) {
       return input;
     }
-    
+
     return JSON.decode(response.body)["id"];
+  });
+}
+
+Future<dynamic> fetch(String url, {Map<String, String> headers: const {}, Map<String, String> query}) {
+  if (query != null) {
+    url += HttpHelper.buildQueryString(query);
+  }
+
+  return _bot.plugin.httpClient.get(url, headers: headers).then((response) {
+    if (response.statusCode != 200) {
+      throw new HttpError(
+          "failed to fetch data", response.statusCode, response.body);
+    }
+
+    return response.body;
+  });
+}
+
+Future<dynamic> fetchJSON(String url, {String transform(String input), Map<String, String> headers: const {}, Map<String, String> query, Type type}) {
+  if (query != null) {
+    url += HttpHelper.buildQueryString(query);
+  }
+
+  return _bot.plugin.httpClient.get(url, headers: headers).then((response) {
+    if (response.statusCode != 200) {
+      throw new HttpError("failed to fetch JSON", response.statusCode, response.body);
+    }
+
+    var out = jsonx.decode(
+        transform != null ? transform(response.body) : response.body,
+        type: type);
+    if (out is Map) {
+      out = new SimpleMap(out);
+    }
+    return out;
+  });
+}
+
+Future<dynamic> fetchYAML(String url, {String transform(String input), Map<String, String> headers: const {}, Map<String, String> query}) {
+  if (query != null) {
+    url += HttpHelper.buildQueryString(query);
+  }
+
+  return _bot.plugin.httpClient.get(url, headers: headers).then((response) {
+    if (response.statusCode != 200) {
+      throw new HttpError("failed to fetch YAML", response.statusCode, response.body);
+    }
+
+    return yaml.loadYaml(transform != null ? transform(response.body) : response.body);
+  });
+}
+
+Future<dynamic> postJSON(String url, dynamic body, {Map<String, String> headers: const {}, Map<String, String> query, Type type}) {
+  if (query != null) {
+    url += HttpHelper.buildQueryString(query);
+  }
+
+  return _bot.plugin.httpClient
+      .post(url, body: JSON.encode(body), headers: {"Content-Type": "application/json"}.addAll(headers))
+      .then((response) {
+    if (!([200, 201].contains(response.statusCode))) {
+      throw new HttpError("failed to post JSON", response.statusCode, response.body);
+    }
+
+    var out = jsonx.decode(response.body, type: type);
+    
+    if (out is Map) {
+      out = new SimpleMap(out);
+    }
+    return out;
+  });
+}
+
+Future<HtmlDocument> fetchHTML(String url, {Map<String, String> headers: const {}, Map<String, String> query}) {
+  if (query != null) {
+    url += HttpHelper.buildQueryString(query);
+  }
+
+  return _bot.plugin.httpClient.get(url, headers: headers).then((response) {
+    if (response.statusCode != 200) {
+      throw new HttpError("failed to fetch HTML", response.statusCode, response.body);
+    }
+
+    return new HtmlDocument(parseHtml(response.body));
   });
 }
 
@@ -214,30 +309,30 @@ typedef void Task();
 
 class Scheduler {
   Scheduler();
-  
+
   Timer scheduleAt(DateTime time, Task task) {
     var dnow = new DateTime.now();
     var now = dnow.millisecondsSinceEpoch;
     var target = time.millisecondsSinceEpoch;
-    
+
     if (target < now) {
       throw new Exception("Scheduled time was in the past.");
     }
-    
+
     if (target == now) {
       new Future(() {
         task();
       });
       return null;
     }
-    
+
     var delay = target - now;
-    
+
     return new Timer(new Duration(milliseconds: delay), () {
       task();
     });
   }
-  
+
   Timer schedule(Duration delay, Task task) {
     return new Timer(delay, () {
       task();
@@ -247,11 +342,10 @@ class Scheduler {
 
 @proxy
 class SimpleMap extends DelegatingMap {
-
   SimpleMap(Map map) : super(map);
 
   Object get(String key, [Object defaultValue]) {
-    if(containsKey(key)) {
+    if (containsKey(key)) {
       var value = this[key];
       if (value is! SimpleMap && value is Map) {
         value = new SimpleMap(value);
@@ -261,7 +355,7 @@ class SimpleMap extends DelegatingMap {
         this[key] = value;
       }
       return value;
-    } else if(defaultValue != null) {
+    } else if (defaultValue != null) {
       return defaultValue;
     }
     return null;
@@ -272,7 +366,8 @@ class SimpleMap extends DelegatingMap {
     if (invocation.isGetter) {
       return get(key);
     } else if (invocation.isSetter) {
-      this[key.substring(0, key.length - 1)] = invocation.positionalArguments.first;
+      this[key.substring(0, key.length - 1)] =
+          invocation.positionalArguments.first;
     } else {
       super.noSuchMethod(invocation);
     }
@@ -280,7 +375,6 @@ class SimpleMap extends DelegatingMap {
 }
 
 class _ListWrapper extends DelegatingList {
-
   _ListWrapper(List list) : super(list);
 
   factory _ListWrapper.wrap(List list) {
@@ -332,8 +426,9 @@ class MessagePen {
   String toString() => _content;
 }
 
-List<String> charactersOf(String input) => new List<String>.generate(input.length, (i) => input[i]);
+List<String> charactersOf(String input) =>
+    new List<String>.generate(input.length, (i) => input[i]);
 
-bool isDigit(String it) => ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].contains(it);
+bool isDigit(String it) =>
+    ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].contains(it);
 bool isInteger(String it) => charactersOf(it).every((c) => isDigit(c));
-

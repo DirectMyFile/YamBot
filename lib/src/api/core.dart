@@ -1220,7 +1220,6 @@ class Plugin {
   }
 
   Receiver _conn;
-  BotConnector _bot;
   List<StreamSubscription> _subs = [];
   StreamSubscription _eventSub;
   List<ShutdownAction> _shutdown = [];
