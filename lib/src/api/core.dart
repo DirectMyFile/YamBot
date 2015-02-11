@@ -1635,17 +1635,41 @@ class Plugin {
       }
 
       if (httpEndpoints.isNotEmpty || websocketEndpoints.isNotEmpty) {
+        handleValue(HttpRequest request, value) {
+          if (value == null) {
+            request.response.close();
+            return;
+          }
+          
+          if (value is String) {
+            request.response.write(value);
+            request.response.close();
+          } else if (value is Future) {
+            value.then((v) => handleValue(request, v));
+          } else if (value is ErrorResponse) {
+            request.response.statusCode = value.statusCode;
+            handleValue(request, value.content);
+          } else {
+            request.response.writeln(jsonx.encode(value, indent: "  "));
+            request.response.close();
+          }
+        }
+        
         createHttpRouter().then((router) {
           for (var e in httpEndpoints) {
             var path = e.metadata.path;
-
-            if (e.parameters.length == 1) {
+            
+            if (e.parameters.isEmpty) {
               router.addRoute(path, (req) {
-                e.invoke([req]);
+                handleValue(req, e.invoke([]));
+              });
+            } else if (e.parameters.length == 1) {
+              router.addRoute(path, (req) {
+                handleValue(req, e.invoke([req]));
               });
             } else if (e.parameters.length == 2) {
               router.addRoute(path, (req) {
-                e.invoke([req, req.response]);
+                handleValue(req, e.invoke([req, req.response]));
               });
             } else {
               throw new Exception("HTTP Endpoint has an invalid number of parameters");
@@ -1664,11 +1688,11 @@ class Plugin {
 
             if (de.parameters.length == 1) {
               router.defaultRoute((req) {
-                de.invoke([req]);
+                handleValue(req, de.invoke([req]));
               });
             } else if (de.parameters.length == 2) {
               router.defaultRoute((req) {
-                de.invoke([req, req.response]);
+                handleValue(req, de.invoke([req, req.response]));
               });
             } else {
               throw new Exception("Default HTTP Endpoint has an invalid number of parameters");
@@ -1896,6 +1920,13 @@ class Plugin {
   }
 
   Map<String, RemoteMethodInfo> _myMethods = {};
+}
+
+class ErrorResponse {
+  final int statusCode;
+  final dynamic content;
+  
+  ErrorResponse(this.statusCode, this.content);
 }
 
 /**
