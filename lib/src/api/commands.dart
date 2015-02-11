@@ -231,7 +231,7 @@ class CommandEvent {
       url += HttpHelper.buildQueryString(query);
     }
 
-    return bot.plugin.httpClient.get(url).then((response) {
+    return bot.plugin.httpClient.get(url, headers: headers).then((response) {
       if (response.statusCode != 200) {
         throw new HttpError("failed to fetch data", response.statusCode, response.body);
       }
@@ -245,7 +245,7 @@ class CommandEvent {
       url += HttpHelper.buildQueryString(query);
     }
     
-    return bot.plugin.httpClient.get(url).then((response) {
+    return bot.plugin.httpClient.get(url, headers: headers).then((response) {
       if (response.statusCode != 200) {
         throw new HttpError("failed to fetch JSON", response.statusCode, response.body);
       }
@@ -263,7 +263,7 @@ class CommandEvent {
       url += HttpHelper.buildQueryString(query);
     }
 
-    return bot.plugin.httpClient.get(url).then((response) {
+    return bot.plugin.httpClient.get(url, headers: headers).then((response) {
       if (response.statusCode != 200) {
         throw new HttpError("failed to fetch YAML", response.statusCode, response.body);
       }
@@ -295,7 +295,7 @@ class CommandEvent {
       url += HttpHelper.buildQueryString(query);
     }
     
-    return bot.plugin.httpClient.get(url).then((response) {
+    return bot.plugin.httpClient.get(url, headers: headers).then((response) {
       if (response.statusCode != 200) {
         throw new HttpError("failed to fetch HTML", response.statusCode, response.body);
       }
