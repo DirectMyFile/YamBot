@@ -63,7 +63,7 @@ class EnvironmentUtils {
   }
 }
 
-String yamlToString(data) {
+String encodeYAML(data) {
   var buffer = new StringBuffer();
 
   _stringify(bool isMapValue, String indent, data) {
@@ -87,6 +87,10 @@ String yamlToString(data) {
         
         if (key is! String || !_unquotableYamlString.hasMatch(key)) {
           keyString = JSON.encode(key);
+        }
+        
+        if (key == "*") {
+          keyString = '"*"';
         }
 
         buffer.write('$indent$keyString:');
@@ -117,3 +121,23 @@ String yamlToString(data) {
 }
 
 final _unquotableYamlString = new RegExp(r"^[a-zA-Z_-][a-zA-Z_0-9-]*$");
+
+dynamic crawlYAML(input) {
+  if (input == null) {
+    return null;
+  } else if (input is List) {
+    var out = [];
+    for (var value in input) {
+      out.add(crawlYAML(value));
+    }
+    return out;
+  } else if (input is Map) {
+    var out = {};
+    for (var key in input.keys) {
+      out[crawlYAML(key)] = crawlYAML(input[key]);
+    }
+    return out;
+  } else {
+    return input;
+  }
+}

@@ -28,6 +28,11 @@ class PluginHandler {
       BotMetrics.pluginsMetric.value = plugins.length.toDouble();
       print("[Plugin Manager] Registered: ${plugins.join(", ")}");
       _communicator.handle();
+      
+      if (plugins.isEmpty) {
+        return null;
+      }
+      
       return _communicator._completer.future.then((_) { // Ensures Plugins are initialized.
         return plugins;
       });

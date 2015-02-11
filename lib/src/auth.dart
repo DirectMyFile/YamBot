@@ -1,15 +1,16 @@
 part of polymorphic.bot;
 
-const String _DEFAULT_PERMS = """
+const String DEFAULT_PERMS = """
 groups:
   public:
     - core.auth
 networks:
   EsperNet:
     groups:
-      *: [core.auth]
+      "*":
+      - public
     nodes:
-      *: []
+      "*": []
 """;
 
 class Auth {
@@ -39,13 +40,13 @@ class Auth {
     var jsonFile = new File("permissions.json");
     
     if (!file.existsSync() && jsonFile.existsSync()) {
-      file.writeAsStringSync(yamlToString(JSON.decode(jsonFile.readAsStringSync())));
+      file.writeAsStringSync(encodeYAML(JSON.decode(jsonFile.readAsStringSync())));
       jsonFile.deleteSync();
     }
     
     if (!file.existsSync()) {
       file.createSync(recursive: true);
-      file.writeAsStringSync(_DEFAULT_PERMS);
+      file.writeAsStringSync(DEFAULT_PERMS);
     }
 
     void fillIn() {
