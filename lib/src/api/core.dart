@@ -1649,6 +1649,8 @@ class Plugin {
           } else if (value is ErrorResponse) {
             request.response.statusCode = value.statusCode;
             handleValue(request, value.content);
+          } else if (value is File) {
+            handleValue(request, value.readAsString());
           } else {
             request.response.writeln(jsonx.encode(value, indent: "  "));
             request.response.close();
