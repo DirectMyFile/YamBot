@@ -49,6 +49,10 @@ class Bot {
       }
     }
     
+    if (!config.containsKey("username")) {
+      config["username"] = "Polymorphic";
+    }
+    
     if (!config.containsKey("allowInvalidCertificate")) {
       config["allowInvalidCertificate"] = false;
     }
