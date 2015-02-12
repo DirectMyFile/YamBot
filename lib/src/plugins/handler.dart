@@ -96,6 +96,8 @@ class PluginHandler {
             });
             
             if (!doesExportPlugin) {
+              debug(() => print("[Plugin Manager] Warning: ${pluginName}.dart does not provide an export."));
+              
               var lines = new List<String>.from(content.split("\n"));
               var exporter = 'export "package:polymorphic_bot/plugin.dart";';
   
