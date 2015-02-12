@@ -81,9 +81,40 @@ class PluginHandler {
             var content = entity.readAsStringSync();
 
             var unit = analyzer.parseDartFile(entity.path);
+            var doesExportPlugin = unit.directives.any((x) {
+              if (x is! ExportDirective) {
+                return false;
+              }
+    
+              var uri = stringLiteralToString(x.uri);
+    
+              if (uri != "package:polymorphic_bot/plugin.dart") {
+                return false;
+              }
+    
+              return true;
+            });
+            
+            if (!doesExportPlugin) {
+              var lines = new List<String>.from(content.split("\n"));
+              var exporter = 'export "package:polymorphic_bot/plugin.dart";';
+  
+              if (!unit.directives.any((x) => x is ImportDirective)) {
+                lines.insert(0, exporter);
+                content = lines.join("\n");
+              } else {
+                var lastImport = unit.directives.where((x) => x is ImportDirective).last;
+                var endIndex = lastImport.end;
+                var chars = new List<String>.generate(content.length, (x) => content[x]);
+                chars.insertAll(endIndex, new List<String>.generate(exporter.length, (x) => exporter[x])..insert(0, "\n"));
+                content = chars.join();
+              }
+            }
+            
             var visitor = new ConstantValuesVisitor();
 
             unit.visitChildren(visitor);
+            
             var data = visitor.values;
             var botDir = new File.fromUri(Platform.script).parent.parent;
             var deps = EnvironmentUtils.isCompiled() ? {
