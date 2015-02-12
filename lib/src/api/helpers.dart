@@ -276,7 +276,7 @@ Future<dynamic> postJSON(String url, dynamic body, {Map<String, String> headers:
   }
 
   return _bot.plugin.httpClient
-      .post(url, body: JSON.encode(body), headers: {"Content-Type": "application/json"}.addAll(headers))
+      .post(url, body: JSON.encode(body), headers: {"Content-Type": "application/json"}..addAll(headers))
       .then((response) {
     if (!([200, 201].contains(response.statusCode))) {
       throw new HttpError("failed to post JSON", response.statusCode, response.body);
