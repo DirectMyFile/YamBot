@@ -17,6 +17,26 @@ class ClassAnnotation<T> {
   ClassMirror mirror;
 }
 
+typedef InterceptionHandler(List<dynamic> positional, Map<Symbol, dynamic> named);
+
+class Interceptor {
+  final InterceptionHandler handler;
+  
+  Interceptor(this.handler);
+  
+  @override
+  noSuchMethod(inv) {
+    if (!inv.isAccessor && inv.memberName == #call) {
+      var positional = inv.positionalArguments;
+      var named = inv.namedArguments;
+      
+      return handler(positional, named);
+    } else {
+      return super.noSuchMethod(inv);
+    }
+  }
+}
+
 List<FunctionAnnotation> findFunctionAnnotations(Type type,
     {InstanceMirror instance, LibraryMirror lib}) {
   LibraryMirror l = (lib == null ? currentMirrorSystem().isolate.rootLibrary : lib);
