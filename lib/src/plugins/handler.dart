@@ -160,7 +160,7 @@ class PluginHandler {
               dir.createSync(recursive: true);
             }
 
-            var scriptFile = new File("${dir.path}/main.dart");
+            var scriptFile = new File("${dir.path}/${pluginName}.dart");
             scriptFile.writeAsStringSync(content);
             var pubspecFile = new File("${dir.path}/pubspec.yaml");
             String pubspec;
@@ -172,7 +172,8 @@ class PluginHandler {
                 "display_name": displayName,
                 "update_dependencies": updateDependencies,
                 "provides": provides,
-                "conflicts": conflicts
+                "conflicts": conflicts,
+                "main": "${pluginName}.dart"
               }
             });
 
