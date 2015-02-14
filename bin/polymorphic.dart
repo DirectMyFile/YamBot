@@ -15,9 +15,7 @@ Plugin plugin;
 BotConnector bot;
 
 @Command("example")
-example(CommandEvent event) {
-  event.reply("Example Command.");
-}
+example(CommandEvent event) => "Example Command";
 """;
 
 void main(List<String> args) {
