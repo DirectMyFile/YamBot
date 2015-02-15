@@ -423,7 +423,10 @@ class MessagePen {
     return this;
   }
 
+  @override
   String toString() => _content;
+  
+  String end() => toString();
 }
 
 List<String> charactersOf(String input) =>
