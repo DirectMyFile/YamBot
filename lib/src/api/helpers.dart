@@ -96,7 +96,19 @@ class DisplayHelpers {
       }
     }
 
-    return buff.toString();
+    return cleanFormatting(buff.toString());
+  }
+  
+  static String cleanFormatting(String input) {
+    var length = input.length;
+		var buff = new StringBuffer();
+		for (int i = 0; i < length; i++) {
+			var ch = line[i];
+			if (ch != '\u000f' && ch != '\u0002' && ch != '\u001f' && ch != '\u0016') {
+				buff.write(ch);
+			}
+		}
+		return buff.toString();
   }
 
   static final List<Color> COLORS = [
