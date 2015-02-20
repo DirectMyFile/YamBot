@@ -20,7 +20,7 @@ dependencies:
   jsonx: ">=2.0.0 <3.0.0"
   usage: ">=1.0.0 <2.0.0"
 dev_dependencies:
-  unittest: ">=0.11.5 <0.12.0"
-  grinder: ">=0.6.5 <0.7.0"
+  unittest: ">=0.12.0-alpha.0 <0.13.0"
+  grinder: ">=0.6.6+3 <0.7.0"
 executables:
   polymorphic:
