@@ -15,6 +15,10 @@ main(List<String> args) async {
 var didUpdateDeps = false;
 
 fetchUpdates() async {
+  if (EnvironmentUtils.isCompiled()) {
+    return;
+  }
+  
   var dir = EnvironmentUtils.getPubSpecFile().parent;
   var isDirty = (await Process.run("git", ["status", "-s"], workingDirectory: dir.path)).stdout.trim().isNotEmpty;
   
