@@ -22,6 +22,10 @@ bool get DEBUG {
   return false;
 }
 
+String getFileName(String path) {
+  return path.split(Platform.pathSeparator).last;
+}
+
 /**
  * Information about the current environment.
  */
@@ -31,6 +35,26 @@ class EnvironmentUtils {
    */
   static bool isCompiled() {
     return new bool.fromEnvironment("compiled", defaultValue: false);
+  }
+  
+  static File getPubSpecFile() {
+    var scriptFile = getScriptFile();
+    var directoryName = getFileName(scriptFile.parent.path);
+    var rootDir;
+    
+    if (directoryName == "bin") {
+      rootDir = scriptFile.parent.parent;
+    } else {
+      rootDir = scriptFile.parent;
+    }
+    
+    return new File("${rootDir.path}/pubspec.yaml");
+  }
+  
+  static File getScriptFile() {
+    var uri = Platform.script;
+
+    return new File(uri.toFilePath());
   }
   
   /**

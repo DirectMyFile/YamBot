@@ -1,77 +1,80 @@
 import "dart:async";
+import "dart:convert";
 import "dart:io";
 
-import "package:args/command_runner.dart";
-import "package:polymorphic_bot/bot.dart";
+import "package:polymorphic_bot/utils.dart";
+import "package:polymorphic_bot/launcher.dart" deferred as launcher;
 
-const String SCRIPT_TEMPLATE = """
-import "package:polymorphic_bot/plugin.dart";
-export "package:polymorphic_bot/plugin.dart";
-
-@PluginInstance()
-Plugin plugin;
-
-@BotInstance()
-BotConnector bot;
-
-@Command("example")
-example(CommandEvent event) => "Example Command";
-""";
-
-void main(List<String> args) {
-  var runner = new CommandRunner("polymorphic", "PolymorphicBot");
-  runner.argParser.addFlag("debug", abbr: "d", help: "Enable Debugging");
-  runner.addCommand(new StartCommand());
-  runner.addCommand(new CreateScriptCommand());
-  
-  var result = runner.parse(args);
-  var debug = result["debug"];
-  
-  Zone.current.fork(zoneValues: {
-    "debug": debug
-  }).run(() {
-    runner.runCommand(result);
-  });
+main(List<String> args) async {
+  await verifyDependencies();
+  await launcher.loadLibrary();
+  launcher.main(args);
 }
 
-class StartCommand extends Command {
-  StartCommand() {
-    argParser.addOption("path", abbr: "p", help: "Path to Working Directory", defaultsTo: ".");
-  }
-  
-  @override
-  String get description => "Starts the Bot";
+var didUpdateDeps = false;
 
-  @override
-  String get name => "start";
-  
-  
-  @override
-  void run() {
-    launchBot(argResults['path']);
-  }
-}
-
-class CreateScriptCommand extends Command {
-  CreateScriptCommand() {
-    argParser.addOption("name", abbr: "n", help: "Script Name");
-  }
-
-  @override
-  String get description => "Creates a Script";
-
-  @override
-  String get name => "create-script";
-
-  @override
-  void run() {
-    if (!argResults.options.contains("name")) {
-      print("ERROR: Please specify the name of the script via the -n parameter.");
-      exit(1);
+verifyDependencies() async {
+  var stateFile = new File(".state.json");
+    
+  if (!EnvironmentUtils.isCompiled()) {
+    var pubspec = EnvironmentUtils.getPubSpecFile();
+    var pkgsDir = new Directory("${pubspec.parent.path}/packages");
+      
+    saveState() async {
+      var pubspecContent = await base64File(pubspec);
+      var data = {
+        "pubspec": pubspecContent
+      };
+        
+      await stateFile.writeAsString(new JsonEncoder.withIndent("  ").convert(data));
     }
-
-    var file = new File("${argResults["name"]}.dart");
-
-    file.writeAsStringSync(SCRIPT_TEMPLATE);
+      
+    updateDependencies() async {
+      if (didUpdateDeps) {
+        return;
+      }
+      
+      didUpdateDeps = true;
+      
+      var dir = EnvironmentUtils.getScriptFile().parent.parent;
+      print("[Launcher] Fetching Dependencies");
+      var result = await Process.run("pub", ["upgrade"], workingDirectory: dir.path);
+        
+      if (result.exitCode != 0) {
+        print("[Launcher] Failed to fetch dependencies!");
+        print("STDOUT:");
+        print(result.stdout);
+        print("STDERR:");
+        print(result.stderr);
+      }
+    }
+      
+    debug(() => print("[Launcher] Verifying Dependencies"));
+      
+    var data = {};
+    
+    if (!pkgsDir.existsSync()) {
+      await updateDependencies();  
+    }
+    
+    if (await stateFile.exists()) {
+      data = JSON.decode(await stateFile.readAsString());
+      var current = await base64File(pubspec);
+      var last = data["pubspec"];
+        
+      if (current != last) {
+        await updateDependencies();
+      }
+        
+      await saveState();
+    } else {
+      await updateDependencies();
+      await saveState();
+    }
   }
+}
+
+base64File(File file) async {
+  var bytes = await file.readAsBytes();
+  return BasicCryptoUtils.bytesToBase64(bytes);
 }
