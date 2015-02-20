@@ -380,7 +380,8 @@ class PluginCommunicator {
         "members": channel.members,
         "owners": channel.owners,
         "halfops": channel.halfops,
-        "topic": channel.topic
+        "topic": channel.topic,
+        "topicUser": channel.topicUser
       });
     });
     
@@ -964,6 +965,7 @@ class IrcEventListener {
       var data = common("topic");
       data['channel'] = e.channel.name;
       data['topic'] = e.topic;
+      data['user'] = e.user;
       com.pm.sendAll(data);
     });
 

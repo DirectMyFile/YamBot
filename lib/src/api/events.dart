@@ -139,12 +139,13 @@ class TopicEvent {
   final String network;
   final String channel;
   final String topic;
+  final String user;
   
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
 
-  TopicEvent(this.bot, this.network, this.channel, this.topic);
+  TopicEvent(this.bot, this.network, this.channel, this.user, this.topic);
 }
 
 class DisconnectEvent {

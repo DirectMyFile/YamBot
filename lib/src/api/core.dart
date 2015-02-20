@@ -912,7 +912,7 @@ class BotConnector {
 
       return matches;
     }).listen((data) {
-      var event = new TopicEvent(this, data["network"], data["user"], data["channel"]);
+      var event = new TopicEvent(this, data["network"], data["channel"], data["user"], data["topic"]);
 
       handler(event);
     });
