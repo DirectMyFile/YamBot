@@ -118,6 +118,14 @@ class Auth {
         if (success == null) {
           success = _userHasMatch("*", plugin, parts);
         }
+        
+        if (success == null) {
+          success = _userHasMatch(nick, "*", parts);
+        }
+        
+        if (success == null) {
+          success = _userHasMatch("*", "*", parts);
+        }
 
         return success != null ? success : false;
       });
@@ -129,9 +137,19 @@ class Auth {
         var parts = node.split(".");
 
         var success = _userHasMatch(nickserv, plugin, parts);
+        
         if (success == null) {
           success = _userHasMatch("*", plugin, parts);
         }
+        
+        if (success == null) {
+          success = _userHasMatch(nick, "*", parts);
+        }
+        
+        if (success == null) {
+          success = _userHasMatch("*", "*", parts);
+        }
+        
         return success != null ? success : false;
       });
     }
