@@ -417,14 +417,16 @@ class PluginCommunicator {
       var channel = call.getArgument("channel");
       var topic = call.getArgument("topic");
       
-      bot[network].client.getChannel(channel).topic = topic;
+      bot[network].client.setChannelTopic(channel, topic);
     }, isVoid: true);
     
     addBotMethod("getChannelTopic", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
 
-      call.reply(bot[network].client.getChannel(channel).topic);
+      bot[network].client.getChannelTopic(channel).then((topic) {
+        call.reply(topic);
+      });
     });
 
     addBotMethod("getChannelMembers", (call) {
