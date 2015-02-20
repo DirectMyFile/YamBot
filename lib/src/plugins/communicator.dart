@@ -641,6 +641,15 @@ class PluginCommunicator {
 
       bot[network].client.part(channel);
     }, isVoid: true);
+    
+    addBotMethod("isUserOn", (call) {
+      var network = call.getArgument("network");
+      var user = call.getArgument("user");
+      
+      bot[network].client.isUserOn(user).then((isOn) {
+        call.reply(isOn);
+      });
+    });
 
     addBotMethod("clearBotMemory", (call) {
       var network = call.getArgument("network");

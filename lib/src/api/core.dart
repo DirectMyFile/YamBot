@@ -919,6 +919,13 @@ class BotConnector {
 
     plugin.registerSubscription(sub);
   }
+  
+  Future<bool> isUserOn(String network, String user) {
+    return plugin.callMethod("isUserOn", {
+      "network": network,
+      "user": user
+    });
+  }
 
   /**
    * Calls [handler] when a user's mode is changed.
