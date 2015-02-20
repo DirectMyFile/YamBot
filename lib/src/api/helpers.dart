@@ -103,7 +103,7 @@ class DisplayHelpers {
     var length = input.length;
 		var buff = new StringBuffer();
 		for (int i = 0; i < length; i++) {
-			var ch = line[i];
+			var ch = input[i];
 			if (ch != '\u000f' && ch != '\u0002' && ch != '\u001f' && ch != '\u0016') {
 				buff.write(ch);
 			}
@@ -424,6 +424,7 @@ class MessagePen {
       write(msg);
       write(Color.RESET);
     }
+    return this;
   }
 
   MessagePen reset() => write(Color.RESET);

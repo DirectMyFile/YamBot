@@ -16,7 +16,6 @@ import 'package:path/path.dart' as path;
 import 'package:usage/usage_io.dart';
 
 import 'package:quiver/async.dart';
-import 'package:polymorphic_bot/slack.dart';
 
 import 'api.dart' as Polymorphic;
 
