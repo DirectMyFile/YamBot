@@ -123,10 +123,17 @@ class CommandEvent {
    */
   void usage() {
     var cmd = bot._myCommands.firstWhere((it) => it.name == command);
+    var usage = "";
     if (cmd.usage != null && cmd.usage.isNotEmpty) {
-      var needCmd = !cmd.usage.startsWith(command);
-      reply("${_prefix != null ? '[${Color.BLUE}${_prefix}${Color.RESET}]' : ">"} Usage: ${needCmd ? '${command} ' : ''}${cmd.usage}");
+      usage = cmd.usage;
+      
+      if (!usage.startsWith(command)) {
+        usage = " " + usage;
+      }
     }
+    
+    var needCmd = !usage.startsWith(command);
+    reply("${_prefix != null ? '[${Color.BLUE}${_prefix}${Color.RESET}]' : ">"} Usage: ${needCmd ? '${command}' : ''}${cmd.usage}");
   }
   
   void executeCommand(String command, [List<String> args = const []]) {

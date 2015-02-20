@@ -1522,7 +1522,8 @@ class Plugin {
             });
           } else if (params.isEmpty) {
             if (e.hasArguments) {
-              return e.usage();
+              e.usage();
+              return null;
             }
             
             return c.invoke([]);
