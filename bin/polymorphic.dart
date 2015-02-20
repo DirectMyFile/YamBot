@@ -79,7 +79,7 @@ verifyDependencies() async {
       
     var data = {};
     
-    if (!pkgsDir.existsSync()) {
+    if (!(await pkgsDir.exists())) {
       await updateDependencies();  
     }
     
