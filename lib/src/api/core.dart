@@ -1521,6 +1521,10 @@ class Plugin {
               return c.function(hasEvent ? [e, input] : [input]);
             });
           } else if (params.isEmpty) {
+            if (e.hasArguments) {
+              return e.usage();
+            }
+            
             return c.invoke([]);
           } else {
             return c.invoke([e]);

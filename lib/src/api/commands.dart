@@ -210,6 +210,7 @@ class CommandEvent {
    */
   void transform(transformer(String input), {prefix: false, bool notice: false}) {
     var p = null;
+    
     if (prefix == true || (prefix != null && prefix is String)) {
       p = prefix == true ? bot.plugin.displayName : prefix;
     }
@@ -222,7 +223,7 @@ class CommandEvent {
     new Future.value(transformer(joinArgs())).then((value) {
       if (value == null) return;
       
-      (notice ? replyNotice : reply)(value);
+      (notice ? replyNotice : reply)(value, prefix: p);
     });
   }
   
@@ -276,12 +277,10 @@ class CommandEvent {
         return;
       }
 
-      var p = null;
-
       new Future.value(function()).then((value) {
         if (value == null) return;
 
-        reply(value);
+        this << value;
       });
     } else if (function is OneArgumentFunction) {
       transform(function);
