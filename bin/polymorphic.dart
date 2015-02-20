@@ -6,12 +6,33 @@ import "package:polymorphic_bot/utils.dart";
 import "package:polymorphic_bot/launcher.dart" deferred as launcher;
 
 main(List<String> args) async {
+  await fetchUpdates();
   await verifyDependencies();
   await launcher.loadLibrary();
   launcher.main(args);
 }
 
 var didUpdateDeps = false;
+
+fetchUpdates() async {
+  var dir = EnvironmentUtils.getPubSpecFile().parent;
+  var isDirty = (await Process.run("git", ["status", "-s"], workingDirectory: dir.path)).stdout.trim().isNotEmpty;
+  
+  if (isDirty) {
+    print("[Launcher] Not Fetching Updates: Working copy has uncommitted changes.");
+    return;
+  }
+  
+  var result = await Process.run("git", ["pull", "origin", "master"], workingDirectory: dir.path);
+  if (result.exitCode != 0) {
+    print("[Launcher] Failed to update:");
+    print("STDOUT:");
+    print(result.stdout);
+    print("STDERR:");
+    print(result.stderr);
+    exit(1);
+  }
+}
 
 verifyDependencies() async {
   var stateFile = new File(".state.json");
@@ -46,6 +67,7 @@ verifyDependencies() async {
         print(result.stdout);
         print("STDERR:");
         print(result.stderr);
+        exit(1);
       }
     }
       
