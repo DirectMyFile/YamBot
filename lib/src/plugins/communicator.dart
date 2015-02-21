@@ -977,6 +977,7 @@ class IrcEventListener {
       data['channel'] = e.channel.name;
       data['topic'] = e.topic;
       data['user'] = e.user;
+      data['oldTopic'] = e.oldTopic;
       com.pm.sendAll(data);
     });
 

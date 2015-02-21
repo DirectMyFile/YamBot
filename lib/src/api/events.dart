@@ -138,14 +138,19 @@ class TopicEvent {
   final BotConnector bot;
   final String network;
   final String channel;
+  final String oldTopic;
   final String topic;
   final String user;
   
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
+  
+  void revert() {
+    bot.setChannelTopic(network, channel, oldTopic);
+  }
 
-  TopicEvent(this.bot, this.network, this.channel, this.user, this.topic);
+  TopicEvent(this.bot, this.network, this.channel, this.user, this.topic, this.oldTopic);
 }
 
 class DisconnectEvent {
