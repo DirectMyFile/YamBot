@@ -142,6 +142,8 @@ class TopicEvent {
   final String topic;
   final String user;
   
+  bool get isChangeEvent => user != null;
+  
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
