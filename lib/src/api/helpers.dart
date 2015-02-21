@@ -232,6 +232,22 @@ Future<String> shortenUrl(String input,
   });
 }
 
+dynamic parseJSON(String input, {Type type}) {
+  if (type != null) {
+    return jsonx.decode(input, type: type);
+  } else {
+    var out = JSON.decode(input);
+    if (out is Map) {
+      out = new SimpleMap(out);
+    }
+    return out;
+  }
+}
+
+String encodeJSON(input, {bool pretty: false}) {
+  return jsonx.encode(input, indent: pretty ? "  " : null);
+}
+
 Future<dynamic> fetch(String url, {Map<String, String> headers: const {}, Map<String, String> query}) {
   if (query != null) {
     url += HttpHelper.buildQueryString(query);

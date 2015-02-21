@@ -18,6 +18,7 @@ dependencies:
   plugins: ">=1.0.3 <2.0.0"
   jsonx: ">=2.0.0 <3.0.0"
   usage: ">=1.0.0 <2.0.0"
+  http_server: ">=0.9.5+1 <0.10.0"
 dev_dependencies:
   unittest: ">=0.12.0-alpha.0 <0.13.0"
   grinder: ">=0.6.6+3 <0.7.0"

@@ -763,6 +763,19 @@ class PluginCommunicator {
   }
 }
 
+class TimedEntry<T> {
+
+  Timer _timer;
+  final T value;
+
+  TimedEntry(this.value);
+
+  TimedEntry<T> start(int dur, void handleTimeout()) {
+    _timer = new Timer(new Duration(seconds: dur), handleTimeout);
+    return this;
+  }
+}
+
 class IrcEventListener {
   final PluginCommunicator com;
   final String network;
@@ -845,8 +858,19 @@ class IrcEventListener {
       com.pm.sendAll(data);
     });
 
+    Map<String, TimedEntry<String>> _usernameCache = {};
+    
     b.client.register((IRC.CommandEvent e) async {
-      var username = await b.authManager.registeredAs(e.from);
+      var username;
+      
+      if (!_usernameCache.containsKey(e.from)) {
+        username = (await b.client.whois(e.from)).username;
+        _usernameCache[e.from] = new TimedEntry<String>(username).start(120000, () {
+          _usernameCache.remove(e.from);
+        });
+      } else {
+        username = _usernameCache[e.from].value;
+      }
       
       if (e.channel != null && e.channel.name == "#bot-communication") {
         return;
