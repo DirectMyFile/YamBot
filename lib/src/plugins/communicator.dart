@@ -131,6 +131,10 @@ class PluginCommunicator {
     addBotMethod("getConfig", (call) {
       call.reply(bot.config);
     });
+    
+    addBotMethod("getVersion", (call) {
+      call.reply(Globals.version);
+    });
 
     addBotMethod("makePluginRequest", (call) {
       var plugin = call.getArgument("plugin");
@@ -610,7 +614,7 @@ class PluginCommunicator {
         var p = b.getMessagePrefix(channel, e.message);
         if (p != null) {
           var m = e.message.substring(p.length);
-          if (not != null && (m.trim() == not || m.trim().startsWith("${not} "))) {
+          if (not != null && (m.trim() == not || m.trim().startsWith("${not} ")) || (user != null && user != e.user)) {
             continue;
           }
 
@@ -841,7 +845,9 @@ class IrcEventListener {
       com.pm.sendAll(data);
     });
 
-    b.client.register((IRC.CommandEvent e) {
+    b.client.register((IRC.CommandEvent e) async {
+      var username = await b.authManager.registeredAs(e.from);
+      
       if (e.channel != null && e.channel.name == "#bot-communication") {
         return;
       }
@@ -851,6 +857,7 @@ class IrcEventListener {
 
       data['command'] = e.command;
       data['args'] = e.args;
+      data['username'] = username;
       com.pm.sendAll(data);
       
       Globals.analytics.sendEvent("irc", "command", label: "IRC Command");

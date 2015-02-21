@@ -1040,7 +1040,7 @@ class BotConnector {
    * If [usage] or [description] is provided it is provided to other plugins.
    * If [permission] is given the command will require that permission to use it.
    */
-  void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided", String permission, bool allowVariables: false}) {
+  void command(String name, CommandHandler handler, {String usage: "", String description: "Not Provided", String permission, bool allowVariables: false, bool randomize: false}) {
     var info = new CommandInfo(plugin.name, name, usage, description);
     _myCommands.add(info);
 
@@ -1056,7 +1056,7 @@ class BotConnector {
       } else {
         return handler(event);
       }
-    }, allowVariables: allowVariables);
+    }, allowVariables: allowVariables, randomize: randomize);
   }
 
   void emitBotEvent(String event, Map<String, dynamic> data) {
@@ -1113,7 +1113,7 @@ class BotConnector {
     });
   }
 
-  void onCommand(CommandHandler handler, {bool allowVariables: false}) {
+  void onCommand(CommandHandler handler, {bool allowVariables: false, bool randomize: false}) {
     var sub = plugin.on("command").listen((data) {
       String command = data['command'];
       List<String> args = data['args'];
@@ -1122,9 +1122,10 @@ class BotConnector {
       String channel = data['target'];
       String network = data['network'];
       String message = data['message'];
+      String username = data['username'];
 
       void emit() {
-        var event = new CommandEvent(this, network, command, message, user, channel, args);
+        var event = new CommandEvent(this, network, command, message, user, channel, args, username, randomize: randomize);
         var result = handler(event);
 
         handleValue(value) {
@@ -1537,7 +1538,7 @@ class Plugin {
           } else {
             return c.invoke([e]);
           }
-        }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description, allowVariables: c.metadata.allowVariables);
+        }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description, allowVariables: c.metadata.allowVariables, randomize: c.metadata.randomize);
       }
 
       for (var handler in handlers) {

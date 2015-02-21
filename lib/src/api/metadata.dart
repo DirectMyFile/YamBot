@@ -7,8 +7,9 @@ class Command {
   final String usage;
   final dynamic prefix;
   final bool allowVariables;
+  final bool randomize;
   
-  const Command(this.name, {this.permission, this.prefix, this.description, this.usage, this.allowVariables});
+  const Command(this.name, {this.permission, this.prefix, this.description, this.usage, this.allowVariables: false, this.randomize: false});
 }
 
 class EventHandler {

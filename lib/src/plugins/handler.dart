@@ -218,39 +218,27 @@ class PluginHandler {
             print("[Plugin Manager] ${pluginName} is elevated.");
             _elevatedPlugins.add(pluginName);
           }
-
-          var depnames = pubspec["dependencies"].keys.where((it) {
+          
+          var depnames = (pubspec["dependencies"].keys.where((it) {
             var x = pubspec["dependencies"][it];
             if (x is Map && x.containsKey("path")) {
               return false;
             }
             return true;
-          }).toList();
+          }).toList() as List<String>)..addAll(Globals.getDependencyNames());
 
           var f = new Future.value();
 
           if (!packagesDirectory.existsSync() || !depnames.every((it) => new Directory("${packagesDirectory.path}/${it}").existsSync())) {
             /* Execute 'pub get' */
             print("[Plugin Manager] Fetching dependencies for plugin '${pluginName}'");
-            var buff = new StringBuffer();
+            
             f = f.then((_) {
-              return Process.start(Platform.isWindows ? "pub.bat" : "pub", ["get"], workingDirectory: entity.path);
-            }).then((process) {
-              process.stdout.transform(UTF8.decoder).transform(new LineSplitter()).listen((line) {
-                buff.writeln(line);
-              });
-              
-              process.stderr.transform(UTF8.decoder).transform(new LineSplitter()).listen((line) {
-                buff.writeln(line);
-              });
-              
-              return process.exitCode;
-            }).then((code) {
-              if (code != 0) {
+              return ProcessUtils.execute(Platform.isWindows ? "pub.bat" : "pub", ["get"], workingDirectory: entity);
+            }).then((result) {
+              if (result.exitCode != 0) {
                 print("[Plugin Manager] Failed to fetch dependencies for plugin '${pluginName}'");
-                for (var line in buff.toString().split("\n")) {
-                  print(line);
-                }
+                result.printOutput();
                 exit(1);
               }
             });
@@ -258,24 +246,12 @@ class PluginHandler {
 
           if (info['update_dependencies'] != null ? info['update_dependencies'] : false) {
             print("[Plugin Manager] Updating dependencies for plugin '${pluginName}'");
-            var buff = new StringBuffer();
             f = f.then((_) {
-              return Process.start(Platform.isWindows ? "pub.bat" : "pub", ["upgrade"], workingDirectory: entity.path);
-            }).then((process) {
-              process.stdout.transform(UTF8.decoder).transform(new LineSplitter()).listen((line) {
-                buff.writeln(line);
-              });
-              
-              process.stderr.transform(UTF8.decoder).transform(new LineSplitter()).listen((line) {
-                buff.writeln(line);
-              });
-              return process.exitCode;
-            }).then((code) {
-              if (code != 0) {
+              return ProcessUtils.execute(Platform.isWindows ? "pub.bat" : "pub", ["upgrade"], workingDirectory: entity);
+            }).then((result) {
+              if (result.exitCode != 0) {
                 print("[Plugin Manager] Failed to update dependencies for plugin '${pluginName}'");
-                for (var line in buff.toString().split("\n")) {
-                  print(line);
-                }
+                result.printOutput();
                 exit(1);
               }
             });

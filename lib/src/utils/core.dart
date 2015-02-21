@@ -26,6 +26,43 @@ String getFileName(String path) {
   return path.split(Platform.pathSeparator).last;
 }
 
+class ProcessUtils {
+  static Future<BetterProcessResult> execute(String executable, List<String> args, {Directory workingDirectory}) async {
+    var combined = new StringBuffer();
+    var stdout = new StringBuffer();
+    var stderr = new StringBuffer();
+    var process = await Process.start(executable, args, workingDirectory: workingDirectory.absolute.path);
+    process.stdout.transform(UTF8.decoder).listen((data) {
+      combined.write(data);
+      stdout.write(data);
+    });
+    
+    process.stderr.transform(UTF8.decoder).listen((data) {
+      combined.write(data);
+      stderr.write(data);
+    });
+    
+    var exitCode = await process.exitCode;
+    
+    return new BetterProcessResult(stdout.toString(), stderr.toString(), combined.toString(), exitCode);
+  }
+}
+
+class BetterProcessResult {
+  final String stdout;
+  final String stderr;
+  final String output;
+  final int exitCode;
+  
+  BetterProcessResult(this.stdout, this.stderr, this.output, this.exitCode);
+  
+  void printOutput() {
+    for (var line in output.split("\n")) {
+      print(line);
+    }
+  }
+}
+
 /**
  * Information about the current environment.
  */

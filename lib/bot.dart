@@ -35,6 +35,33 @@ class Globals {
   static Function kill;
   static String key;
   static Analytics analytics;
+  static Map<String, dynamic> pubspec = _loadPubspec();
+  static String version = _getVersion();
+  
+  static String _getVersion() {
+    var v = new String.fromEnvironment("version");
+    if (v != null) {
+      return v;
+    } else {
+      return pubspec["version"];
+    }
+  }
+  
+  static List<String> getDependencyNames() {
+    return pubspec.keys.toList();
+  }
+  
+  static Map<String, dynamic> _loadPubspec() {
+    var file = EnvironmentUtils.getPubSpecFile();
+    if (!file.existsSync()) {
+      return <String, dynamic>{
+        "version": "Unknown",
+        "dependencies": {}
+      };
+    } else {
+      return yaml.loadYaml(file.readAsStringSync());
+    }
+  }
 }
 
 Random random = new Random();
@@ -53,32 +80,17 @@ String generateToken(int length) {
   return buffer.toString();
 }
 
-String _version;
-
-String getVersion() {
-  if (_version != null) {
-    return _version;
-  } else {
-    var v = new String.fromEnvironment("version");
-    if (v != null) {
-      return _version = v;
-    } else {
-      var pubspecFile = new File("${new File.fromUri(Platform.script).parent.parent.path}/pubspec.yaml");
-      if (!pubspecFile.existsSync()) {
-        return _version = "Unknown";
-      } else {
-        return _version = yaml.loadYaml(pubspecFile.readAsStringSync())["version"];
-      }
-    }
-  }
-}
-
 /**
  * Launches the bot. The [path] will override the current [Directory]
  * and read all configurations from it.
  * Returns [CoreBot].
  */
 CoreBot launchBot(String path) {
+  var pubspecFile = EnvironmentUtils.getPubSpecFile();
+  if (pubspecFile.existsSync()) {
+    Globals.pubspec = yaml.loadYaml(pubspecFile.readAsStringSync());
+  }
+  
   var keyFile = new File("${Platform.environment['HOME']}/.polymorphic/key");
 
   if (!keyFile.existsSync()) {
@@ -103,7 +115,7 @@ CoreBot launchBot(String path) {
   Directory.current = dir;
 
   var bot = new CoreBot();
-  var analytics = Globals.analytics = new AnalyticsIO("UA-40996230-2", "PolymorphicBot", getVersion());
+  var analytics = Globals.analytics = new AnalyticsIO("UA-40996230-2", "PolymorphicBot", Globals.version);
   analytics.optIn = true;
   
   analytics.sendScreenView("initial start");
@@ -122,7 +134,7 @@ CoreBot launchBot(String path) {
         exit(0);
       }
 
-      new Timer(new Duration(seconds: 5), () {
+      new Timer(new Duration(seconds: 4), () {
         exit(0);
       });
 

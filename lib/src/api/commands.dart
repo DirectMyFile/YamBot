@@ -37,13 +37,19 @@ class CommandEvent {
   final String channel;
   
   /**
+   * Username of User
+   */
+  final String username;
+  
+  /**
    * Command Arguments
    */
   final List<String> args;
 
   String _prefix;
+  bool _randomize;
 
-  CommandEvent(this.bot, this.network, this.command, this.message, this.user, this.channel, this.args);
+  CommandEvent(this.bot, this.network, this.command, this.message, this.user, this.channel, this.args, this.username, {bool randomize: false}) : _randomize = randomize;
   
   /**
    * Sends [message] as a message to [channel] on [network].
@@ -237,8 +243,6 @@ class CommandEvent {
     });
   }
   
-  Future<String> getUsername() => whois().then((info) => info.username);
-  
   Future<UserInfo> whois() {
     return bot.getUserInfo(network, user);
   }
@@ -274,7 +278,11 @@ class CommandEvent {
         return;
       }
     } else if (msg is List) {
-      this << chooseAtRandom(msg);
+      if (_randomize) {
+        this << chooseAtRandom(msg);
+      } else {
+        this << msg.join("\n");
+      }
     } else {
       reply(msg.toString());
     }
