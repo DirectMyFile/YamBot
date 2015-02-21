@@ -334,7 +334,11 @@ class CommandEvent {
         return;
       }
     } else if (msg is List) {
-      this < chooseAtRandom(msg);
+      if (_randomize) {
+        this << chooseAtRandom(msg);
+      } else {
+        this << msg.join("\n");
+      }
     } else {
       replyNotice(msg.toString());
     }

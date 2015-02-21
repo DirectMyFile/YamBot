@@ -284,6 +284,10 @@ class BotConnector {
     });
   }
 
+  Future<String> getVersion() {
+    return plugin.callMethod("getVersion");
+  }
+  
   Future<List<String>> listChannelOwners(String network, String name) {
     return plugin.callMethod("getChannelOwners", {
       "network": network,
