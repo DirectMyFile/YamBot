@@ -121,7 +121,6 @@ class DisplayHelpers {
   ];
 
   static String rainbowColor(String message) {
-    var random = new Random();
     var buff = new StringBuffer();
     var i = 0;
     for (var x = 0; x < message.length; x++) {

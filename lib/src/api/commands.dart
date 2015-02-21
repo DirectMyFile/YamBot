@@ -157,6 +157,9 @@ class CommandEvent {
     return dropArguments(x).join(sep);
   }
   
+  Future<String> getChannelTopic() => bot.getChannelTopic(network, channel);
+  void setChannelTopic(String topic) => bot.setChannelTopic(network, channel, topic);
+  
   Future<BufferEntry> getLastChannelMessage() {
     return getChannelBuffer().then((entries) => entries.first);
   }
