@@ -432,7 +432,7 @@ class ConstantValuesVisitor extends analyzer.GeneralizingAstVisitor<Object> {
         continue;
       }
 
-      m[e.key.value] = visitValue(e.value);
+      m[(e.key as analyzer.SimpleStringLiteral).value] = visitValue(e.value);
     }
 
     return m;

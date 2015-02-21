@@ -1,4 +1,5 @@
-import "package:polymorphic_bot/api.dart";
+import "package:polymorphic_bot/plugin.dart";
+export "package:polymorphic_bot/plugin.dart";
 
 @PluginInstance()
 Plugin plugin;
@@ -6,8 +7,6 @@ Plugin plugin;
 BotConnector bot;
 @PluginStorage("users")
 Storage users;
-
-main(args, port) => polymorphic(args, port);
 
 @Command("perist-me")
 peristMe(event) {

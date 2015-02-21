@@ -130,6 +130,7 @@ class CommandEvent {
   void usage() {
     var cmd = bot._myCommands.firstWhere((it) => it.name == command);
     var usage = "";
+    
     if (cmd.usage != null && cmd.usage.isNotEmpty) {
       usage = cmd.usage;
       
@@ -139,7 +140,26 @@ class CommandEvent {
     }
     
     var needCmd = !usage.startsWith(command);
-    reply("${_prefix != null ? '[${Color.BLUE}${_prefix}${Color.RESET}]' : ">"} Usage: ${needCmd ? '${command}' : ''}${cmd.usage}");
+    var buff = new StringBuffer();
+    
+    if (_prefix == null) {
+      buff.write("> ");
+    }
+    
+    buff.write("Usage: ");
+    
+    if (needCmd) {
+      buff.write(command);
+      if (usage != null) {
+        buff.write(" ");
+      }
+    }
+    
+    if (usage != null) {
+      buff.write(usage);
+    }
+    
+    reply(buff.toString());
   }
   
   void executeCommand(String command, [List<String> args = const []]) {
@@ -261,28 +281,15 @@ class CommandEvent {
     }
 
     if (msg is NoArgumentFunction) {
-      var value = msg();
-
-      if (value == null) {
-        return;
-      }
-
-      if (value is Future) {
-        value.then((msg) {
-          if (msg == null) {
-            return;
-          }
-
-          this << msg;
-        });
-        return;
-      }
+      this << msg();
     } else if (msg is List) {
       if (_randomize) {
         this << chooseAtRandom(msg);
       } else {
         this << msg.join("\n");
       }
+    } else if (msg is Future) {
+      msg.then((value) => this << value);
     } else {
       reply(msg.toString());
     }

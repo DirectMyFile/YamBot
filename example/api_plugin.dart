@@ -1,6 +1,5 @@
-import "package:polymorphic_bot/api.dart";
-
-main(args, port) => polymorphic(args, port);
+import "package:polymorphic_bot/plugin.dart";
+export "package:polymorphic_bot/plugin.dart";
 
 @BotInstance()
 BotConnector bot;

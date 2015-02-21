@@ -48,7 +48,7 @@ class Globals {
   }
   
   static List<String> getDependencyNames() {
-    return pubspec.keys.toList();
+    return pubspec["dependencies"].keys.toList();
   }
   
   static Map<String, dynamic> _loadPubspec() {
