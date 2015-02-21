@@ -14,6 +14,8 @@ class Bot {
 
   bool get isSlackBot => config["slack"];
   
+  Map<String, TimedEntry<String>> _usernameCache = {};
+  
   /**
    * The client which manages the IRC connections and data.
    */
@@ -108,6 +110,11 @@ class Bot {
         _botMemory[event.now] = _botMemory[event.original];
         _botMemory.remove(event.original);
       }
+      
+      if (_usernameCache.containsKey(event.original)) {
+        _usernameCache[event.now] =_usernameCache[event.original];
+        _usernameCache.remove(event.original);
+      }
     });
     
     client.register((IRC.DisconnectEvent event) {
@@ -186,6 +193,21 @@ class Bot {
         event.join("#bot-communication");
       }
     });
+  }
+  
+  Future<String> getUsername(String nick) async {
+    String username;
+    
+    if (!_usernameCache.containsKey(nick)) {
+      username = (await client.whois(nick)).username;
+      _usernameCache[nick] = new TimedEntry<String>(username).start(120000, () {
+        _usernameCache.remove(nick);
+      });
+    } else {
+      username = _usernameCache[nick].value;
+    }
+    
+    return username;
   }
   
   void _registerJoinPartHandlers() {

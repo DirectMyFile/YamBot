@@ -279,7 +279,7 @@ class Auth {
   }
 
   void _done(String data, [String reason]) {
-    if (_completer != null) _completer.complete([data, reason]);
+    if (_completer != null && !_completer.isCompleted) _completer.complete([data, reason]);
     if (_queue.length > 0) _queue.removeFirst();
     if (_queue.length > 0) _authenticate();
   }

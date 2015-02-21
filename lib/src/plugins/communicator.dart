@@ -857,20 +857,9 @@ class IrcEventListener {
       data["message"] = event.message;
       com.pm.sendAll(data);
     });
-
-    Map<String, TimedEntry<String>> _usernameCache = {};
     
     b.client.register((IRC.CommandEvent e) async {
-      var username;
-      
-      if (!_usernameCache.containsKey(e.from)) {
-        username = (await b.client.whois(e.from)).username;
-        _usernameCache[e.from] = new TimedEntry<String>(username).start(120000, () {
-          _usernameCache.remove(e.from);
-        });
-      } else {
-        username = _usernameCache[e.from].value;
-      }
+      var username = await b.getUsername(e.from);
       
       if (e.channel != null && e.channel.name == "#bot-communication") {
         return;
