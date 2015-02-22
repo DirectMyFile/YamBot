@@ -57,15 +57,6 @@ import "package:quiver/core.dart";
 import "package:quiver/async.dart";
 import "package:quiver/pattern.dart";
 
-export "dart:io";
-
-export "package:quiver/async.dart";
-export "package:quiver/strings.dart";
-export "package:quiver/core.dart";
-
-export "package:http_server/http_server.dart";
-export "package:irc/client.dart" show Color;
-export "package:jsonx/jsonx.dart" show jsonIgnore, jsonProperty, jsonObject;
 export "package:polymorphic_bot/utils.dart";
 
 part "src/api/core.dart";
