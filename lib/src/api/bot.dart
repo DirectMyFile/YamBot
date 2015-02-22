@@ -29,7 +29,9 @@ class BotConnector {
    * [target] is where to send the message if the node is not matched.
    * [callback] is not called if the [user] has no permissions.
    */
-  void checkPermission(void callback(Map data), String network, String target, String user, String node, [bool notify]) {
+  Possible checkPermission(String network, String target, String user, String node, [bool notify]) {
+    var p = new PossibleCreator();
+
     Map params = {
       "node": node,
       "network": network,
@@ -40,9 +42,11 @@ class BotConnector {
 
     plugin.callMethod("checkPermission", params).then((has) {
       if (has) {
-        callback(has);
+        p.complete(true);
       }
     });
+
+    return p.possible;
   }
 
   /**

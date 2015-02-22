@@ -109,8 +109,6 @@ class IrcEventListener {
       com.pm.sendAll(data);
     });
 
-
-
     b.client.register((IRC.PongEvent e) {
       var data = common("pong");
 

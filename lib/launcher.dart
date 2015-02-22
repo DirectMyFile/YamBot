@@ -4,7 +4,7 @@ import "dart:async";
 import "dart:io";
 
 import "package:args/command_runner.dart";
-import "package:polymorphic_bot/bot.dart" deferred as bot;
+import "package:polymorphic_bot/core.dart" deferred as bot;
 
 const String SCRIPT_TEMPLATE = """
 import "package:polymorphic_bot/plugin.dart";

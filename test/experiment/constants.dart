@@ -1,4 +1,4 @@
-import "package:polymorphic_bot/bot.dart";
+import "package:polymorphic_bot/core.dart";
 import "package:analyzer/analyzer.dart";
 
 const String CONTENT = """

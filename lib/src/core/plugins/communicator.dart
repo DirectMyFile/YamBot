@@ -12,65 +12,70 @@ class PluginCommunicator {
     _handleEventListeners();
   }
 
-  void initialStart() {
+  initialStart() async {
+    if (bot.config["http"] == null || bot.config["http"]["port"] == null) {
+      print("[HTTP] ERROR: No HTTP Port Configured.");
+      exit(1);
+    }
+
     var host = bot.config["http"]["host"] != null ? bot.config["http"]["host"] : "0.0.0.0";
     var port = bot.config["http"]["port"];
 
-    HttpServer.bind(host, port).then((server) {
-      server.listen((request) {
-        var segments = request.uri.pathSegments;
-        
-        if (segments.length >= 2 && (["plugin", "p", "script", "scripts", "endpoints"].contains(segments[0])) && _httpPorts.containsKey(segments[1])) {
-          var name = segments[1];
-          var segs = []
-              ..addAll(segments)
-              ..removeAt(0)
-              ..removeAt(0);
-          var path = "/" + segs.join("/");
-          HttpHelper.forward(request, Uri.parse("http://${InternetAddress.ANY_IP_V4.address}:${_httpPorts[name]}${path}"));
-          return;
-        }
+    var server = await HttpServer.bind(host, port);
 
-        var response = request.response;
+    server.listen((request) {
+      var segments = request.uri.pathSegments;
 
-        if (request.uri.path.trim() == "/plugins.json") {
-          if (request.method != "GET") {
-            response.statusCode = HttpStatus.METHOD_NOT_ALLOWED;
-            response.writeln("ERROR: Only GET is allowed here.");
-            response.close();
-          } else {
-            response.statusCode = 200;
-            response.writeln(encodeJSON(pm.plugins));
-            response.close();
-          }
-        } else if (request.uri.path.trim() == "/kill") {
-          if (request.headers.value("Polymorphic-Key") == Globals.key) {
-            Globals.kill();
-            response.statusCode = 200;
-            response.writeln("Success");
-            response.close();
-          } else {
-            response.statusCode = 403;
-            response.writeln("Not Allowed");
-            response.close();
-          }
-        } else if (request.uri.path.trim() == "/reload") {
-          if (request.headers.value("Polymorphic-Key") == Globals.key) {
-            handler.reloadPlugins();
-            response.statusCode = 200;
-            response.writeln("Success");
-            response.close();
-          } else {
-            response.statusCode = 403;
-            response.writeln("Not Allowed");
-            response.close();
-          }
+      if (segments.length >= 2 && (["plugin", "p", "script", "scripts", "endpoints"].contains(segments[0])) && _httpPorts.containsKey(segments[1])) {
+        var name = segments[1];
+        var segs = []
+          ..addAll(segments)
+          ..removeAt(0)
+          ..removeAt(0);
+        var path = "/" + segs.join("/");
+        HttpHelper.forward(request, Uri.parse("http://${InternetAddress.ANY_IP_V4.address}:${_httpPorts[name]}${path}"));
+        return;
+      }
+
+      var response = request.response;
+
+      if (request.uri.path.trim() == "/plugins.json") {
+        if (request.method != "GET") {
+          response.statusCode = HttpStatus.METHOD_NOT_ALLOWED;
+          response.writeln("ERROR: Only GET is allowed here.");
+          response.close();
         } else {
-          response.statusCode = 404;
-          response.writeln("ERROR: 404 not found.");
+          response.statusCode = 200;
+          response.writeln(encodeJSON(pm.plugins));
           response.close();
         }
-      });
+      } else if (request.uri.path.trim() == "/kill") {
+        if (request.headers.value("Polymorphic-Key") == Globals.key) {
+          Globals.kill();
+          response.statusCode = 200;
+          response.writeln("Success");
+          response.close();
+        } else {
+          response.statusCode = 403;
+          response.writeln("Not Allowed");
+          response.close();
+        }
+      } else if (request.uri.path.trim() == "/reload") {
+        if (request.headers.value("Polymorphic-Key") == Globals.key) {
+          handler.reloadPlugins();
+          response.statusCode = 200;
+          response.writeln("Success");
+          response.close();
+        } else {
+          response.statusCode = 403;
+          response.writeln("Not Allowed");
+          response.close();
+        }
+      } else {
+        response.statusCode = 404;
+        response.writeln("ERROR: 404 not found.");
+        response.close();
+      }
     });
   }
 
@@ -91,11 +96,6 @@ class PluginCommunicator {
   Map<String, int> _httpPorts = {};
 
   void handle() {
-    if (bot.config["http"] == null || bot.config["http"]["port"] == null) {
-      print("[HTTP] ERROR: No HTTP Port Configured.");
-      exit(1);
-    }
-
     _addBotMethods();
     _handleRequests();
 

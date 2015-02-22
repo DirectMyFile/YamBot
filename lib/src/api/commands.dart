@@ -83,7 +83,7 @@ class CommandEvent {
    * Calls [handle] if [user] has [permission].
    */
   void require(String permission, void handle()) {
-    bot.checkPermission((it) => handle(), network, channel, user, permission);
+    bot.checkPermission(network, channel, user, permission).run(handle);
   }
   
   /**

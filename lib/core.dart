@@ -22,13 +22,13 @@ import 'api.dart' as Polymorphic;
 import "utils.dart";
 import "slack.dart";
 
-part 'src/plugins/handler.dart';
-part 'src/plugins/communicator.dart';
-part 'src/config.dart';
-part 'src/core.dart';
-part 'src/auth.dart';
-part 'src/bot.dart';
-part 'src/plugins/event_listener.dart';
+part 'src/core/plugins/handler.dart';
+part 'src/core/plugins/communicator.dart';
+part 'src/core/plugins/event_listener.dart';
+part 'src/core/config.dart';
+part 'src/core/core.dart';
+part 'src/core/auth.dart';
+part 'src/core/bot.dart';
 
 class Globals {
   static List<String> EXTENSIONS = ["core", "polymorphic"];

@@ -24,7 +24,7 @@ test(GrinderContext context) {
 
 analyze(GrinderContext context) {
   Analyzer.analyzePaths(context, [
-    "lib/bot.dart",
+    "lib/core.dart",
     "lib/api.dart",
     "lib/slack.dart",
     "lib/plugin.dart",
