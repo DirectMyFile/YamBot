@@ -68,6 +68,7 @@ part "src/api/rpc.dart";
 part "src/api/channel.dart";
 part "src/api/metadata.dart";
 part "src/api/helpers.dart";
+part "src/api/bot.dart";
 
 bool _createdPlugin = false;
 BotConnector _bot;

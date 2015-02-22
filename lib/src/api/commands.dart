@@ -200,14 +200,20 @@ class CommandEvent {
   
   Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
 
+  /**
+   * Gets a Storage Container that is specific to this user.
+   */
   StorageContainer getUserMetadata({String user, bool channelSpecific: false}) {
     if (user == null) {
-      user = this.user;
+      user = username != null ? username : this.user;
     }
     
     return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
   }
-  
+
+  /**
+   * Gets a Storage Container that is specific to this channel.
+   */
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
