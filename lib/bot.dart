@@ -28,6 +28,7 @@ part 'src/config.dart';
 part 'src/core.dart';
 part 'src/auth.dart';
 part 'src/bot.dart';
+part 'src/plugins/event_listener.dart';
 
 class Globals {
   static List<String> EXTENSIONS = ["core", "polymorphic"];
@@ -37,7 +38,7 @@ class Globals {
   static Analytics analytics;
   static Map<String, dynamic> pubspec = _loadPubspec();
   static String version = _getVersion();
-  
+
   static String _getVersion() {
     var v = new String.fromEnvironment("version");
     if (v != null) {
@@ -46,11 +47,11 @@ class Globals {
       return pubspec["version"];
     }
   }
-  
+
   static List<String> getDependencyNames() {
     return pubspec["dependencies"].keys.toList();
   }
-  
+
   static Map<String, dynamic> _loadPubspec() {
     var file = EnvironmentUtils.getPubSpecFile();
     if (!file.existsSync()) {
@@ -90,7 +91,7 @@ CoreBot launchBot(String path) {
   if (pubspecFile.existsSync()) {
     Globals.pubspec = yaml.loadYaml(pubspecFile.readAsStringSync());
   }
-  
+
   var keyFile = new File("${Platform.environment['HOME']}/.polymorphic/key");
 
   if (!keyFile.existsSync()) {
@@ -117,19 +118,19 @@ CoreBot launchBot(String path) {
   var bot = new CoreBot();
   var analytics = Globals.analytics = new AnalyticsIO("UA-40996230-2", "PolymorphicBot", Globals.version);
   analytics.optIn = true;
-  
+
   analytics.sendScreenView("initial start");
-  
+
   var handler = Globals.pluginHandler = new PluginHandler(bot);
 
   var started = false;
-  
+
   Globals.kill = ([_]) {
     if (!isShuttingDown) {
       isShuttingDown = true;
-      
+
       print("Shutting Down");
-      
+
       if (!started) {
         exit(0);
       }
@@ -170,9 +171,9 @@ CoreBot launchBot(String path) {
   stopwatch.start();
   handler.init().then((_) {
     stopwatch.stop();
-    
+
     analytics.sendTiming("initial plugin load", stopwatch.elapsedMilliseconds);
-    
+
     bot.start();
     started = true;
     analytics.sendScreenView("bot");
