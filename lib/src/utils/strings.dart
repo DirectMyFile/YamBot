@@ -17,9 +17,9 @@ class StringUtils {
     return ic.join();
   }
   
-  static String format(String input, List<String> values, {String indicator: "#"}) {
+  static String format(String input, List values, {String indicator: "#"}) {
     var index = -1;
-    return input.replaceAllMapped(indicator, (match) => values[++index]);
+    return input.replaceAllMapped(indicator, (match) => values[++index].toString());
   }
   
   static List<String> characters(String input) => new List<String>.generate(input.length, (i) => input[i]);
