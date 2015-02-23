@@ -22,6 +22,27 @@ class StringUtils {
     return input.replaceAllMapped(indicator, (match) => values[++index].toString());
   }
   
+  static String remove(String input, Pattern pattern) {
+    return input.replaceAll(pattern, "");
+  }
+  
+  static String removeAll(String input, List<Pattern> patterns) {
+    var out = input;
+    for (var pattern in patterns) {
+      out = remove(out, pattern);
+    }
+    return out;
+  }
+  
+  static List<String> splitByAll(String input, List<Pattern> delimiters) {
+    var x = "\u0000";
+    var out = input;
+    for (var delimiter in delimiters) {
+      out = out.replaceAll(delimiter, x);
+    }
+    return out.split(x);
+  }
+  
   static List<String> characters(String input) => new List<String>.generate(input.length, (i) => input[i]);
   static bool isWhitespace(String input) => input.trim().isEmpty;
   static String multiple(String input, List<String> ones, List<String> mores, int length) {
