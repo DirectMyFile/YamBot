@@ -283,9 +283,12 @@ class PluginHandler {
             requires.removeWhere((it) => pluginNames.contains(it));
             if (requires.isNotEmpty) {
               print("[Plugin Manager] Failed to resolve requirements for plugin '${name}'");
-              var noun = requires.length == 1 ? "it" : "they";
-              var verb = requires.length == 1 ? "was" : "were";
-              print("[Plugin Manager] '${name}' requires '${requires.join(", ")}', but ${noun} ${verb} not found.");
+              print(StringUtils.multiple(
+                "[Plugin Manager] '${name}' requires '${requires.join(", ")}', but # # not found.",
+                [ "it", "was" ],
+                [ "they", "were" ],
+                requires.length
+              ));
               exit(1);
             }
 
@@ -297,6 +300,12 @@ class PluginHandler {
               var noun = requires.length == 1 ? "it" : "they";
               var verb = requires.length == 1 ? "is" : "are";
               print("[Plugin Manager] '${name}' conflicts with '${requires.join(", ")}', but ${noun} ${verb} installed.");
+              print(StringUtils.multiple(
+                "[Plugin Manager] '${name}' conflicts with '${requires.join(", ")}', but # # installed.",
+                [ "it", "is" ],
+                [ "they", "are" ],
+                requires.length
+              ));
               exit(1);
             }
           }

@@ -5,6 +5,7 @@ import "dart:io";
 
 import "package:args/command_runner.dart";
 import "package:polymorphic_bot/core.dart" deferred as bot;
+import "package:polymorphic_bot/utils.dart";
 
 const String SCRIPT_TEMPLATE = """
 import "package:polymorphic_bot/plugin.dart";
@@ -29,10 +30,10 @@ void main(List<String> args) {
   var result = runner.parse(args);
   var debug = result["debug"];
   
-  Zone.current.fork(zoneValues: {
-    "debug": debug
-  }).run(() {
+  withZone(() {
     runner.runCommand(result);
+  }, {
+    "debug": debug
   });
 }
 

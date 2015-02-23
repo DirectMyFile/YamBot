@@ -14,3 +14,4 @@ part "src/utils/crypto.dart";
 part "src/utils/possible.dart";
 part "src/utils/yaml.dart";
 part "src/utils/range.dart";
+part "src/utils/strings.dart";

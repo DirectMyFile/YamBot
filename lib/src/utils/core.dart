@@ -63,6 +63,30 @@ class BetterProcessResult {
   }
 }
 
+void log(String line, {String prefix}) {
+  if (prefix == null) {
+    if (Zone.current["log.prefix"] != null) {
+      prefix = Zone.current["log.prefix"];
+    }
+  }
+  
+  if (prefix == null) {
+    print(line);
+  } else {
+    print("[${prefix}] ${line}");
+  }
+}
+
+void withLogPrefix(String prefix, Action action) {
+  withZone(action, {
+    "log.prefix": prefix
+  });
+}
+
+withZone(action(), Map<String, dynamic> values, {bool inherit: true}) {
+  return (inherit ? Zone.current : Zone.ROOT).fork(zoneValues: values).run(action);
+}
+
 /**
  * Information about the current environment.
  */
