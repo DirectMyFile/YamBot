@@ -17,16 +17,14 @@ class StringUtils {
     return ic.join();
   }
   
+  static String format(String input, List<String> values, {String indicator: "#"}) {
+    var index = -1;
+    return input.replaceAllMapped(indicator, (match) => values[++index]);
+  }
+  
   static List<String> characters(String input) => new List<String>.generate(input.length, (i) => input[i]);
   static bool isWhitespace(String input) => input.trim().isEmpty;
   static String multiple(String input, List<String> ones, List<String> mores, int length) {
-    List<String> pool;
-    if (length == 1) {
-      pool = ones;
-    } else {
-      pool = mores;
-    }
-    var index = -1;
-    return input.replaceAllMapped("#", (match) => pool[++index]);
+    return format(input, length == 1 ? ones : mores);
   }
 }
