@@ -8,19 +8,19 @@ homepage: https://github.com/PolymorphicBot/
 environment:
   sdk: ">=1.9.0-dev"
 dependencies:
-  analyzer: ">=0.23.0 <0.25.0"
-  args: ">=0.12.2 <0.13.0"
+  analyzer: ">=0.24.0 <0.26.0"
+  args: ">=0.12.0 <0.14.0"
   cipher: ">=0.7.1 <0.8.0"
   irc: ">=2.1.0 <2.2.0"
   path: ">=1.2.1 <2.0.0"
   http: ">=0.11.1 <0.12.0"
-  html5lib: ">=0.12.0 <0.13.0"
+  html: ">=0.12.0 <0.13.0"
   plugins: ">=1.0.3 <2.0.0"
   jsonx: ">=2.0.0 <3.0.0"
   usage: ">=1.0.0 <2.0.0"
   http_server: ">=0.9.5+1 <0.10.0"
 dev_dependencies:
-  unittest: ">=0.12.0-alpha.0 <0.13.0"
+  unittest: ">=0.11.5+4 <0.12.0"
   grinder: ">=0.6.6+3 <0.7.0"
 executables:
   polymorphic:

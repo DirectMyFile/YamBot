@@ -46,10 +46,10 @@ import "package:http/http.dart" as http;
 import "package:polymorphic_bot/utils.dart";
 
 import "package:irc/client.dart" show Color;
-import "package:html5lib/parser.dart" as htmlParser show parse;
+import "package:html/parser.dart" as htmlParser show parse;
 import "package:jsonx/jsonx.dart" as jsonx;
 import "package:collection/wrappers.dart" show DelegatingList, DelegatingMap;
-import "package:html5lib/dom.dart" as html;
+import "package:html/dom.dart" as html;
 
 import "package:yaml/yaml.dart" as yaml;
 
