@@ -946,7 +946,7 @@ class BotConnector {
 
       return matches;
     }).listen((data) {
-      var event = new ModeEvent(this, data["network"], data["channel"], data["user"], data["mode"]);
+      var event = new ModeEvent(this, data["network"], data["channel"], data["user"], data["addedModes"], data["removedModes"]);
 
       handler(event);
     });

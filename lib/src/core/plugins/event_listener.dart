@@ -257,7 +257,9 @@ class IrcEventListener {
       if (e.channel != null) {
         data['channel'] = e.channel.name;
       }
-      data['mode'] = e.mode;
+
+      data['addedModes'] = e.mode.added;
+      data['removedModes'] = e.mode.removed;
       data['user'] = e.user;
       com.pm.sendAll(data);
     });

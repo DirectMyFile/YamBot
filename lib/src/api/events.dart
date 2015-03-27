@@ -31,7 +31,7 @@ class NickChangeEvent {
   final String network;
   final String original;
   final String now;
-  
+
   NickChangeEvent(this.bot, this.network, this.original, this.now);
 }
 
@@ -42,7 +42,7 @@ class KickEvent {
   final String user;
   final String kicker;
   final String reason;
-  
+
   KickEvent(this.bot, this.network, this.channel, this.user, this.kicker, this.reason);
 }
 
@@ -50,7 +50,7 @@ class MOTDEvent {
   final BotConnector bot;
   final String network;
   final String message;
-  
+
   MOTDEvent(this.bot, this.network, this.message);
 }
 
@@ -58,7 +58,7 @@ class ServerSupportsEvent {
   final BotConnector bot;
   final String network;
   final Map<String, dynamic> supported;
-  
+
   ServerSupportsEvent(this.bot, this.network, this.supported);
 }
 
@@ -66,13 +66,13 @@ class NickInUseEvent {
   final BotConnector bot;
   final String network;
   final String original;
-  
+
   NickInUseEvent(this.bot, this.network, this.original);
-  
+
   void useNickname(String nick) {
     bot.changeBotNickname(network, nick);
   }
-  
+
   void append(String suffix) {
     bot.changeBotNickname(network, original + suffix);
   }
@@ -89,7 +89,7 @@ class QuitEvent {
   final BotConnector bot;
   final String network;
   final String user;
-  
+
   QuitEvent(this.bot, this.network, this.user);
 }
 
@@ -98,7 +98,7 @@ class QuitPartEvent {
   final String network;
   final String user;
   final String channel;
-  
+
   QuitPartEvent(this.bot, this.network, this.channel, this.user);
 }
 
@@ -121,17 +121,21 @@ class ModeEvent {
   final String network;
   final String channel;
   final String user;
-  final String mode;
+  final List<String> added;
+  final List<String> removed;
 
   StorageContainer getUserMetadata({bool channelSpecific: false}) {
     return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
   }
-  
+
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
-  
-  ModeEvent(this.bot, this.network, this.channel, this.user, this.mode);
+
+  bool wasModeAdded(String n) => added.contains(n);
+  bool wasModeRemoved(String n) => removed.contains(n);
+
+  ModeEvent(this.bot, this.network, this.channel, this.user, this.added, this.removed);
 }
 
 class TopicEvent {
@@ -141,13 +145,13 @@ class TopicEvent {
   final String oldTopic;
   final String topic;
   final String user;
-  
+
   bool get isChangeEvent => user != null;
-  
+
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
-  
+
   void revert() {
     bot.setChannelTopic(network, channel, oldTopic);
   }
@@ -178,11 +182,11 @@ class InviteEvent {
   StorageContainer getUserMetadata({bool channelSpecific: false}) {
     return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
   }
-  
+
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
-  
+
   InviteEvent(this.bot, this.network, this.user, this.channel);
 }
 
@@ -234,11 +238,11 @@ class MessageEvent {
 
     bot.sendMessage(network, channel, message);
   }
-  
+
   void executeCommand(String command, [List<String> args = const []]) {
     bot.executeCommand(network, channel, user, command, args);
   }
-  
+
   /**
    * Sends [message] as a message to [channel] on [network].
    *
@@ -256,11 +260,11 @@ class MessageEvent {
 
     bot.sendNotice(network, user, message);
   }
-  
+
   Future<BufferEntry> getLastChannelMessage() {
     return getChannelBuffer().then((entries) => entries.first);
   }
-  
+
   Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
 
   operator <<(msg) {
@@ -311,23 +315,23 @@ class MessageEvent {
     var r = new Random();
     reply(messages[r.nextInt(messages.length)]);
   }
-  
+
   void kickUser({String reason}) {
     bot.kick(network, target, from, reason: reason);
   }
-  
+
   void banUser() {
     bot.ban(network, target, from);
   }
-  
+
   StorageContainer getUserMetadata({bool channelSpecific: false}) {
     return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
   }
-  
+
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
-  
+
   void kickBanUser({String reason}) {
     bot.kickBan(network, target, from, reason: reason);
   }
@@ -340,23 +344,23 @@ class JoinEvent {
   final String user;
 
   JoinEvent(this.bot, this.network, this.channel, this.user);
-  
+
   void kick({String reason}) {
     bot.kick(network, channel, user, reason: reason);
   }
-  
+
   void kickBan({String reason}) {
     bot.kickBan(network, channel, user, reason: reason);
   }
-  
+
   StorageContainer getUserMetadata({bool channelSpecific: false}) {
     return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
   }
-  
+
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
-  
+
   void ban() {
     bot.ban(network, channel, user);
   }
@@ -371,11 +375,11 @@ class PartEvent {
   StorageContainer getUserMetadata({bool channelSpecific: false}) {
     return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
   }
-  
+
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
-  
+
   PartEvent(this.bot, this.network, this.channel, this.user);
 }
 
@@ -399,7 +403,7 @@ class BotJoinEvent {
   final String channel;
 
   BotJoinEvent(this.bot, this.network, this.channel);
-  
+
   void part() {
     bot.partChannel(network, channel);
   }
@@ -411,7 +415,7 @@ class BotPartEvent {
   final String channel;
 
   BotPartEvent(this.bot, this.network, this.channel);
-  
+
   void rejoin() {
     bot.joinChannel(network, channel);
   }
@@ -468,7 +472,7 @@ class BufferEntry {
 
     return new BufferEntry(network, target, user, message);
   }
-  
+
   Map toData() => {
     "network": network,
     "target": target,
