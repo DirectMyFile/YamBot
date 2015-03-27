@@ -103,7 +103,7 @@ class PluginCommunicator {
       "type": "event",
       "event": "initialize"
     });
-    
+
     pm.listenAll((plugin, data) {
       /* We don't use this anymore, everything is a method call */
     });
@@ -111,7 +111,7 @@ class PluginCommunicator {
 
   void _addBotMethods() {
     String getPluginName() => Zone.current["bot.plugin.method.plugin"];
-    
+
     addBotMethod("__initialized", (call) {
       /* Plugin was initialized */
       var name = getPluginName();
@@ -123,7 +123,7 @@ class PluginCommunicator {
       _initialized.add(getPluginName());
       _checkInitialized();
     }, isVoid: true);
-    
+
     addBotMethod("getNetworks", (call) {
       call.reply(bot.bots);
     });
@@ -131,7 +131,7 @@ class PluginCommunicator {
     addBotMethod("getConfig", (call) {
       call.reply(bot.config);
     });
-    
+
     addBotMethod("getVersion", (call) {
       call.reply(Globals.version);
     });
@@ -149,7 +149,7 @@ class PluginCommunicator {
     addBotMethod("getPlugins", (call) {
       call.reply(pm.plugins.toList());
     });
-    
+
     addBotMethod("getBotNickname", (call) {
       call.reply(bot[call.getArgument("value")].client.nickname);
     });
@@ -161,7 +161,7 @@ class PluginCommunicator {
         call.reply(isBot);
       });
     });
-    
+
     addBotMethod("restart", (call) {
       bot.restart();
     });
@@ -260,16 +260,16 @@ class PluginCommunicator {
         });
       }
     });
-    
+
     addBotMethod("getChannelBuffer", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       call.reply(Buffer.get("${network}${channel}").map((it) {
         return it.toData();
       }).toList());
     });
-    
+
     addBotMethod("appendChannelBuffer", (call) {
       var network = call.getArgument("network");
       var from = call.getArgument("from");
@@ -284,7 +284,7 @@ class PluginCommunicator {
       var user = call.getArgument('user');
       var target = call.getArgument('target');
       var notify = call.getArgument("notify", defaultValue: true);
-      
+
       bot[net].authManager.hasPermission(getPluginName(), user, node).then((bool has) {
         if (!has) {
           var b = bot[net];
@@ -295,24 +295,24 @@ class PluginCommunicator {
         call.reply(has);
       });
     });
-    
+
     addBotMethod("hasPermission", (call) {
       var plugin = call.getArgument("plugin");
       var node = call.getArgument("node");
       var network = call.getArgument("network");
       var user = call.getArgument("user");
-      
+
       bot[network].authManager.hasPermission(plugin, user, node).then((bool has) {
         call.reply(has);
       });
     });
-    
+
     addBotMethod("getUsername", (call) {
       var network = call.getArgument("network");
       var user = call.getArgument("user");
-    
+
       var b = bot[network];
-      
+
       if (b.authManager._authenticated.containsKey(user)) {
         call.reply(b.authManager._authenticated[user]);
       } else {
@@ -321,40 +321,40 @@ class PluginCommunicator {
         });
       }
     });
-    
+
     addBotMethod("isUserAway", (call) {
       var network = call.getArgument("network");
       var user = call.getArgument("user");
-    
+
       var b = bot[network];
-      
+
       b.client.whois(user).then((info) {
         call.reply(info.away);
       });
     });
-    
+
     addBotMethod("getRealName", (call) {
       var network = call.getArgument("network");
       var user = call.getArgument("user");
-    
+
       var b = bot[network];
-      
+
       b.client.whois(user).then((info) {
         call.reply(info.realname);
       });
     });
-    
+
     addBotMethod("getAwayMessage", (call) {
       var network = call.getArgument("network");
       var user = call.getArgument("user");
-    
+
       var b = bot[network];
-      
+
       b.client.whois(user).then((info) {
         call.reply(info.awayMessage);
       });
     });
-    
+
     addBotMethod("executeCommand", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
@@ -388,42 +388,42 @@ class PluginCommunicator {
         "topicUser": channel.topicUser
       });
     });
-    
+
     addBotMethod("isInChannel", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       call.reply(bot[network].client.channels.any((it) => it.name == channel));
     });
-    
+
     addBotMethod("changeBotNickname", (call) {
       var network = call.getArgument("network");
       var nick = call.getArgument("nickname");
-      
+
       bot[network].client.changeNickname(nick);
     }, isVoid: true);
-    
+
     addBotMethod("listChannels", (call) {
       var network = call.getArgument("network");
-      
+
       call.reply(bot[network].client.channels.map((it) => it.name).toList());
     });
-    
+
     addBotMethod("getChannelUsers", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       call.reply(bot[network].client.getChannel(channel).allUsers);
     });
-    
+
     addBotMethod("setChannelTopic", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
       var topic = call.getArgument("topic");
-      
+
       bot[network].client.setChannelTopic(channel, topic);
     }, isVoid: true);
-    
+
     addBotMethod("getChannelTopic", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
@@ -436,35 +436,35 @@ class PluginCommunicator {
     addBotMethod("getChannelMembers", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       call.reply(bot[network].client.getChannel(channel).members);
     });
-    
+
     addBotMethod("getChannelVoices", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       call.reply(bot[network].client.getChannel(channel).voices);
     });
-    
+
     addBotMethod("getChannelOps", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       call.reply(bot[network].client.getChannel(channel).ops);
     });
-    
+
     addBotMethod("getChannelOwners", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       call.reply(bot[network].client.getChannel(channel).owners);
     });
-    
+
     addBotMethod("getChannelHalfOps", (call) {
       var network = call.getArgument("network");
       var channel = call.getArgument("channel");
-      
+
       call.reply(bot[network].client.getChannel(channel).halfops);
     });
 
@@ -567,36 +567,36 @@ class PluginCommunicator {
 
       bot[network].client.sendAction(target, message);
     }, isVoid: true);
-    
+
     addBotMethod("emit", (call) {
       var e = call.getArgument("value");
-      
+
       pm.sendAll({
         "type": "event"
       }..addAll(e));
     }, isVoid: true);
-    
+
     addBotMethod("getMOTD", (call) {
       var network = call.getArgument("network");
-      
+
       call.reply(bot[network].client.motd);
     });
-    
+
     addBotMethod("getSupported", (call) {
       var network = call.getArgument("network");
-      
+
       call.reply(bot[network].client.supported);
     });
-    
+
     addBotMethod("getNetworkName", (call) {
       var network = call.getArgument("network");
-      
+
       call.reply(bot[network].client.networkName);
     });
-    
+
     addBotMethod("isConnected", (call) {
       var network = call.getArgument("network");
-      
+
       call.reply(bot[network].client.connected);
     });
 
@@ -647,11 +647,11 @@ class PluginCommunicator {
 
       bot[network].client.part(channel);
     }, isVoid: true);
-    
+
     addBotMethod("isUserOn", (call) {
       var network = call.getArgument("network");
       var user = call.getArgument("user");
-      
+
       bot[network].client.isUserOn(user).then((isOn) {
         call.reply(isOn);
       });
@@ -688,9 +688,9 @@ class PluginCommunicator {
         var completer = new Completer();
         futures.add(completer.future);
         var it = bot._clients[botname];
-        it.client.register((IRC.DisconnectEvent event) {
+        it.client.pollEvent(IRC.DisconnectEvent).then((_) {
           completer.complete();
-        }, once: true);
+        });
         it.client.disconnect();
       }
 
@@ -706,7 +706,7 @@ class PluginCommunicator {
   }
 
   Completer _completer;
-  
+
   void _checkInitialized() {
     var names = handler.pm.plugins.toList();
     if (names.every((x) => _initialized.contains(x))) {
@@ -720,9 +720,9 @@ class PluginCommunicator {
       }
     }
   }
-  
+
   List<String> _initialized = [];
-  
+
   void _handleRequests() {
     pm.listenAllRequest((plugin, request) {
       if (_methods.containsKey(request.command)) {

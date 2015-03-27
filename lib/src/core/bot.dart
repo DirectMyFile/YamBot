@@ -13,9 +13,9 @@ class Bot {
   final Map<String, dynamic> config;
 
   bool get isSlackBot => config["slack"];
-  
+
   Map<String, TimedEntry<String>> _usernameCache = {};
-  
+
   /**
    * The client which manages the IRC connections and data.
    */
@@ -33,36 +33,36 @@ class Bot {
     if (!config.containsKey("channels")) {
       config["channels"] = [];
     }
-    
+
     if (!config.containsKey("ssl")) {
       config["ssl"] = false;
     }
-    
+
     if (!config.containsKey("slack")) {
       config["slack"] = false;
     }
-    
+
     if (!config.containsKey("token")) {
       config["token"] = null;
-      
+
       if (isSlackBot) {
         print("[${network}] Slack Token not configured.");
         exit(1);
       }
     }
-    
+
     if (!config.containsKey("username")) {
       config["username"] = "Polymorphic";
     }
-    
+
     if (!config.containsKey("allowInvalidCertificate")) {
       config["allowInvalidCertificate"] = false;
     }
-    
+
     if (!config.containsKey("port")) {
       config["port"] = config["ssl"] ? 6697 : 6667;
     }
-    
+
     if (!config.containsKey("prefixes")) {
       config["prefixes"] = {
         "default": config.containsKey("prefix") ? config["prefix"] : "."
@@ -72,7 +72,7 @@ class Bot {
     if (isSlackBot) {
       config["nickname"] = config["nickname"].toString().toLowerCase();
     }
-    
+
     var botConfig = new IRC.Configuration();
     botConfig.nickname = config['nickname'];
     botConfig.realname = config['realname'];
@@ -82,7 +82,7 @@ class Bot {
     botConfig.ssl = config["ssl"];
     botConfig.bindHost = config["bindhost"];
     botConfig.allowInvalidCertificates = config["allowInvalidCertificate"];
-    
+
     _client = new IRC.Client(botConfig);
 
     _registerRawHandler();
@@ -95,10 +95,10 @@ class Bot {
       if (config["server_password"] != null) {
         event.client.send("PASS ${config["server_password"]}");
       }
-      
+
       Globals.analytics.sendEvent("irc", "connect", label: "IRC Connect");
     });
-    
+
     client.register((IRC.CTCPEvent event) {
       if (event.message.trim().toUpperCase() == "ARE YOU A BOT") {
         client.sendCTCP(event.user, "I AM A BOT");
@@ -110,20 +110,20 @@ class Bot {
         _botMemory[event.now] = _botMemory[event.original];
         _botMemory.remove(event.original);
       }
-      
+
       if (_usernameCache.containsKey(event.original)) {
         _usernameCache[event.now] =_usernameCache[event.original];
         _usernameCache.remove(event.original);
       }
     });
-    
+
     client.register((IRC.DisconnectEvent event) {
       Buffer.clearNetwork(network);
       print("[${network}] Disconnected");
-      
+
       Globals.analytics.sendEvent("irc", "disconnect", label: "IRC Disconnect");
     });
-    
+
     if (isSlackBot) {
       slack = new SlackClient(config["token"]);
     }
@@ -155,9 +155,10 @@ class Bot {
       return new Future.value(false);
     }
 
-    client.register((IRC.MessageEvent event) {
+    client.onMessage.where((it) => it.from == user && it.channel == "#bot-communication" && e.message == "${client.nickname}: I AM A BOT.").first.then((_) {
       isBot = true;
-    }, filter: (IRC.MessageEvent e) => e.from != user || e.channel != "#bot-communication" || e.message != "${client.nickname}: I AM A BOT.", once: true);
+    });
+
     client.sendMessage("#bot-communication", "${user}: ARE YOU A BOT?");
 
     return new Future.delayed(new Duration(seconds: 2), () {
@@ -171,7 +172,7 @@ class Bot {
       client.register((IRC.LineSentEvent event) {
         print("[${network}] << ${event.line}");
       });
-      
+
       client.register((IRC.LineReceiveEvent event) {
         print("[$network] >> ${event.line}");
       });
@@ -183,7 +184,7 @@ class Bot {
       if (config['owner'] != null) {
         client.identify(username: config['owner'], password: config['password'], nickserv: config['nickserv'] != null ? config['nickserv'] : "NickServ");
       }
-      
+
       print("[$network] Bot is Ready");
       for (var chan in config["channels"]) {
         event.join(chan);
@@ -194,10 +195,10 @@ class Bot {
       }
     });
   }
-  
+
   Future<String> getUsername(String nick) async {
     String username;
-    
+
     if (!_usernameCache.containsKey(nick)) {
       username = (await client.whois(nick)).username;
       _usernameCache[nick] = new TimedEntry<String>(username).start(120000, () {
@@ -206,54 +207,54 @@ class Bot {
     } else {
       username = _usernameCache[nick].value;
     }
-    
+
     return username;
   }
-  
+
   void _registerJoinPartHandlers() {
     client.register((IRC.JoinEvent event) {
       if (event.channel == null) return;
-      
+
       if (event.channel.name == "#bot-communication") {
         return;
       }
-      
+
       print("[${network}] <${event.channel.name}> ${event.user} joined");
     });
-    
+
     client.register((IRC.PartEvent event) {
       if (event.channel == null) return;
 
       if (event.channel.name == "#bot-communication") {
         return;
       }
-      
+
       print("[${network}] <${event.channel.name}> ${event.user} left");
     });
-    
+
     client.register((IRC.QuitPartEvent event) {
       if (event.channel == null) return;
 
       if (event.channel.name == "#bot-communication") {
         return;
       }
-      
+
       print("[${network}] <${event.channel.name}> ${event.user} quit");
     });
-    
+
     client.register((IRC.BotJoinEvent event) {
       if (event.channel.name == "#bot-communication") {
         return;
       }
-      
+
       print("[${network}] Joined ${event.channel.name}");
     });
-    
+
     client.register((IRC.BotPartEvent event) {
       if (event.channel.name == "#bot-communication") {
         return;
       }
-      
+
       print("[${network}] Left ${event.channel.name}");
     });
   }
@@ -261,9 +262,9 @@ class Bot {
   void _registerMessageHandler() {
     client.register((IRC.MessageEvent event) {
       Globals.analytics.sendEvent("irc", "message", label: "IRC Message");
-      
+
       if (event.isPrivate) return;
-      
+
       var prefixes = getPrefixes(event.channel.name);
 
       if (prefixes == null) {
@@ -286,9 +287,9 @@ class Bot {
 
         client.post(new IRC.CommandEvent(event, command, parts));
       }
-      
+
       BotMetrics.messagesMetric.value++;
-      
+
       var from = event.from;
       var msg = event.message;
 
@@ -322,13 +323,13 @@ class Bot {
       }
 
       var cleanMsg = Polymorphic.DisplayHelpers.clean(msg);
-      
+
       if (event.isPrivate) {
         print("[$network] <$from> ${cleanMsg}");
       } else {
         print("[$network] <${event.channel.name}><$from> ${cleanMsg}");
       }
-      
+
       new Future.delayed(new Duration(milliseconds: 500), () {
         Buffer.handle(network, event, limit: config.containsKey("buffer_limit") ? config["buffer_limit"] : 30);
       });
@@ -536,7 +537,7 @@ class Bot {
       });
     }, filter: (e) => e.command != "reload");
   }
-  
+
   void destroy() {
     if (client != null) {
       client.disconnect();
@@ -560,7 +561,7 @@ class BufferEntry {
 
     return new BufferEntry(network, target, user, message);
   }
-  
+
   Map toData() => {
     "network": network,
     "target": target,
@@ -575,7 +576,7 @@ class Buffer {
   int _limit;
   List<BufferEntry> messages = [];
   int _tracker = 0;
-  
+
   Buffer([this._limit = 30]);
 
   void _handle(BufferEntry entry) {
@@ -628,7 +629,7 @@ class Buffer {
     var buf = buffers[name];
     if (buf != null) buf.messages.clear();
   }
-  
+
   static void clearNetwork(String name) {
     for (var k in buffers.keys.where((it) => it.startsWith("${name}#"))) {
       clear(k);
