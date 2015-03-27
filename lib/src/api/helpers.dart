@@ -36,9 +36,9 @@ class DisplayHelpers {
 
   /**
    * Returns true if [input] fits in a single message.
-   * 
+   *
    * Equivalent to:
-   * 
+   *
    * ```dart
    * return input.length <= 40;
    * ```
@@ -98,7 +98,7 @@ class DisplayHelpers {
 
     return cleanFormatting(buff.toString());
   }
-  
+
   static String cleanFormatting(String input) {
     var length = input.length;
 		var buff = new StringBuffer();
@@ -239,6 +239,8 @@ dynamic parseJSON(String input, {Type type}) {
     var out = JSON.decode(input);
     if (out is Map) {
       out = new SimpleMap(out);
+    } else if (out is List) {
+      out = new _ListWrapper.wrap(out);
     }
     return out;
   }
@@ -278,6 +280,8 @@ Future<dynamic> fetchJSON(String url, {String transform(String input), Map<Strin
         type: type);
     if (out is Map) {
       out = new SimpleMap(out);
+    } else if (out is List) {
+      out = new _ListWrapper.wrap(out);
     }
     return out;
   });
@@ -293,7 +297,15 @@ Future<dynamic> fetchYAML(String url, {String transform(String input), Map<Strin
       throw new HttpError("failed to fetch YAML", response.statusCode, response.body);
     }
 
-    return yaml.loadYaml(transform != null ? transform(response.body) : response.body);
+    var out = yaml.loadYaml(transform != null ? transform(response.body) : response.body);
+
+    if (out is Map) {
+      out = new SimpleMap(out);
+    } else if (out is List) {
+      out = new _ListWrapper.wrap(out);
+    }
+
+    return out;
   });
 }
 
@@ -310,9 +322,11 @@ Future<dynamic> postJSON(String url, dynamic body, {Map<String, String> headers:
     }
 
     var out = jsonx.decode(response.body, type: type);
-    
+
     if (out is Map) {
       out = new SimpleMap(out);
+    } else if (out is List) {
+      out = new _ListWrapper.wrap(out);
     }
     return out;
   });
@@ -453,7 +467,7 @@ class MessagePen {
 
   @override
   String toString() => _content;
-  
+
   String end() => toString();
 }
 
