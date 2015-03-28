@@ -10,37 +10,37 @@ class CommandEvent {
    * The Bot
    */
   final BotConnector bot;
-  
+
   /**
    * Network
    */
   final String network;
-  
+
   /**
    * Command
    */
   final String command;
-  
+
   /**
    * Message
    */
   final String message;
-  
+
   /**
    * User
    */
   final String user;
-  
+
   /**
    * Channel
    */
   final String channel;
-  
+
   /**
    * Username of User
    */
   final String username;
-  
+
   /**
    * Command Arguments
    */
@@ -50,7 +50,7 @@ class CommandEvent {
   bool _randomize;
 
   CommandEvent(this.bot, this.network, this.command, this.message, this.user, this.channel, this.args, this.username, {bool randomize: false}) : _randomize = randomize;
-  
+
   /**
    * Sends [message] as a message to [channel] on [network].
    *
@@ -85,7 +85,7 @@ class CommandEvent {
   void require(String permission, void handle()) {
     bot.checkPermission(network, channel, user, permission).run(handle);
   }
-  
+
   /**
    * Handle Sub Commands
    */
@@ -93,20 +93,20 @@ class CommandEvent {
     if (args == null) {
       args = this.args;
     }
-    
+
     if (args.isEmpty) {
       usage();
       return null;
     }
-    
+
     var cmd = args[0];
     var cargs = new List<String>.from(args)..removeAt(0);
-    
+
     if (!handlers.keys.contains(cmd)) {
       usage();
       return null;
     }
-    
+
     return handlers[cmd](cargs);
   }
 
@@ -116,7 +116,7 @@ class CommandEvent {
   String joinArgs([String sep = " "]) {
     return args.join(sep);
   }
-  
+
   String joinArguments([String sep = " "]) => joinArgs(sep);
 
   bool get hasArguments => args.isNotEmpty;
@@ -130,46 +130,47 @@ class CommandEvent {
   void usage() {
     var cmd = bot._myCommands.firstWhere((it) => it.name == command);
     var usage = "";
-    
+
     if (cmd.usage != null && cmd.usage.isNotEmpty) {
       usage = cmd.usage;
-      
+
       if (!usage.startsWith(command)) {
         usage = " " + usage;
       }
     }
-    
+
     var needCmd = !usage.startsWith(command);
     var buff = new StringBuffer();
-    
+
     if (_prefix == null) {
       buff.write("> ");
     }
-    
+
     buff.write("Usage: ");
-    
+
     if (needCmd) {
       buff.write(command);
       if (usage != null) {
         buff.write(" ");
       }
     }
-    
+
     if (usage != null) {
       buff.write(usage);
     }
-    
+
     reply(buff.toString());
   }
-  
+
   void executeCommand(String command, [List<String> args = const []]) {
     bot.executeCommand(network, channel, user, command, args);
   }
-  
-  dynamic chooseAtRandom(List<dynamic> list) {
+
+  dynamic chooseAtRandom(Iterable iterator) {
+    var list = iterator.toList();
     return list[new Random().nextInt(list.length)];
   }
-  
+
   List<String> copyArguments() => new List<String>.from(args);
   List<String> dropArguments(int x) {
     var a = copyArguments();
@@ -178,18 +179,18 @@ class CommandEvent {
     }
     return a;
   }
-  
+
   String dropJoinArguments(int x, [String sep = " "]) {
     return dropArguments(x).join(sep);
   }
-  
+
   Future<String> getChannelTopic() => bot.getChannelTopic(network, channel);
   void setChannelTopic(String topic) => bot.setChannelTopic(network, channel, topic);
-  
+
   Future<BufferEntry> getLastChannelMessage() {
     return getChannelBuffer().then((entries) => entries.first);
   }
-  
+
   Future<String> getLastCommand([bool userOnly = true]) {
     return bot.plugin.callMethod("getLastCommand", {
       "network": network,
@@ -197,7 +198,7 @@ class CommandEvent {
       "not": command
     }..addAll(userOnly ? { "user": user } : {}));
   }
-  
+
   Future<List<BufferEntry>> getChannelBuffer() => bot.getChannelBuffer(network, channel);
 
   /**
@@ -207,7 +208,7 @@ class CommandEvent {
     if (user == null) {
       user = username != null ? username : this.user;
     }
-    
+
     return bot.getUserMetadata(network, channel, user, channelSpecific: channelSpecific);
   }
 
@@ -217,7 +218,7 @@ class CommandEvent {
   StorageContainer getChannelMetadata() {
     return bot.getChannelMetadata(network, channel);
   }
-  
+
   /**
    * Sends [input] as a message to [user] on [network] as a notice.
    *
@@ -226,7 +227,7 @@ class CommandEvent {
    */
   void replyNotice(String input, {bool prefix, String prefixContent}) {
     var msgs = input.split("\n");
-    
+
     for (var message in msgs) {
       var wasPrefixed = false;
 
@@ -246,13 +247,13 @@ class CommandEvent {
       bot.sendNotice(network, user, message);
     }
   }
-  
+
   /**
    * Replies with the output from [transformer].
    */
   void transform(transformer(String input), {prefix: false, bool notice: false}) {
     var p = null;
-    
+
     if (prefix == true || (prefix != null && prefix is String)) {
       p = prefix == true ? bot.plugin.displayName : prefix;
     }
@@ -261,18 +262,18 @@ class CommandEvent {
       usage();
       return;
     }
-    
+
     new Future.value(transformer(joinArgs())).then((value) {
       if (value == null) return;
-      
+
       (notice ? replyNotice : reply)(value, prefix: p);
     });
   }
-  
+
   Future<UserInfo> whois() {
     return bot.getUserInfo(network, user);
   }
-  
+
   Future<Channel> getChannel() {
     return bot.getChannel(network, channel);
   }
@@ -288,7 +289,7 @@ class CommandEvent {
 
     if (msg is NoArgumentFunction) {
       this << msg();
-    } else if (msg is List) {
+    } else if (msg is Iterable) {
       if (_randomize) {
         this << chooseAtRandom(msg);
       } else {
@@ -346,7 +347,7 @@ class CommandEvent {
         });
         return;
       }
-    } else if (msg is List) {
+    } else if (msg is Iterable) {
       if (_randomize) {
         this << chooseAtRandom(msg);
       } else {
