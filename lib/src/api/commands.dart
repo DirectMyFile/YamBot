@@ -49,7 +49,10 @@ class CommandEvent {
   String _prefix;
   bool _randomize;
 
-  CommandEvent(this.bot, this.network, this.command, this.message, this.user, this.channel, this.args, this.username, {bool randomize: false}) : _randomize = randomize;
+  CommandEvent(
+    this.bot,
+    this.network,
+    this.command, this.message, this.user, this.channel, this.args, this.username, {bool randomize: false}) : _randomize = randomize;
 
   /**
    * Sends [message] as a message to [channel] on [network].

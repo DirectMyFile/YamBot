@@ -28,11 +28,11 @@ class PluginHandler {
       BotMetrics.pluginsMetric.value = plugins.length.toDouble();
       print("[Plugin Manager] Registered: ${plugins.join(", ")}");
       _communicator.handle();
-      
+
       if (plugins.isEmpty) {
         return null;
       }
-      
+
       return _communicator._completer.future.then((_) { // Ensures Plugins are initialized.
         return plugins;
       });
@@ -85,22 +85,22 @@ class PluginHandler {
               if (x is! analyzer.ExportDirective) {
                 return false;
               }
-    
+
               var uri = analyzer.stringLiteralToString(x.uri);
-    
+
               if (uri != "package:polymorphic_bot/plugin.dart") {
                 return false;
               }
-    
+
               return true;
             });
-            
+
             if (!doesExportPlugin) {
               debug(() => print("[Plugin Manager] Warning: ${pluginName}.dart does not provide an export."));
-              
+
               var lines = new List<String>.from(content.split("\n"));
               var exporter = 'export "package:polymorphic_bot/plugin.dart";';
-  
+
               if (!unit.directives.any((x) => x is analyzer.ImportDirective)) {
                 lines.insert(0, exporter);
                 content = lines.join("\n");
@@ -112,11 +112,11 @@ class PluginHandler {
                 content = chars.join();
               }
             }
-            
+
             var visitor = new ConstantValuesVisitor();
 
             unit.visitChildren(visitor);
-            
+
             var data = visitor.values;
             var botDir = new File.fromUri(Platform.script).parent.parent;
             var deps = EnvironmentUtils.isCompiled() ? {
@@ -143,14 +143,53 @@ class PluginHandler {
               }
             }
 
-            pluginName = findData(["pluginName", "plugin_name", "PLUGIN_NAME"], pluginName);
-            deps.addAll(findData(["dependencies", "DEPENDENCIES", "pluginDependencies", "pluginDeps", "deps", "plugin_dependencies"], {}));
-            displayName = findData(["displayName", "pluginDisplayName", "plugin_display_name", "DISPLAY_NAME", "PLUGIN_DISPLAY_NAME"], pluginName);
-            updateDependencies = findData(["updateDependencies", "update_dependencies", "runPubUpgrade", "UPDATE_DEPENDENCIES"], false);
-            conflicts = findData(["PLUGIN_CONFLICTS", "conflicts", "CONFLICTS"], []);
-            provides = findData(["PLUGIN_PROVIDES", "provides", "PROVIDES"], []);
+            pluginName = findData([
+              "pluginName",
+              "plugin_name",
+              "PLUGIN_NAME"
+            ], pluginName);
+
+            deps.addAll(findData([
+              "dependencies",
+              "DEPENDENCIES",
+              "pluginDependencies",
+              "pluginDeps",
+              "deps",
+              "plugin_dependencies"
+            ], {}));
+
+            displayName = findData([
+              "displayName",
+              "pluginDisplayName",
+              "plugin_display_name",
+              "DISPLAY_NAME",
+              "PLUGIN_DISPLAY_NAME"
+            ], pluginName);
+
+            updateDependencies = findData([
+              "updateDependencies",
+              "update_dependencies",
+              "runPubUpgrade",
+              "UPDATE_DEPENDENCIES"
+            ], false);
+
+            conflicts = findData([
+              "PLUGIN_CONFLICTS",
+              "conflicts",
+              "CONFLICTS"
+            ], []);
+
+            provides = findData([
+              "PLUGIN_PROVIDES",
+              "provides",
+              "PROVIDES"
+            ], []);
 
             if (bot.config["ignore_scripts"] != null && bot.config["ignore_scripts"].contains(pluginName)) {
+              return new Future.value();
+            }
+
+            if (bot.config["scripts"] != null && !bot.config["scripts"].contains(pluginName)) {
               return new Future.value();
             }
 
@@ -218,7 +257,7 @@ class PluginHandler {
             print("[Plugin Manager] ${pluginName} is elevated.");
             _elevatedPlugins.add(pluginName);
           }
-          
+
           var depnames = (pubspec["dependencies"].keys.where((it) {
             var x = pubspec["dependencies"][it];
             if (x is Map && x.containsKey("path")) {
@@ -232,7 +271,7 @@ class PluginHandler {
           if (!packagesDirectory.existsSync() || !depnames.every((it) => new Directory("${packagesDirectory.path}/${it}").existsSync())) {
             /* Execute 'pub get' */
             print("[Plugin Manager] Fetching dependencies for plugin '${pluginName}'");
-            
+
             f = f.then((_) {
               return ProcessUtils.execute(Platform.isWindows ? "pub.bat" : "pub", ["get"], workingDirectory: entity);
             }).then((result) {
