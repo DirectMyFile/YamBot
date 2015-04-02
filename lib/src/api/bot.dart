@@ -72,8 +72,8 @@ class BotConnector {
    * [user] is the user to change it on.
    * [channel] is the channel to change it on.
    */
-  void mode(String network, String mode, {String user, String channel}) {
-    plugin.callMethod("mode", {
+  void setMode(String network, String mode, {String user, String channel}) {
+    plugin.callMethod("setMode", {
       "network": network,
       "mode": mode,
       "user": user,
@@ -85,70 +85,70 @@ class BotConnector {
    * Ops [user] in [channel] on [network].
    */
   void op(String network, String channel, String user) {
-    mode(network, "+o", channel: channel, user: user);
+    setMode(network, "+o", channel: channel, user: user);
   }
 
   /**
    * Deops [user] in [channel] on [network].
    */
   void deop(String network, String channel, String user) {
-    mode(network, "-o", channel: channel, user: user);
+    setMode(network, "-o", channel: channel, user: user);
   }
 
   /**
    * Voices [user] in [channel] on [network].
    */
   void voice(String network, String channel, String user) {
-    mode(network, "+v", channel: channel, user: user);
+    setMode(network, "+v", channel: channel, user: user);
   }
 
   /**
    * Devoices [user] in [channel] on [network].
    */
   void devoice(String network, String channel, String user) {
-    mode(network, "-v", channel: channel, user: user);
+    setMode(network, "-v", channel: channel, user: user);
   }
 
   /**
    * HalfOps [user] in [channel] on [network].
    */
   void halfOp(String network, String channel, String user) {
-    mode(network, "+h", channel: channel, user: user);
+    setMode(network, "+h", channel: channel, user: user);
   }
 
   /**
    * DeHalfOps [user] in [channel] on [network].
    */
   void dehalfOp(String network, String channel, String user) {
-    mode(network, "-h", channel: channel, user: user);
+    setMode(network, "-h", channel: channel, user: user);
   }
 
   /**
    * Owners [user] in [channel] on [network].
    */
   void owner(String network, String channel, String user) {
-    mode(network, "+q", channel: channel, user: user);
+    setMode(network, "+q", channel: channel, user: user);
   }
 
   /**
    * Deowners [user] in [channel] on [network].
    */
   void deowner(String network, String channel, String user) {
-    mode(network, "-q", channel: channel, user: user);
+    setMode(network, "-q", channel: channel, user: user);
   }
 
   /**
    * Quiets [user] in [channel] on [network].
    */
   void quiet(String network, String channel, String user) {
-    mode(network, "+q", channel: channel, user: user);
+    setMode(network, "+q", channel: channel, user: user);
   }
 
   /**
    * Unquiets [user] in [channel] on [network].
    */
   void unquiet(String network, String channel, String user) {
-    mode(network, "-q", channel: channel, user: user);
+    setMode(network, "-q", channel: channel, user: user);
   }
 
   StorageContainer getUserMetadata(String network, String channel, String user, {bool channelSpecific: false}) {
@@ -175,7 +175,7 @@ class BotConnector {
    * Bans [user] in [channel] on [network].
    */
   void ban(String network, String channel, String user) {
-    mode(network, "+b", channel: channel, user: user);
+    setMode(network, "+b", channel: channel, user: user);
   }
 
   /**
@@ -190,7 +190,7 @@ class BotConnector {
    * Unbans [user] in [channel] on [network].
    */
   void unban(String network, String channel, String user) {
-    mode(network, "-b", channel: channel, user: user);
+    setMode(network, "-b", channel: channel, user: user);
   }
 
   void restart() {

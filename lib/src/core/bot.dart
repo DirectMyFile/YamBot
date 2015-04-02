@@ -155,7 +155,11 @@ class Bot {
       return new Future.value(false);
     }
 
-    client.onMessage.where((it) => it.from == user && it.channel == "#bot-communication" && e.message == "${client.nickname}: I AM A BOT.").first.then((_) {
+    client.onMessage.where((it) =>
+      it.from == user &&
+      it.channel == "#bot-communication" &&
+      it.message == "${client.nickname}: I AM A BOT."
+    ).first.then((_) {
       isBot = true;
     });
 
@@ -608,7 +612,6 @@ class Buffer {
     if (buf == null) return <BufferEntry>[];
 
     var list = buf.messages;
-    var tracker = buf._tracker;
 
     List<BufferEntry> newList = [];
 

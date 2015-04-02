@@ -512,7 +512,7 @@ class PluginCommunicator {
       bot[network].client.kick(bot[network].client.getChannel(channel), user, reason);
     });
 
-    addBotMethod("mode", (call) {
+    addBotMethod("setMode", (call) {
       var user = call.getArgument("user");
       var channel = call.getArgument("channel");
       var network = call.getArgument("network");
@@ -520,15 +520,15 @@ class PluginCommunicator {
 
       if (channel == null) {
         if (user != null) {
-          bot[network].client.mode(mode, user: user);
+          bot[network].client.setMode(mode, user: user);
         } else {
-          bot[network].client.mode(mode);
+          bot[network].client.setMode(mode);
         }
       } else {
         if (user != null) {
-          bot[network].client.getChannel(channel).mode(mode, user);
+          bot[network].client.getChannel(channel).setMode(mode, user);
         } else {
-          bot[network].client.getChannel(channel).mode(mode);
+          bot[network].client.getChannel(channel).setMode(mode);
         }
       }
     }, isVoid: true);
@@ -764,14 +764,13 @@ class PluginCommunicator {
 }
 
 class TimedEntry<T> {
-
-  Timer _timer;
+  Timer timer;
   final T value;
 
   TimedEntry(this.value);
 
   TimedEntry<T> start(int dur, void handleTimeout()) {
-    _timer = new Timer(new Duration(seconds: dur), handleTimeout);
+    timer = new Timer(new Duration(seconds: dur), handleTimeout);
     return this;
   }
 }
