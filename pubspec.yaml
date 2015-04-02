@@ -22,5 +22,10 @@ dependencies:
 dev_dependencies:
   unittest: ">=0.11.5+4 <0.12.0"
   grinder: ">=0.6.6+3 <0.7.0"
+dependency_overrides:
+  event_dispatcher:
+    git:
+      url: https://github.com/kaendfinger/event_dispatcher.dart.git
+      ref: fix
 executables:
   polymorphic:
