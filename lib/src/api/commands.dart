@@ -136,10 +136,6 @@ class CommandEvent {
 
     if (cmd.usage != null && cmd.usage.isNotEmpty) {
       usage = cmd.usage;
-
-      if (!usage.startsWith(command)) {
-        usage = " " + usage;
-      }
     }
 
     var needCmd = !usage.startsWith(command);
