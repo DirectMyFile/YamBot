@@ -1050,8 +1050,13 @@ class BotConnector {
       }
 
       if (permission != null) {
+        var c = new Completer();
         event.require(permission, () {
-          return handler(event);
+          c.complete(handler(event));
+        });
+
+        return c.future.timeout(new Duration(seconds: 5), onTimeout: () {
+          return null;
         });
       } else {
         return handler(event);
