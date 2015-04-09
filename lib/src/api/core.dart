@@ -352,7 +352,7 @@ class Plugin {
           } else {
             return c.invoke([e]);
           }
-        }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description, allowVariables: c.metadata.allowVariables, randomize: c.metadata.randomize);
+        }, permission: c.metadata.permission, usage: c.metadata.usage, description: c.metadata.description, allowVariables: c.metadata.allowVariables, randomize: c.metadata.randomize, notice: c.metadata.notice);
       }
 
       for (var handler in handlers) {
