@@ -23,7 +23,7 @@ class PluginCommunicator {
 
     var server = await HttpServer.bind(host, port);
 
-    server.listen((request) {
+    server.listen((HttpRequest request) {
       var segments = request.uri.pathSegments;
 
       if (segments.length >= 2 && (["plugin", "p", "script", "scripts", "endpoints"].contains(segments[0])) && _httpPorts.containsKey(segments[1])) {
@@ -33,7 +33,14 @@ class PluginCommunicator {
           ..removeAt(0)
           ..removeAt(0);
         var path = "/" + segs.join("/");
-        HttpHelper.forward(request, Uri.parse("http://${InternetAddress.ANY_IP_V4.address}:${_httpPorts[name]}${path}"));
+        var target = request.uri.replace(
+          scheme: "http",
+          host: InternetAddress.ANY_IP_V4.address,
+          port: _httpPorts[name],
+          path: path
+        );
+
+        HttpHelper.forward(request, target);
         return;
       }
 
