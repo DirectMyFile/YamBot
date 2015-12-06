@@ -583,6 +583,16 @@ class PluginCommunicator {
       }..addAll(e));
     }, isVoid: true);
 
+    addBotMethod("fakeMessage", (call) {
+      var e = call.getArgument("value");
+      var network = e["network"];
+      var user = e["user"];
+      var target = e["target"];
+      var message = e["message"];
+      var event = new IRC.MessageEvent(bot[network].client, user, target, message);
+      bot[network].client.post(event);
+    });
+
     addBotMethod("getMOTD", (call) {
       var network = call.getArgument("network");
 

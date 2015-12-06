@@ -1072,6 +1072,17 @@ class BotConnector {
     plugin.callMethod("emit", map);
   }
 
+  sendFakeMessage(String network, String user, String target, String message) async {
+    var e = {
+      "network": network,
+      "user": user,
+      "target": target,
+      "message": message
+    };
+
+    await plugin.callMethod("fakeMessage", e);
+  }
+
   Future<String> getMOTD(String network) {
     return plugin.callMethod("getMOTD", {
       "network": network
@@ -1141,7 +1152,7 @@ class BotConnector {
           username,
           randomize: randomize
         );
-        
+
         var result = handler(event);
 
         if (notice) {
